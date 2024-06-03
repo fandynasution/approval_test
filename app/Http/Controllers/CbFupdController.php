@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Crypt;
@@ -118,6 +119,7 @@ class CbFupdController extends Controller
 
     public function update($status, $encrypt, $reason)
     {
+        Artisan::call('config:cache');
         $data = Crypt::decrypt($encrypt);
 
         $descstatus = " ";
@@ -170,5 +172,6 @@ class CbFupdController extends Controller
             "image" => $image
         );
         return view("email.after", $msg1);
+        Artisan::call('config:cache');
     }
 }

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Crypt;
@@ -14,46 +15,46 @@ use DateTime;
 
 class CmEntryController extends Controller
 {
-    public function processModule($data)
+    public function Mail(Request $request)
     {
-        $contract_amt = number_format( $data["contract_amt"] , 2 , '.' , ',' );
-        $auth_vo = number_format( $data["auth_vo"] , 2 , '.' , ',' );
+        $contract_amt = number_format( $request->contract_amt , 2 , '.' , ',' );
+        $auth_vo = number_format( $request->auth_vo , 2 , '.' , ',' );
 
-        $list_of_approve = explode('; ',  $data["approve_exist"]);
+        $list_of_approve = explode('; ',  $request->approve_exist);
         $approve_data = [];
         foreach ($list_of_approve as $approve) {
             $approve_data[] = $approve;
         }
 
         $dataArray = array(
-            'sender'        => $data["sender"],
-            'sender_addr'   => $data["sender_addr"],
-            'entity_name'   => $data["entity_name"],
-            'descs'         => $data["descs"],
-            'url_link'      => $data["url_link"],
-            'works_descs'   => $data["works_descs"],
-            'user_name'     => $data["user_name"],
-            'module'        => $data["module"],
-            'contract_no'   => $data["contract_no"],
+            'sender'        => $request->sender,
+            'sender_addr'   => $request->sender_addr,
+            'entity_name'   => $request->entity_name,
+            'descs'         => $request->descs,
+            'url_link'      => $request->url_link,
+            'works_descs'   => $request->works_descs,
+            'user_name'     => $request->user_name,
+            'module'        => $request->module,
+            'contract_no'   => $request->contract_no,
             'contract_amt'  => $contract_amt,
             'auth_vo'       => $auth_vo,
             'approve_list'  => $approve_data,
-            'clarify_user'  => $data['clarify_user'],
-            'clarify_email' => $data['clarify_email'],
-            'body'          => "Please approve Contract Entry No. ".$data['doc_no']." for ".$data["descs"],
-            'subject'       => "Need Approval for Contract Entry No.  ".$data['doc_no'],
+            'clarify_user'  => $request->clarify_user,
+            'clarify_email' => $request->clarify_email,
+            'body'          => "Please approve Contract Entry No. ".$request->doc_no." for ".$request->descs,
+            'subject'       => "Need Approval for Contract Entry No.  ".$request->doc_no,
         );
 
         $data2Encrypt = array(
-            'entity_cd'     => $data["entity_cd"],
-            'project_no'    => $data["project_no"],
-            'email_address' => $data["email_addr"],
-            'level_no'      => $data["level_no"],
-            'doc_no'        => $data["doc_no"],
-            'ref_no'        => $data["ref_no"],
-            'usergroup'     => $data["usergroup"],
-            'user_id'       => $data["user_id"],
-            'supervisor'    => $data["supervisor"],
+            'entity_cd'     => $request->entity_cd,
+            'project_no'    => $request->project_no,
+            'email_address' => $request->email_addr,
+            'level_no'      => $request->level_no,
+            'doc_no'        => $request->doc_no,
+            'ref_no'        => $request->ref_no,
+            'usergroup'     => $request->usergroup,
+            'user_id'       => $request->user_id,
+            'supervisor'    => $request->supervisor,
             'type'          => 'E',
             'type_module'   => 'CM',
             'text'          => 'Contract Entry'
@@ -65,9 +66,9 @@ class CmEntryController extends Controller
         $encryptedData = Crypt::encrypt($data2Encrypt);
     
         try {
-            $emailAddresses = strtolower($data["email_addr"]);
-            $doc_no = $data["doc_no"];
-            $entity_cd = $data["entity_cd"];
+            $emailAddresses = strtolower($request->email_addr);
+            $doc_no = $request->doc_no;
+            $entity_cd = $request->entity_cd;
         
             // Check if email addresses are provided and not empty
             if (!empty($emailAddresses)) {
@@ -99,9 +100,124 @@ class CmEntryController extends Controller
         }
     }
 
-    public function update($status, $encrypt, $reason)
+    public function processData($status='', $encrypt='')
     {
+        Artisan::call('config:cache');
+        $cacheKey = 'processData_' . $encrypt;
+
+        // Check if the data is already cached
+        if (Cache::has($cacheKey)) {
+            // If cached data exists, clear it
+            Cache::forget($cacheKey);
+        }
+
+        Log::info('Starting database query execution for processData');
         $data = Crypt::decrypt($encrypt);
+        
+        $msg = " ";
+        $msg1 = " ";
+        $notif = " ";
+        $st = " ";
+        $image = " ";
+
+        Log::info('Decrypted data: ' . json_encode($data));
+
+        $where = array(
+            'doc_no'        => $data["doc_no"],
+            'status'        => array("A","R","C"),
+            'entity_cd'     => $data["entity_cd"],
+            'level_no'      => $data["level_no"],
+            'type'          => $data["type"],
+            'module'        => $data["type_module"],
+        );
+
+        $query = DB::connection('BTID')
+        ->table('mgr.cb_cash_request_appr')
+        ->where($where)
+        ->get();
+
+        Log::info('First query result: ' . json_encode($query));
+
+        $where2 = array(
+            'doc_no'        => $data["doc_no"],
+            'status'        => 'P',
+            'entity_cd'     => $data["entity_cd"],
+            'level_no'      => $data["level_no"],
+            'type'          => $data["type"],
+            'module'        => $data["type_module"],
+        );
+
+        $query2 = DB::connection('BTID')
+        ->table('mgr.cb_cash_request_appr')
+        ->where($where2)
+        ->get();
+
+        Log::info('Second query result: ' . json_encode($query2));
+
+        $cacheValue = "cached"; // Or any other indicator value
+        $expirationTime = now()->addHours(5); // Example expiration time: cache for one hour
+        Cache::put($cacheKey, $cacheValue, $expirationTime);
+            
+
+        if (count($query)>0) {
+            $msg = 'You Have Already Made a Request to Contract Entry No. '.$data["doc_no"] ;
+            $notif = 'Restricted !';
+            $st  = 'OK';
+            $image = "double_approve.png";
+            $msg1 = array(
+                "Pesan" => $msg,
+                "St" => $st,
+                "notif" => $notif,
+                "image" => $image
+            );
+            return view("email.after", $msg1);
+        } else if (count($query2) == 0){
+            $msg = 'There is no Contract Entry with No. '.$data["doc_no"] ;
+            $notif = 'Restricted !';
+            $st  = 'OK';
+            $image = "double_approve.png";
+            $msg1 = array(
+                "Pesan" => $msg,
+                "St" => $st,
+                "notif" => $notif,
+                "image" => $image
+            );
+            return view("email.after", $msg1);
+        } else {
+            $name   = " ";
+            $bgcolor = " ";
+            $valuebt  = " ";
+            if ($status == 'A') {
+                $name   = 'Approval';
+                $bgcolor = '#40de1d';
+                $valuebt  = 'Approve';
+            } else if ($status == 'R') {
+                $name   = 'Revision';
+                $bgcolor = '#f4bd0e';
+                $valuebt  = 'Revise';
+            } else {
+                $name   = 'Cancellation';
+                $bgcolor = '#e85347';
+                $valuebt  = 'Cancel';
+            }
+            $dataArray = Crypt::decrypt($encrypt);
+            $data = array(
+                "status"    => $status,
+                "encrypt"   => $encrypt,
+                "name"      => $name,
+                "bgcolor"   => $bgcolor,
+                "valuebt"   => $valuebt
+            );
+            return view('email/cmentry/passcheckwithremark', $data);
+            Artisan::call('config:cache');
+        }
+    }
+
+    public function update(Request $request)
+    {
+        $data = Crypt::decrypt($request->encrypt);
+
+        $status = $request->status;
 
         $descstatus = " ";
         $imagestatus = " ";

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Crypt;
@@ -60,6 +61,7 @@ class PoRequestController extends Controller
             'clarify_email' => $data["clarify_email"],
             'req_hd_descs'  => $data["req_hd_descs"],
             'req_hd_no'     => $data["req_hd_no"],
+            'curr_cd'       => $data["curr_cd"],
             'total_price'   => $formattedNumber,
             'url_file'      => $url_data,
             'file_name'     => $file_data,

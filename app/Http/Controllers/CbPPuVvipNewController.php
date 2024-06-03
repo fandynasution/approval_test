@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Crypt;
@@ -58,6 +59,7 @@ class CbPPuVvipNewController extends Controller
             'descs'         => $request->descs,
             'user_name'     => $request->user_name,
             'reason'        => $request->reason,
+            "doc_link"      => $request->document_link,
             'pay_to'        => $request->pay_to,
             'forex'         => $request->forex,
             'ppu_amt'       => $ppu_amt,
@@ -125,6 +127,7 @@ class CbPPuVvipNewController extends Controller
 
     public function processData($status='', $encrypt='')
     {
+        Artisan::call('config:cache');
         $cacheKey = 'processData_' . $encrypt;
 
         // Check if the data is already cached
@@ -233,6 +236,7 @@ class CbPPuVvipNewController extends Controller
                 "valuebt"   => $valuebt
             );
             return view('email/cbppuvvip/passcheckwithremark', $data);
+            Artisan::call('config:cache');
         }
     }
 

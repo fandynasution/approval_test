@@ -59,7 +59,7 @@
                         <tbody>
                             <tr>
                                 <td style="text-align: center; padding-bottom:25px">
-                                    <img width = "120" src="{{ url('public/images/KuraKuraBali-logo.jpg') }}" alt="logo">
+                                    <img width = "120" src="{{ url('public/images/KURAKURABALI_LOGO.jpg') }}" alt="logo">
                                         <p style="font-size: 16px; color: #026735; padding-top: 0px;">{{ $dataArray['entity_name'] }}</p>
                                 </td>
                             </tr>
@@ -95,6 +95,25 @@
                                             <a href="{{ $url_file }}" target="_blank">{{ $dataArray['file_name'][$key] }}</a><br>
                                         @endif
                                     @endforeach
+                    
+                                    @if($hasAttachment)
+                                        </p>
+                                    @endif
+
+                                    @php
+                                        $hasAttachment = false;
+                                    @endphp
+                    
+                                        @if($dataArray['doc_link'] !== '' && $dataArray['doc_link'] !== 'EMPTY')
+                                            @if(!$hasAttachment)
+                                                @php
+                                                    $hasAttachment = true;
+                                                @endphp
+                                                <p style="text-align:left; margin-bottom: 15px; color: #000000; font-size: 16px;">
+                                                    <span>This request to purchase comes with additional supporting documents, such as detailed specifications, that you can access from the link below :</span><br>
+                                            @endif
+                                            <a href="{{ $dataArray['doc_link'] }}" target="_blank">{{ $dataArray['doc_link'] }}</a><br>
+                                        @endif
                     
                                     @if($hasAttachment)
                                         </p>

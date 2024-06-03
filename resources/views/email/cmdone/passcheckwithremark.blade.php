@@ -29,7 +29,7 @@
                         <tbody>
                             <tr>
                                 <td style="text-align: center; padding-bottom:25px">
-                                    <img width = "120" src="{{ url('public/images/KuraKuraBali-logo.jpg') }}" alt="logo">
+                                    <img width = "120" src="{{ url('public/images/KURAKURABALI_LOGO.jpg') }}" alt="logo">
                                     <p style="font-size: 16px; color: #026735; padding-top: 0px;">PT. BALI TURTLE ISLAND DEVELOPMENT</p>
                                 </td>
                             </tr>
@@ -43,8 +43,8 @@
                                     <p>Do you want to {{ $valuebt }} this request ?</p>
                                     <form id="frmEditor" class="form-horizontal" method="POST" action="{{ url('/api/cmdone/getaccess') }}" enctype="multipart/form-data">
                                     @csrf
-                                    <input type="text" id="status" name="status" value="<?php echo $status?>">
-                                    <input type="text" id="encrypt" name="encrypt" value="<?php echo $encrypt?>">
+                                    <input type="text" id="status" name="status" value="<?php echo $status?>" hidden>
+                                    <input type="text" id="encrypt" name="encrypt" value="<?php echo $encrypt?>" hidden>
                                     <?php if ($status != 'A'): ?>
                                         <?php if ($status == 'R'): ?>
                                             <p>Please provide the reasons for requesting this revision</p>

@@ -59,7 +59,7 @@
                         <tbody>
                             <tr>
                                 <td style="text-align: center; padding-bottom:25px">
-                                    <img width = "120" src="{{ url('public/images/KuraKuraBali-logo.jpg') }}" alt="logo">
+                                    <img width = "120" src="{{ url('public/images/KURAKURABALI_LOGO.jpg') }}" alt="logo">
                                         <p style="font-size: 16px; color: #026735; padding-top: 0px;">{{ $dataArray['entity_name'] }}</p>
                                 </td>
                             </tr>
@@ -72,13 +72,13 @@
                                     <h5 style="text-align:left;margin-bottom: 24px; color: #000000; font-size: 20px; font-weight: 400; line-height: 28px;">Dear {{ $dataArray['user_name'] }}, </h5>
                                     <p style="text-align:left;margin-bottom: 15px; color: #000000; font-size: 16px;">Below is a Contract Progress that requires your approval :</p>
                                     <p style="text-align:left; margin-bottom: 15px; margin-top: 0; color: #000000; font-size: 16px; list-style-type: circle;">
-                                        <b>{{ $dataArray['descs'] }}</b><br>
+                                        <b>Contract No. :{{ $dataArray['contract_desc'] }}</b><br>
                                         With a total amount of IDR {{ $dataArray['amount'] }}<br>
                                         and Previous Progress amount of IDR {{ $dataArray['prev_progress_amt'] }}<br>
                                         on Current Progress on : {{ $dataArray['curr_progress'] }}%<br>
                                         and Previous Progress on : {{ $dataArray['prev_progress'] }}%<br>
                                         Progress No.: {{ $dataArray['progress_no'] }}<br>
-                                        Surveyor : {{ $dataArray['surveyor'] }}<br>
+                                        Progress : {{ $dataArray['surveyor'] }}<br>
                                     </p>
 
                                     @php
@@ -101,16 +101,31 @@
                                     @if($hasAttachment)
                                         </p>
                                     @endif
-                                                
+
+                                    @php
+                                        $hasAttachment = false;
+                                    @endphp
+
+                                    @if($dataArray['url_link'] !== '' && $dataArray['url_link'] !== 'EMPTY')
+                                        @if(strpos($dataArray['url_link'], 'http://') === 0 || strpos($dataArray['url_link'], 'https://') === 0)
+                                            @if(!$hasAttachment)
+                                                @php
+                                                    $hasAttachment = true;
+                                                @endphp
+                                                <p style="text-align:left; margin-bottom: 15px; color: #000000; font-size: 16px;">
+                                                    <span>To view a detailed Progress, please click on the link below :</span><br>
+                                            @endif
+                                            <a href="{{ $dataArray['url_link'] }}" target="_blank">{{ $dataArray['url_link'] }}</a><br>
+                                        @endif
+                                    @endif
+
+                                    @if($hasAttachment)
+                                        </p>
+                                    @endif
                                     
-                                    <p style="text-align:left; margin-bottom: 15px; color: #000000; font-size: 16px;">
-                                        <span>This request to purchase comes with additional supporting documents, such as detailed specifications, that you can access from the link below :</span><br>
-                                        <a href="{{ $dataArray['url_link'] }}" target="_blank">{{ $dataArray['progress_no'] }}</a><br>
-                                    </p>
-                                    
-                                    <a href="{{ url('api') }}/processdata/{{ $dataArray['module'] }}/A/{{ $encryptedData }}" style="display: inline-block; font-size: 13px; font-weight: 600; line-height: 20px; text-align: center; text-decoration: none; text-transform: uppercase; padding: 10px 40px; background-color: #1ee0ac; border-radius: 4px; color: #ffffff;">Approve</a>
-                                    <a href="{{ url('api') }}/processdata/{{ $dataArray['module'] }}/R/{{ $encryptedData }}" style="display: inline-block; font-size: 13px; font-weight: 600; line-height: 20px; text-align: center; text-decoration: none; text-transform: uppercase; padding: 10px 40px; background-color: #f4bd0e; border-radius: 4px; color: #ffffff;">Revise</a>
-                                    <a href="{{ url('api') }}/processdata/{{ $dataArray['module'] }}/C/{{ $encryptedData }}" style="display: inline-block; font-size: 13px; font-weight: 600; line-height: 20px; text-align: center; text-decoration: none; text-transform: uppercase; padding: 10px 40px; background-color: #e85347; border-radius: 4px; color: #ffffff;">Reject</a>
+                                    <a href="{{ url('api') }}/cmprogress/A/{{ $encryptedData }}" style="display: inline-block; font-size: 13px; font-weight: 600; line-height: 20px; text-align: center; text-decoration: none; text-transform: uppercase; padding: 10px 40px; background-color: #1ee0ac; border-radius: 4px; color: #ffffff;">Approve</a>
+                                    <a href="{{ url('api') }}/cmprogress/R/{{ $encryptedData }}" style="display: inline-block; font-size: 13px; font-weight: 600; line-height: 20px; text-align: center; text-decoration: none; text-transform: uppercase; padding: 10px 40px; background-color: #f4bd0e; border-radius: 4px; color: #ffffff;">Revise</a>
+                                    <a href="{{ url('api') }}/cmprogress/C/{{ $encryptedData }}" style="display: inline-block; font-size: 13px; font-weight: 600; line-height: 20px; text-align: center; text-decoration: none; text-transform: uppercase; padding: 10px 40px; background-color: #e85347; border-radius: 4px; color: #ffffff;">Reject</a>
                                     <br>
                                     <p style="text-align:left;margin-bottom: 15px; color: #000000; font-size: 16px;">
                                         In case you need some clarification, kindly approach : <br>

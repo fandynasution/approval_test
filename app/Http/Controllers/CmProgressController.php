@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Crypt;
@@ -14,26 +15,26 @@ use DateTime;
 
 class CmProgressController extends Controller
 {
-    public function processModule($data)
+    public function Mail(Request $request)
     {
 
-        $curr_progress = number_format( $data["curr_progress"] , 2 , '.' , ',' );
+        $curr_progress = number_format( $request->curr_progress , 2 , '.' , ',' );
 
-        $prev_progress = number_format( $data["prev_progress"] , 2 , '.' , ',' );
+        $prev_progress = number_format( $request->prev_progress , 2 , '.' , ',' );
 
-        $amount = number_format( $data["amount"] , 2 , '.' , ',' );
+        $amount = number_format( $request->amount , 2 , '.' , ',' );
 
-        $prev_progress_amt = number_format( $data["prev_progress_amt"] , 2 , '.' , ',' );
+        $prev_progress_amt = number_format( $request->prev_progress_amt , 2 , '.' , ',' );
 
-        $list_of_approve = explode('; ',  $data["approve_exist"]);
+        $list_of_approve = explode('; ',  $request->approve_exist);
         
         $approve_data = [];
         foreach ($list_of_approve as $approve) {
             $approve_data[] = $approve;
         }
 
-        $list_of_urls = explode(',', $data["url_file"]);
-        $list_of_files = explode(',', $data["file_name"]);
+        $list_of_urls = explode(',', $request->url_file);
+        $list_of_files = explode(',', $request->file_name);
 
         $url_data = [];
         $file_data = [];
@@ -47,40 +48,41 @@ class CmProgressController extends Controller
         }
 
         $dataArray = array(
-            'sender'            => $data["sender"],
-            'entity_name'       => $data["entity_name"],
-            'descs'             => $data["descs"],
-            'user_name'         => $data["user_name"],
-            'progress_no'       => $data["progress_no"],
-            "surveyor"			=> $data["surveyor"],
-            'url_link'          => $data["url_link"],
+            'sender'            => $request->sender,
+            'entity_name'       => $request->entity_name,
+            'descs'             => $request->descs,
+            'user_name'         => $request->user_name,
+            'progress_no'       => $request->progress_no,
+            "surveyor"			=> $request->surveyor,
+            'url_link'          => $request->url_link,
+            "contract_desc"		=> $request->contract_desc,
             'curr_progress'     => $curr_progress,
             'amount'            => $amount,
             'prev_progress'     => $prev_progress,
             'prev_progress_amt' => $prev_progress_amt,
-            'contract_no'       => $data["contract_no"],
-            'entity_name'       => $data["entity_name"],
-            'module'            => $data["module"],
+            'contract_no'       => $request->contract_no,
+            'entity_name'       => $request->entity_name,
+            'module'            => $request->module,
             'approve_list'      => $approve_data,
             'url_file'          => $url_data,
             'file_name'         => $file_data,
-            'clarify_user'      => $data['clarify_user'],
-            'clarify_email'     => $data['clarify_email'],
-            'sender_addr'       => $data['sender_addr'],
-            'body'              => "Please approve Contract Progress No. ".$data['doc_no']." for ".$data["descs"],
-            'subject'           => "Need Approval for Contract Progress No.  ".$data['doc_no'],
+            'clarify_user'      => $request->clarify_user,
+            'clarify_email'     => $request->clarify_email,
+            'sender_addr'       => $request->sender_addr,
+            'body'              => "Please approve Contract Progress No. ".$request->doc_no." for ".$request->descs,
+            'subject'           => "Need Approval for Contract Progress No.  ".$request->doc_no,
         );
 
         $data2Encrypt = array(
-            'entity_cd'     => $data["entity_cd"],
-            'project_no'    => $data["project_no"],
-            'email_address' => $data["email_addr"],
-            'level_no'      => $data["level_no"],
-            'doc_no'        => $data["doc_no"],
-            'ref_no'        => $data["ref_no"],
-            'usergroup'     => $data["usergroup"],
-            'user_id'       => $data["user_id"],
-            'supervisor'    => $data["supervisor"],
+            'entity_cd'     => $request->entity_cd,
+            'project_no'    => $request->project_no,
+            'email_address' => $request->email_addr,
+            'level_no'      => $request->level_no,
+            'doc_no'        => $request->doc_no,
+            'ref_no'        => $request->ref_no,
+            'usergroup'     => $request->usergroup,
+            'user_id'       => $request->user_id,
+            'supervisor'    => $request->supervisor,
             'type'          => 'A',
             'type_module'   => 'CM',
             'text'          => 'Contract Progress'
@@ -92,9 +94,9 @@ class CmProgressController extends Controller
         $encryptedData = Crypt::encrypt($data2Encrypt);
     
         try {
-            $emailAddresses = strtolower($data["email_addr"]);
-            $doc_no = $data["doc_no"];
-            $entity_cd = $data["entity_cd"];
+            $emailAddresses = strtolower($request->email_addr);
+            $doc_no = $request->doc_no;
+            $entity_cd = $request->entity_cd;
         
             // Check if email addresses are provided and not empty
             if (!empty($emailAddresses)) {
@@ -126,9 +128,124 @@ class CmProgressController extends Controller
         }
     }
 
-    public function update($status, $encrypt, $reason)
+    public function processData($status='', $encrypt='')
     {
+        Artisan::call('config:cache');
+        $cacheKey = 'processData_' . $encrypt;
+
+        // Check if the data is already cached
+        if (Cache::has($cacheKey)) {
+            // If cached data exists, clear it
+            Cache::forget($cacheKey);
+        }
+
+        Log::info('Starting database query execution for processData');
         $data = Crypt::decrypt($encrypt);
+        
+        $msg = " ";
+        $msg1 = " ";
+        $notif = " ";
+        $st = " ";
+        $image = " ";
+
+        Log::info('Decrypted data: ' . json_encode($data));
+
+        $where = array(
+            'doc_no'        => $data["doc_no"],
+            'status'        => array("A","R","C"),
+            'entity_cd'     => $data["entity_cd"],
+            'level_no'      => $data["level_no"],
+            'type'          => $data["type"],
+            'module'        => $data["type_module"],
+        );
+
+        $query = DB::connection('BTID')
+        ->table('mgr.cb_cash_request_appr')
+        ->where($where)
+        ->get();
+
+        Log::info('First query result: ' . json_encode($query));
+
+        $where2 = array(
+            'doc_no'        => $data["doc_no"],
+            'status'        => 'P',
+            'entity_cd'     => $data["entity_cd"],
+            'level_no'      => $data["level_no"],
+            'type'          => $data["type"],
+            'module'        => $data["type_module"],
+        );
+
+        $query2 = DB::connection('BTID')
+        ->table('mgr.cb_cash_request_appr')
+        ->where($where2)
+        ->get();
+
+        Log::info('Second query result: ' . json_encode($query2));
+
+        $cacheValue = "cached"; // Or any other indicator value
+        $expirationTime = now()->addHours(5); // Example expiration time: cache for one hour
+        Cache::put($cacheKey, $cacheValue, $expirationTime);
+            
+
+        if (count($query)>0) {
+            $msg = 'You Have Already Made a Request to Contract Progress No. '.$data["doc_no"] ;
+            $notif = 'Restricted !';
+            $st  = 'OK';
+            $image = "double_approve.png";
+            $msg1 = array(
+                "Pesan" => $msg,
+                "St" => $st,
+                "notif" => $notif,
+                "image" => $image
+            );
+            return view("email.after", $msg1);
+        } else if (count($query2) == 0){
+            $msg = 'There is no Contract Progress with No. '.$data["doc_no"] ;
+            $notif = 'Restricted !';
+            $st  = 'OK';
+            $image = "double_approve.png";
+            $msg1 = array(
+                "Pesan" => $msg,
+                "St" => $st,
+                "notif" => $notif,
+                "image" => $image
+            );
+            return view("email.after", $msg1);
+        } else {
+            $name   = " ";
+            $bgcolor = " ";
+            $valuebt  = " ";
+            if ($status == 'A') {
+                $name   = 'Approval';
+                $bgcolor = '#40de1d';
+                $valuebt  = 'Approve';
+            } else if ($status == 'R') {
+                $name   = 'Revision';
+                $bgcolor = '#f4bd0e';
+                $valuebt  = 'Revise';
+            } else {
+                $name   = 'Cancellation';
+                $bgcolor = '#e85347';
+                $valuebt  = 'Cancel';
+            }
+            $dataArray = Crypt::decrypt($encrypt);
+            $data = array(
+                "status"    => $status,
+                "encrypt"   => $encrypt,
+                "name"      => $name,
+                "bgcolor"   => $bgcolor,
+                "valuebt"   => $valuebt
+            );
+            return view('email/cmprogress/passcheckwithremark', $data);
+            Artisan::call('config:cache');
+        }
+    }
+
+    public function update(Request $request)
+    {
+        $data = Crypt::decrypt($request->encrypt);
+
+        $status = $request->status;
 
         $descstatus = " ";
         $imagestatus = " ";

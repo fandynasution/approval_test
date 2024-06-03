@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Crypt;
@@ -57,6 +58,7 @@ class PurchaseSelectionController extends Controller
             'url_file'      => $url_data,
             'file_name'     => $file_data,
             'approve_list'  => $approve_data,
+            'curr_cd'       => $request->curr_cd,
             'total_amt'     => $total_amt,
             'clarify_user'  => $request->clarify_user,
             'clarify_email' => $request->clarify_email,
@@ -118,6 +120,7 @@ class PurchaseSelectionController extends Controller
 
     public function processData($status='', $encrypt='')
     {
+        Artisan::call('config:cache');
         $cacheKey = 'processData_' . $encrypt;
 
         // Check if the data is already cached
@@ -224,6 +227,7 @@ class PurchaseSelectionController extends Controller
                 "valuebt"   => $valuebt
             );
             return view('email/pos/passcheckwithremark2', $data);
+            Artisan::call('config:cache');
         }
     }
 

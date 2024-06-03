@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Crypt;
@@ -24,6 +25,7 @@ class MailDataController extends Controller
 
     public function processData($module='', $status='', $encrypt='')
     {
+        Artisan::call('config:cache');
         $cacheKey = 'processData_' . $encrypt;
 
         // Check if the data is already cached
@@ -133,6 +135,7 @@ class MailDataController extends Controller
                 "valuebt"   => $valuebt
             );
             return view('email/passcheckwithremark', $data);
+            Artisan::call('config:cache');
         }
     }
 

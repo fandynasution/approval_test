@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Crypt;
@@ -34,8 +35,8 @@ class CmDoneController extends Controller
             'clarify_user'      => $request->clarify_user,
             'clarify_email'     => $request->clarify_email,
             'sender_addr'       => $request->sender_addr,
-            'body'              => "Please approve Contract Done No. ".$request->doc_no." for ".$request->descs,
-            'subject'           => "Need Approval for Contract Done No.  ".$request->doc_no,
+            'body'              => "Please approve Contract Complete No. ".$request->doc_no." for ".$request->descs,
+            'subject'           => "Need Approval for Contract Complete No.  ".$request->doc_no,
         );
 
         $data2Encrypt = array(
@@ -95,6 +96,7 @@ class CmDoneController extends Controller
 
     public function processData($status='', $encrypt='')
     {
+        Artisan::call('config:cache');
         $cacheKey = 'processData_' . $encrypt;
 
         // Check if the data is already cached
@@ -152,7 +154,7 @@ class CmDoneController extends Controller
             
 
         if (count($query)>0) {
-            $msg = 'You Have Already Made a Request to Contract Done No. '.$data["doc_no"] ;
+            $msg = 'You Have Already Made a Request to Contract Complete No. '.$data["doc_no"] ;
             $notif = 'Restricted !';
             $st  = 'OK';
             $image = "double_approve.png";
@@ -164,7 +166,7 @@ class CmDoneController extends Controller
             );
             return view("email.after", $msg1);
         } else if (count($query2) == 0){
-            $msg = 'There is no Contract Done with No. '.$data["doc_no"] ;
+            $msg = 'There is no Contract Complete with No. '.$data["doc_no"] ;
             $notif = 'Restricted !';
             $st  = 'OK';
             $image = "double_approve.png";
@@ -201,6 +203,7 @@ class CmDoneController extends Controller
                 "valuebt"   => $valuebt
             );
             return view('email/cmdone/passcheckwithremark', $data);
+            Artisan::call('config:cache');
         }
     }
 
@@ -243,12 +246,12 @@ class CmDoneController extends Controller
         $sth->bindParam(10, $reason);
         $sth->execute();
         if ($sth == true) {
-            $msg = "You Have Successfully ".$descstatus." the Contract Done No. ".$data["doc_no"];
+            $msg = "You Have Successfully ".$descstatus." the Contract Complete No. ".$data["doc_no"];
             $notif = $descstatus." !";
             $st = 'OK';
             $image = $imagestatus;
         } else {
-            $msg = "You Failed to ".$descstatus." the Contract Done No.".$data["doc_no"];
+            $msg = "You Failed to ".$descstatus." the Contract Complete No.".$data["doc_no"];
             $notif = 'Fail to '.$descstatus.' !';
             $st = 'OK';
             $image = "reject.png";

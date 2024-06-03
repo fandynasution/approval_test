@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Crypt;
@@ -51,6 +52,7 @@ class CbPpuVvipController extends Controller
             'url_file'      => $url_data,
             'file_name'     => $file_data,
             'entity_name'   => $data['entity_name'],
+            "doc_link"      => $data['document_link'],
             'descs'         => $data['descs'],
             'user_name'     => $data['user_name'],
             'reason'        => $data['reason'],
@@ -173,5 +175,6 @@ class CbPpuVvipController extends Controller
             "image" => $image
         );
         return view("email.after", $msg1);
+        Artisan::call('config:cache');
     }
 }

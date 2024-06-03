@@ -59,7 +59,7 @@
                         <tbody>
                             <tr>
                                 <td style="text-align: center; padding-bottom:25px">
-                                    <img width = "120" src="{{ url('public/images/KuraKuraBali-logo.jpg') }}" alt="logo">
+                                    <img width = "120" src="{{ url('public/images/KURAKURABALI_LOGO.jpg') }}" alt="logo">
                                         <p style="font-size: 16px; color: #026735; padding-top: 0px;">{{ $dataArray['entity_name'] }}</p>
                                 </td>
                             </tr>
@@ -74,7 +74,7 @@
                     
                                     <p style="text-align:left; margin-bottom: 15px; margin-top: 0; color: #000000; font-size: 16px; list-style-type: circle;">
                                         <b>{{ $dataArray['req_hd_descs'] }}</b><br>
-                                        With a total estimated amount of Rp {{ $dataArray['total_price'] }}<br>
+                                        With a total estimated amount of {{ $dataArray['curr_cd'] }} {{ $dataArray['total_price'] }}<br>
                                         RF No.: {{ $dataArray['req_hd_no'] }}<br>
                                     </p>
 

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Crypt;
@@ -53,6 +54,7 @@ class CbPpuController extends Controller
             'entity_name'   => $data['entity_name'],
             'descs'         => $data['descs'],
             'user_name'     => $data['user_name'],
+            "doc_link"      => $data['document_link'],
             'reason'        => $data['reason'],
             'pay_to'        => $data['pay_to'],
             'forex'         => $data['forex'],
@@ -121,6 +123,7 @@ class CbPpuController extends Controller
 
     public function update($status, $encrypt, $reason)
     {
+        Artisan::call('config:cache');
         $data = Crypt::decrypt($encrypt);
 
         $descstatus = " ";
@@ -173,5 +176,6 @@ class CbPpuController extends Controller
             "image" => $image
         );
         return view("email.after", $msg1);
+        Artisan::call('config:cache');
     }
 }

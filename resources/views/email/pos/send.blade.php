@@ -59,7 +59,7 @@
                         <tbody>
                             <tr>
                                 <td style="text-align: center; padding-bottom:25px">
-                                    <img width = "120" src="{{ url('public/images/KuraKuraBali-logo.jpg') }}" alt="logo">
+                                    <img width = "120" src="{{ url('public/images/KURAKURABALI_LOGO.jpg') }}" alt="logo">
                                         <p style="font-size: 16px; color: #026735; padding-top: 0px;">{{ $dataArray['entity_name'] }}</p>
                                 </td>
                             </tr>
@@ -76,7 +76,7 @@
                                         <b>{{ $dataArray['po_descs'] }}</b><br>
                                         From Supplier : {{ $dataArray['supplier_name'] }}<br>
                                         Quotation No.: {{ $dataArray['po_doc_no'] }}<br>
-                                        With a total amount of Rp {{ $dataArray['total_amt'] }}<br>
+                                        With a total amount of {{ $dataArray['curr_cd'] }} {{ $dataArray['total_amt'] }}<br>
                                         RF no : {{ $dataArray['ref_no'] }}<br>
                                     </p>
 
