@@ -3,6 +3,7 @@
 /public/storage
 /storage/*.key
 /storage/cachemail
+/app/Http/Controllers/StaffActionController.php
 /vendor
 .env
 .env.backup
