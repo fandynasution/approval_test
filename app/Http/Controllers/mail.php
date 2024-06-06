@@ -12,22 +12,12 @@ use Illuminate\Support\Facades\DB;
 
 class MailDataController extends Controller
 {
-    public function receive(Request $request)
-    {
-        $dataFromExternal = $request->all();
-        $module = $request->module;
-        $controllerName = 'App\\Http\\Controllers\\' . $module . 'Controller';
-        $methodName = 'processModule';
-        $controllerInstance = new $controllerName();
-        $result = $controllerInstance->$methodName($dataFromExternal);
-        return $result;
-    }
-
-    public function processData($module='', $status='', $encrypt='')
+    public function processData($status='', $encrypt='')
     {
         Artisan::call('config:cache');
         Artisan::call('cache:clear');
         Cache::flush();
+
         $cacheKey = 'processData_' . $encrypt;
 
         // Check if the data is already cached
@@ -36,7 +26,9 @@ class MailDataController extends Controller
             Cache::forget($cacheKey);
         }
 
-        Log::info('Starting database query execution for processData');
+        $query = 0;
+        $query2 = 0;
+        
         $data = Crypt::decrypt($encrypt);
 
         $msg = " ";
@@ -58,11 +50,11 @@ class MailDataController extends Controller
         $query = DB::connection('BTID')
         ->table('mgr.cb_cash_request_appr')
         ->where($where)
-        ->whereIn('status', array("A", "R", "C"))
+        ->whereIn('status', ["A", "R", "C"])
         ->get();
 
         Log::info('First query result: ' . json_encode($query));
-            
+
         if (count($query)>0) {
             $msg = 'You Have Already Made a Request to '.$data["text"].' No. '.$data["doc_no"] ;
             $notif = 'Restricted !';
@@ -126,43 +118,15 @@ class MailDataController extends Controller
                     "status"    => $status,
                     "doc_no"    => $dataArray["doc_no"],
                     "email"     => $dataArray["email_address"],
-                    "module"    => $module,
                     "encrypt"   => $encrypt,
                     "name"      => $name,
                     "bgcolor"   => $bgcolor,
                     "valuebt"   => $valuebt
                 );
-                return view('email/passcheckwithremark', $data);
+                return view('email/cbppunew/passcheckwithremark', $data);
                 Artisan::call('config:cache');
+                Artisan::call('cache:clear');
             }
-        }
-    }
-
-    public function getAccess(Request $request)
-    {
-        $dataFromExternal = $request->all();
-        $status = $request->status;
-        $encrypt= $request->encrypt;
-        $email=$request->email;
-        $module=$request->module;
-        $reason=$request->reason;
-        if (empty($request->reason)) {
-            $reason = '0';
-        }
-        try {
-            $controllerName = 'App\\Http\\Controllers\\' . $module . 'Controller';
-            $methodName = 'update';
-            $arguments = [$status, $encrypt, $reason];
-            $controllerInstance = new $controllerName();
-            $result = call_user_func_array([$controllerInstance, $methodName], $arguments);
-            return $result;
-
-        } catch (\Exception $e) {
-            $msg1 = array(
-                "Pesan" => "FAILED",
-                "image" => "reject.png"
-            );
-            return view("email.after", $msg1);
         }
     }
 }

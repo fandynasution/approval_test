@@ -124,6 +124,8 @@ class CbPpuController extends Controller
     public function update($status, $encrypt, $reason)
     {
         Artisan::call('config:cache');
+Artisan::call('cache:clear');
+        Cache::flush();
         $data = Crypt::decrypt($encrypt);
 
         $descstatus = " ";
@@ -177,5 +179,6 @@ class CbPpuController extends Controller
         );
         return view("email.after", $msg1);
         Artisan::call('config:cache');
+Artisan::call('cache:clear');
     }
 }

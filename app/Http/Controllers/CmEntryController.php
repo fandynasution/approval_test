@@ -103,6 +103,8 @@ class CmEntryController extends Controller
     public function processData($status='', $encrypt='')
     {
         Artisan::call('config:cache');
+        Artisan::call('cache:clear');
+        Cache::flush();
         $cacheKey = 'processData_' . $encrypt;
 
         // Check if the data is already cached
@@ -113,103 +115,93 @@ class CmEntryController extends Controller
 
         Log::info('Starting database query execution for processData');
         $data = Crypt::decrypt($encrypt);
-        
-        $msg = " ";
-        $msg1 = " ";
-        $notif = " ";
-        $st = " ";
-        $image = " ";
 
         Log::info('Decrypted data: ' . json_encode($data));
 
-        $where = array(
+        $where = [
             'doc_no'        => $data["doc_no"],
-            'status'        => array("A","R","C"),
             'entity_cd'     => $data["entity_cd"],
             'level_no'      => $data["level_no"],
             'type'          => $data["type"],
             'module'        => $data["type_module"],
-        );
+        ];
 
         $query = DB::connection('BTID')
-        ->table('mgr.cb_cash_request_appr')
-        ->where($where)
-        ->get();
+            ->table('mgr.cb_cash_request_appr')
+            ->where($where)
+            ->whereIn('status', ["A", "R", "C"])
+            ->get();
 
         Log::info('First query result: ' . json_encode($query));
 
-        $where2 = array(
-            'doc_no'        => $data["doc_no"],
-            'status'        => 'P',
-            'entity_cd'     => $data["entity_cd"],
-            'level_no'      => $data["level_no"],
-            'type'          => $data["type"],
-            'module'        => $data["type_module"],
-        );
-
-        $query2 = DB::connection('BTID')
-        ->table('mgr.cb_cash_request_appr')
-        ->where($where2)
-        ->get();
-
-        Log::info('Second query result: ' . json_encode($query2));
-
-        $cacheValue = "cached"; // Or any other indicator value
-        $expirationTime = now()->addHours(5); // Example expiration time: cache for one hour
-        Cache::put($cacheKey, $cacheValue, $expirationTime);
-            
-
-        if (count($query)>0) {
-            $msg = 'You Have Already Made a Request to Contract Entry No. '.$data["doc_no"] ;
-            $notif = 'Restricted !';
+        if (count($query) > 0) {
+            $msg = 'You Have Already Made a Request to Contract Entry No. ' . $data["doc_no"];
+            $notif = 'Restricted!';
             $st  = 'OK';
             $image = "double_approve.png";
-            $msg1 = array(
+            $msg1 = [
                 "Pesan" => $msg,
                 "St" => $st,
                 "notif" => $notif,
                 "image" => $image
-            );
-            return view("email.after", $msg1);
-        } else if (count($query2) == 0){
-            $msg = 'There is no Contract Entry with No. '.$data["doc_no"] ;
-            $notif = 'Restricted !';
-            $st  = 'OK';
-            $image = "double_approve.png";
-            $msg1 = array(
-                "Pesan" => $msg,
-                "St" => $st,
-                "notif" => $notif,
-                "image" => $image
-            );
+            ];
             return view("email.after", $msg1);
         } else {
-            $name   = " ";
-            $bgcolor = " ";
-            $valuebt  = " ";
-            if ($status == 'A') {
-                $name   = 'Approval';
-                $bgcolor = '#40de1d';
-                $valuebt  = 'Approve';
-            } else if ($status == 'R') {
-                $name   = 'Revision';
-                $bgcolor = '#f4bd0e';
-                $valuebt  = 'Revise';
+            $where2 = [
+                'doc_no'        => $data["doc_no"],
+                'status'        => 'P',
+                'entity_cd'     => $data["entity_cd"],
+                'level_no'      => $data["level_no"],
+                'type'          => $data["type"],
+                'module'        => $data["type_module"],
+            ];
+
+            $query2 = DB::connection('BTID')
+                ->table('mgr.cb_cash_request_appr')
+                ->where($where2)
+                ->get();
+
+            Log::info('Second query result: ' . json_encode($query2));
+
+            if (count($query2) == 0) {
+                $msg = 'There is no Contract Entry with No. ' . $data["doc_no"];
+                $notif = 'Restricted!';
+                $st  = 'OK';
+                $image = "double_approve.png";
+                $msg1 = [
+                    "Pesan" => $msg,
+                    "St" => $st,
+                    "notif" => $notif,
+                    "image" => $image
+                ];
+                return view("email.after", $msg1);
             } else {
-                $name   = 'Cancellation';
-                $bgcolor = '#e85347';
-                $valuebt  = 'Cancel';
+                $name   = " ";
+                $bgcolor = " ";
+                $valuebt  = " ";
+                if ($status == 'A') {
+                    $name   = 'Approval';
+                    $bgcolor = '#40de1d';
+                    $valuebt  = 'Approve';
+                } elseif ($status == 'R') {
+                    $name   = 'Revision';
+                    $bgcolor = '#f4bd0e';
+                    $valuebt  = 'Revise';
+                } else {
+                    $name   = 'Cancellation';
+                    $bgcolor = '#e85347';
+                    $valuebt  = 'Cancel';
+                }
+                $dataArray = Crypt::decrypt($encrypt);
+                $data = [
+                    "status"    => $status,
+                    "encrypt"   => $encrypt,
+                    "name"      => $name,
+                    "bgcolor"   => $bgcolor,
+                    "valuebt"   => $valuebt
+                ];
+                return view('email/cmentry/passcheckwithremark', $data);
             }
-            $dataArray = Crypt::decrypt($encrypt);
-            $data = array(
-                "status"    => $status,
-                "encrypt"   => $encrypt,
-                "name"      => $name,
-                "bgcolor"   => $bgcolor,
-                "valuebt"   => $valuebt
-            );
-            return view('email/cmentry/passcheckwithremark', $data);
-            Artisan::call('config:cache');
         }
     }
 

@@ -123,6 +123,8 @@ class CbPpuVvipController extends Controller
 
     public function update($status, $encrypt, $reason)
     {
+        Artisan::call('config:cache');
+        Artisan::call('cache:clear');
         $data = Crypt::decrypt($encrypt);
 
         $descstatus = " ";
@@ -176,5 +178,6 @@ class CbPpuVvipController extends Controller
         );
         return view("email.after", $msg1);
         Artisan::call('config:cache');
+        Artisan::call('cache:clear');
     }
 }
