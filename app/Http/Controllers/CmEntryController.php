@@ -34,6 +34,7 @@ class CmEntryController extends Controller
             'url_link'      => $request->url_link,
             'works_descs'   => $request->works_descs,
             'user_name'     => $request->user_name,
+            'approve_seq'   => $request->approve_seq,
             'module'        => $request->module,
             'contract_no'   => $request->contract_no,
             'contract_amt'  => $contract_amt,
@@ -67,28 +68,41 @@ class CmEntryController extends Controller
     
         try {
             $emailAddresses = strtolower($request->email_addr);
-            $doc_no = $request->doc_no;
+            $approve_seq = $request->approve_seq;
             $entity_cd = $request->entity_cd;
+            $doc_no = $request->doc_no;
+            $status = $request->status;
+            $level_no = $request->level_no;
         
             // Check if email addresses are provided and not empty
             if (!empty($emailAddresses)) {
-                $emails = is_array($emailAddresses) ? $emailAddresses : [$emailAddresses];
+                $email = $emailAddresses; // Since $emailAddresses is always a single email address (string)
                 
-                foreach ($emails as $email) {
-                    // Check if the email has been sent before for this document
-                    $cacheKey = 'email_sent_' . md5($doc_no . '_' . $entity_cd . '_' . $email);
-                    if (!Cache::has($cacheKey)) {
-                        // Send email
-                        Mail::to($email)->send(new SendCmEntryMail($encryptedData, $dataArray));
+                // Check if the email has been sent before for this document
+                $cacheFile = 'email_sent_' . $approve_seq . '_' . $entity_cd . '_' . $doc_no . '_' . $status . '_' . $level_no . '.txt';
+                $cacheFilePath = storage_path('app/mail_cache/send_cmentry/' . date('Ymd') . '/' . $cacheFile);
+                $cacheDirectory = dirname($cacheFilePath);
         
-                        // Mark email as sent
-                        Cache::store('mail_app')->put($cacheKey, true, now()->addHours(24));
-                    }
+                // Ensure the directory exists
+                if (!file_exists($cacheDirectory)) {
+                    mkdir($cacheDirectory, 0755, true);
                 }
-                
-                $sentTo = is_array($emailAddresses) ? implode(', ', $emailAddresses) : $emailAddresses;
-                Log::channel('sendmailapproval')->info('Email doc_no ' . $doc_no . ' Entity ' . $entity_cd . ' berhasil dikirim ke: ' . $sentTo);
-                return "Email berhasil dikirim ke: " . $sentTo;
+        
+                if (!file_exists($cacheFilePath)) {
+                    // Send email
+                    Mail::to($email)->send(new SendCmEntryMail($encryptedData, $dataArray));
+        
+                    // Mark email as sent
+                    file_put_contents($cacheFilePath, 'sent');
+        
+                    // Log the success
+                    Log::channel('sendmailfeedback')->info('Email CM Entry doc_no '.$doc_no.' Entity ' . $entity_cd.' berhasil dikirim ke: ' . $email);
+                    return 'Email berhasil dikirim ke: ' . $email;
+                } else {
+                    // Email was already sent
+                    Log::channel('sendmailfeedback')->info('Email CM Entry doc_no '.$doc_no.' Entity ' . $entity_cd.' already sent to: ' . $email);
+                    return 'Email has already been sent to: ' . $email;
+                }
             } else {
                 Log::channel('sendmail')->warning("Tidak ada alamat email yang diberikan");
                 Log::channel('sendmail')->info($doc_no);
@@ -98,6 +112,7 @@ class CmEntryController extends Controller
             Log::channel('sendmail')->error('Gagal mengirim email: ' . $e->getMessage());
             return "Gagal mengirim email: " . $e->getMessage();
         }
+        
     }
 
     public function processData($status='', $encrypt='')
