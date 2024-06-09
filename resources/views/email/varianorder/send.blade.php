@@ -75,6 +75,34 @@
                                         <b>{{ $dataArray['descs'] }}</b><br>
                                         
                                     </p>
+                                    <p style="text-align:left; margin-bottom: 15px; margin-top: 0; color: #000000; font-size: 16px; list-style-type: circle;">
+                                        <b>VO No. :{{ $dataArray['doc_no'] }}</b><br>
+                                        With a submisson amount of {{ $dataArray['curr_cd'] }} {{ $dataArray['vo_sub_amt'] }}<br>
+                                        and Approved amount of {{ $dataArray['curr_cd'] }} {{ $dataArray['vo_appr_amt'] }}<br>
+                                    </p>
+
+                                    @php
+                                        $hasAttachment = false;
+                                    @endphp
+                    
+                                    @foreach($dataArray['url_file'] as $key => $url_file)
+                                        @if($url_file !== '' && $dataArray['file_name'][$key] !== '' && $url_file !== 'EMPTY' && $dataArray['file_name'][$key] !== 'EMPTY')
+                                            @if(!$hasAttachment)
+                                                @php
+                                                    $hasAttachment = true;
+                                                @endphp
+                                                <p style="text-align:left; margin-bottom: 15px; color: #000000; font-size: 16px;">
+                                                    <span>To view a detailed request for this progress, please click on the link below :</span><br>
+                                            @endif
+                                            <a href="{{ $url_file }}" target="_blank">{{ $dataArray['file_name'][$key] }}</a><br>
+                                        @endif
+                                    @endforeach
+                    
+                                    @if($hasAttachment)
+                                        </p>
+                                    @endif
+
+
                                     <a href="{{ url('api') }}/varianorder/A/{{ $encryptedData }}" style="display: inline-block; font-size: 13px; font-weight: 600; line-height: 20px; text-align: center; text-decoration: none; text-transform: uppercase; padding: 10px 40px; background-color: #1ee0ac; border-radius: 4px; color: #ffffff;">Approve</a>
                                     <a href="{{ url('api') }}/varianorder/R/{{ $encryptedData }}" style="display: inline-block; font-size: 13px; font-weight: 600; line-height: 20px; text-align: center; text-decoration: none; text-transform: uppercase; padding: 10px 40px; background-color: #f4bd0e; border-radius: 4px; color: #ffffff;">Revise</a>
                                     <a href="{{ url('api') }}/varianorder/C/{{ $encryptedData }}" style="display: inline-block; font-size: 13px; font-weight: 600; line-height: 20px; text-align: center; text-decoration: none; text-transform: uppercase; padding: 10px 40px; background-color: #e85347; border-radius: 4px; color: #ffffff;">Reject</a>

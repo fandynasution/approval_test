@@ -92,7 +92,7 @@
                                                     $hasAttachment = true;
                                                 @endphp
                                                 <p style="text-align:left; margin-bottom: 15px; color: #000000; font-size: 16px;">
-                                                    <span>To view a detailed request for payment, please click on the link below :</span><br>
+                                                    <span>To view a detailed request for this progress, please click on the link below :</span><br>
                                             @endif
                                             <a href="{{ $url_file }}" target="_blank">{{ $dataArray['file_name'][$key] }}</a><br>
                                         @endif
@@ -106,16 +106,16 @@
                                         $hasAttachment = false;
                                     @endphp
 
-                                    @if($dataArray['url_link'] !== '' && $dataArray['url_link'] !== 'EMPTY')
-                                        @if(strpos($dataArray['url_link'], 'http://') === 0 || strpos($dataArray['url_link'], 'https://') === 0)
+                                    @if($dataArray['doc_link'] !== '' && $dataArray['doc_link'] !== 'EMPTY')
+                                        @if(strpos($dataArray['doc_link'], 'http://') === 0 || strpos($dataArray['doc_link'], 'https://') === 0)
                                             @if(!$hasAttachment)
                                                 @php
                                                     $hasAttachment = true;
                                                 @endphp
                                                 <p style="text-align:left; margin-bottom: 15px; color: #000000; font-size: 16px;">
-                                                    <span>To view a detailed Progress, please click on the link below :</span><br>
+                                                    <span>This request comes with additional supporting documents, such as detailed specifications, that you can access from the link below :</span><br>
                                             @endif
-                                            <a href="{{ $dataArray['url_link'] }}" target="_blank">{{ $dataArray['url_link'] }}</a><br>
+                                            <a href="{{ $dataArray['doc_link'] }}" target="_blank">{{ $dataArray['doc_link'] }}</a><br>
                                         @endif
                                     @endif
 

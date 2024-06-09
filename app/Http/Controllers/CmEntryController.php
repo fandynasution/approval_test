@@ -26,12 +26,26 @@ class CmEntryController extends Controller
             $approve_data[] = $approve;
         }
 
+        $list_of_urls = explode(',', $request->url_file);
+        $list_of_files = explode(',', $request->file_name);
+
+        $url_data = [];
+        $file_data = [];
+
+        foreach ($list_of_urls as $url) {
+            $url_data[] = $url;
+        }
+
+        foreach ($list_of_files as $file) {
+            $file_data[] = $file;
+        }
+
         $dataArray = array(
             'sender'        => $request->sender,
             'sender_addr'   => $request->sender_addr,
             'entity_name'   => $request->entity_name,
             'descs'         => $request->descs,
-            'url_link'      => $request->url_link,
+            'doc_link'      => $request->doc_link,
             'works_descs'   => $request->works_descs,
             'user_name'     => $request->user_name,
             'approve_seq'   => $request->approve_seq,
@@ -40,6 +54,8 @@ class CmEntryController extends Controller
             'contract_amt'  => $contract_amt,
             'auth_vo'       => $auth_vo,
             'approve_list'  => $approve_data,
+            'url_file'          => $url_data,
+            'file_name'         => $file_data,
             'clarify_user'  => $request->clarify_user,
             'clarify_email' => $request->clarify_email,
             'body'          => "Please approve Contract Entry No. ".$request->doc_no." for ".$request->descs,

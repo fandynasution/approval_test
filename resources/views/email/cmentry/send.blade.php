@@ -43,11 +43,47 @@
                                         Contact No.: {{ $dataArray['contract_no'] }}<br>
                                         Work Description : {{ $dataArray['works_descs'] }}<br>
                                     </p>
-                                    @if($dataArray['url_link'] !== '' && $dataArray['url_link'] !== 'EMPTY')
-                                    <p style="text-align:left; margin-bottom: 15px; color: #000000; font-size: 16px;">
-                                        <span>This request to purchase comes with additional supporting documents, such as detailed specifications, that you can access from the link below :</span><br>
-                                        <a href="{{ $dataArray['url_link'] }}" target="_blank">{{ $dataArray['url_link'] }}</a><br>
-                                    </p>
+
+                                    @php
+                                        $hasAttachment = false;
+                                    @endphp
+                    
+                                    @foreach($dataArray['url_file'] as $key => $url_file)
+                                        @if($url_file !== '' && $dataArray['file_name'][$key] !== '' && $url_file !== 'EMPTY' && $dataArray['file_name'][$key] !== 'EMPTY')
+                                            @if(!$hasAttachment)
+                                                @php
+                                                    $hasAttachment = true;
+                                                @endphp
+                                                <p style="text-align:left; margin-bottom: 15px; color: #000000; font-size: 16px;">
+                                                    <span>To view a detailed request for this progress, please click on the link below :</span><br>
+                                            @endif
+                                            <a href="{{ $url_file }}" target="_blank">{{ $dataArray['file_name'][$key] }}</a><br>
+                                        @endif
+                                    @endforeach
+                    
+                                    @if($hasAttachment)
+                                        </p>
+                                    @endif
+
+                                    @php
+                                        $hasAttachment = false;
+                                    @endphp
+
+                                    @if($dataArray['doc_link'] !== '' && $dataArray['doc_link'] !== 'EMPTY')
+                                        @if(strpos($dataArray['doc_link'], 'http://') === 0 || strpos($dataArray['doc_link'], 'https://') === 0)
+                                            @if(!$hasAttachment)
+                                                @php
+                                                    $hasAttachment = true;
+                                                @endphp
+                                                <p style="text-align:left; margin-bottom: 15px; color: #000000; font-size: 16px;">
+                                                    <span>This request comes with additional supporting documents, such as detailed specifications, that you can access from the link below :</span><br>
+                                            @endif
+                                            <a href="{{ $dataArray['doc_link'] }}" target="_blank">{{ $dataArray['doc_link'] }}</a><br>
+                                        @endif
+                                    @endif
+
+                                    @if($hasAttachment)
+                                        </p>
                                     @endif
 
 
