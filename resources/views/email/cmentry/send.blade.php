@@ -39,7 +39,7 @@
                                     <p style="text-align:left;margin-bottom: 15px; color: #000000; font-size: 16px;">Below is a Contract Entry that requires your approval :</p>
                                     <p style="text-align:left; margin-bottom: 15px; margin-top: 0; color: #000000; font-size: 16px; list-style-type: circle;">
                                         <b>{{ $dataArray['descs'] }}</b><br>
-                                        With a total amount of {{ $dataArray['contract_amt'] }}<br>
+                                        With a total amount of {{ $dataArray['curr_cd'] }} {{ $dataArray['contract_amt'] }}<br>
                                         Contact No.: {{ $dataArray['contract_no'] }}<br>
                                         Work Description : {{ $dataArray['works_descs'] }}<br>
                                     </p>

@@ -38,7 +38,8 @@ class VarianOrderController extends Controller
             $file_data[] = $file;
         }
 
-        
+        $vo_sub_amt = number_format($request->vo_sub_amt, 2, '.', ',');
+        $vo_appr_amt = number_format($request->vo_appr_amt, 2, '.', ',');
 
         $dataArray = array(
             'sender'            => $request->sender,
@@ -49,8 +50,8 @@ class VarianOrderController extends Controller
             'approve_seq'       => $request->approve_seq,
             'url_file'          => $url_data,
             'file_name'         => $file_data,
-            'vo_sub_amt'        => $request->vo_sub_amt,
-            'vo_appr_amt'       => $request->vo_appr_amt,
+            'vo_sub_amt'        => $vo_sub_amt,
+            'vo_appr_amt'       => $vo_appr_amt,
             'curr_cd'           => $request->curr_cd,
             'doc_no'            => $request->doc_no,
             'approve_list'      => $approve_data,

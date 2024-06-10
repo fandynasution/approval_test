@@ -53,6 +53,7 @@ class CmEntryController extends Controller
             'contract_no'   => $request->contract_no,
             'contract_amt'  => $contract_amt,
             'auth_vo'       => $auth_vo,
+            'curr_cd'       => $request->curr_cd,
             'approve_list'  => $approve_data,
             'url_file'          => $url_data,
             'file_name'         => $file_data,
