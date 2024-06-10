@@ -77,8 +77,7 @@
                                     </p>
                                     <p style="text-align:left; margin-bottom: 15px; margin-top: 0; color: #000000; font-size: 16px; list-style-type: circle;">
                                         <b>VO No. :{{ $dataArray['doc_no'] }}</b><br>
-                                        With a submisson amount of {{ $dataArray['curr_cd'] }} {{ $dataArray['vo_sub_amt'] }}<br>
-                                        and Approved amount of {{ $dataArray['curr_cd'] }} {{ $dataArray['vo_appr_amt'] }}<br>
+                                        With a VO amount of {{ $dataArray['curr_cd'] }} {{ $dataArray['vo_appr_amt'] }}<br>
                                     </p>
 
                                     @php
