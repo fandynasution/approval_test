@@ -113,11 +113,11 @@ class CmEntryController extends Controller
                     file_put_contents($cacheFilePath, 'sent');
         
                     // Log the success
-                    Log::channel('sendmailfeedback')->info('Email CM Entry doc_no '.$doc_no.' Entity ' . $entity_cd.' berhasil dikirim ke: ' . $email);
+                    Log::channel('sendmailapproval')->info('Email CM Entry doc_no '.$doc_no.' Entity ' . $entity_cd.' berhasil dikirim ke: ' . $email);
                     return 'Email berhasil dikirim ke: ' . $email;
                 } else {
                     // Email was already sent
-                    Log::channel('sendmailfeedback')->info('Email CM Entry doc_no '.$doc_no.' Entity ' . $entity_cd.' already sent to: ' . $email);
+                    Log::channel('sendmailapproval')->info('Email CM Entry doc_no '.$doc_no.' Entity ' . $entity_cd.' already sent to: ' . $email);
                     return 'Email has already been sent to: ' . $email;
                 }
             } else {

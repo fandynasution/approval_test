@@ -73,8 +73,8 @@
                                     <p style="text-align:left;margin-bottom: 15px; color: #000000; font-size: 16px;">Below is a Contract Progress that requires your approval :</p>
                                     <p style="text-align:left; margin-bottom: 15px; margin-top: 0; color: #000000; font-size: 16px; list-style-type: circle;">
                                         <b>Contract No. :{{ $dataArray['contract_desc'] }}</b><br>
-                                        With a total amount of IDR {{ $dataArray['amount'] }}<br>
-                                        and Previous Progress amount of IDR {{ $dataArray['prev_progress_amt'] }}<br>
+                                        With a total amount of {{ $dataArray['curr_cd'] }} {{ $dataArray['amount'] }}<br>
+                                        and Previous Progress amount of {{ $dataArray['curr_cd'] }} {{ $dataArray['prev_progress_amt'] }}<br>
                                         on Current Progress on : {{ $dataArray['curr_progress'] }}%<br>
                                         and Previous Progress on : {{ $dataArray['prev_progress'] }}%<br>
                                         Progress No.: {{ $dataArray['progress_no'] }}<br>

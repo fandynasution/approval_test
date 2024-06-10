@@ -55,6 +55,7 @@ class CmProgressController extends Controller
             'progress_no'       => $request->progress_no,
             "surveyor"			=> $request->surveyor,
             'doc_link'          => $request->doc_link,
+            'curr_cd'           => $request->curr_cd,
             "contract_desc"		=> $request->contract_desc,
             'curr_progress'     => $curr_progress,
             'approve_seq'       => $request->approve_seq,
@@ -124,11 +125,11 @@ class CmProgressController extends Controller
                     file_put_contents($cacheFilePath, 'sent');
         
                     // Log the success
-                    Log::channel('sendmailfeedback')->info('Email CM Progress doc_no '.$doc_no.' Entity ' . $entity_cd.' berhasil dikirim ke: ' . $email);
+                    Log::channel('sendmailapproval')->info('Email CM Progress doc_no '.$doc_no.' Entity ' . $entity_cd.' berhasil dikirim ke: ' . $email);
                     return 'Email berhasil dikirim ke: ' . $email;
                 } else {
                     // Email was already sent
-                    Log::channel('sendmailfeedback')->info('Email CM Progress doc_no '.$doc_no.' Entity ' . $entity_cd.' already sent to: ' . $email);
+                    Log::channel('sendmailapproval')->info('Email CM Progress doc_no '.$doc_no.' Entity ' . $entity_cd.' already sent to: ' . $email);
                     return 'Email has already been sent to: ' . $email;
                 }
             } else {
