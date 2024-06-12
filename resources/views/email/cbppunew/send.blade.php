@@ -105,14 +105,16 @@
                                     @endphp
                     
                                         @if($dataArray['doc_link'] !== '' && $dataArray['doc_link'] !== 'EMPTY')
-                                            @if(!$hasAttachment)
-                                                @php
-                                                    $hasAttachment = true;
-                                                @endphp
-                                                <p style="text-align:left; margin-bottom: 15px; color: #000000; font-size: 16px;">
-                                                    <span>This request to purchase comes with additional supporting documents, such as detailed specifications, that you can access from the link below :</span><br>
+                                            @if(strpos($dataArray['doc_link'], 'http://') === 0 || strpos($dataArray['doc_link'], 'https://') === 0)
+                                                @if(!$hasAttachment)
+                                                    @php
+                                                        $hasAttachment = true;
+                                                    @endphp
+                                                    <p style="text-align:left; margin-bottom: 15px; color: #000000; font-size: 16px;">
+                                                        <span>This request to purchase comes with additional supporting documents, such as detailed specifications, that you can access from the link below :</span><br>
+                                                @endif
+                                                <a href="{{ $dataArray['doc_link'] }}" target="_blank">{{ $dataArray['doc_link'] }}</a><br>
                                             @endif
-                                            <a href="{{ $dataArray['doc_link'] }}" target="_blank">{{ $dataArray['doc_link'] }}</a><br>
                                         @endif
                     
                                     @if($hasAttachment)
