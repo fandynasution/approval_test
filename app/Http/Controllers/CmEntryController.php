@@ -113,7 +113,7 @@ class CmEntryController extends Controller
                     throw new Exception('Failed to acquire lock');
                 }
         
-                if (!file_exists($cacheFilePath) || (file_exists($cacheFilePath) && !strpos(file_get_contents($cacheFilePath), 'sent'))) {
+                if (!file_exists($cacheFilePath)) {
                     // Send email
                     Mail::to($email)->send(new SendCmEntryMail($encryptedData, $dataArray));
         
