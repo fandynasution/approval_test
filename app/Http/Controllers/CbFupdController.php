@@ -84,32 +84,53 @@ class CbFupdController extends Controller
     
         try {
             $emailAddresses = strtolower($data["email_addr"]);
-            $doc_no = $data["doc_no"];
+            $approve_seq = $data["approve_seq"];
             $entity_cd = $data["entity_cd"];
+            $doc_no = $data["doc_no"];
+            $level_no = $data["level_no"];
         
             // Check if email addresses are provided and not empty
             if (!empty($emailAddresses)) {
-                $emails = is_array($emailAddresses) ? $emailAddresses : [$emailAddresses];
+                $email = $emailAddresses; // Since $emailAddresses is always a single email address (string)
+                
+                // Check if the email has been sent before for this document
+                $cacheFile = 'email_sent_' . $approve_seq . '_' . $entity_cd . '_' . $doc_no . '_' . $level_no . '.txt';
+                $cacheFilePath = storage_path('app/mail_cache/send_cbfupd/' . date('Ymd') . '/' . $cacheFile);
+                $cacheDirectory = dirname($cacheFilePath);
         
-                foreach ($emails as $email) {
-                    // Check if the email has been sent before for this document and entity combination
-                    $cacheKey = 'email_sent_' . md5($doc_no . '_' . $entity_cd . '_' . $email);
-                    if (!Cache::has($cacheKey)) {
-                        // Send email
-                        Mail::to($email)->send(new SendCbFupdMail($encryptedData, $dataArray));
-        
-                        // Mark email as sent
-                        Cache::put($cacheKey, true, now()->addHours(24));
-                    }
+                // Ensure the directory exists
+                if (!file_exists($cacheDirectory)) {
+                    mkdir($cacheDirectory, 0755, true);
+                }
+
+                // Acquire an exclusive lock
+                $lockFile = $cacheFilePath . '.lock';
+                $lockHandle = fopen($lockFile, 'w');
+                if (!flock($lockHandle, LOCK_EX)) {
+                    // Failed to acquire lock, handle appropriately
+                    fclose($lockHandle);
+                    throw new Exception('Failed to acquire lock');
                 }
         
-                $sentTo = is_array($emailAddresses) ? implode(', ', $emailAddresses) : $emailAddresses;
-                Log::channel('sendmail')->info('Email doc_no ' . $doc_no . ' berhasil dikirim ke: ' . $sentTo);
-                return "Email berhasil dikirim ke: " . $sentTo;
+                if (!file_exists($cacheFilePath) || (file_exists($cacheFilePath) && !strpos(file_get_contents($cacheFilePath), 'sent'))) {
+                    // Send email
+                    Mail::to($email)->send(new SendCbFupdMail($encryptedData, $dataArray));
+        
+                    // Mark email as sent
+                    file_put_contents($cacheFilePath, 'sent');
+        
+                    // Log the success
+                    Log::channel('sendmailapproval')->info('Email CB FUPD doc_no '.$doc_no.' Entity ' . $entity_cd.' berhasil dikirim ke: ' . $email);
+                    return 'Email berhasil dikirim ke: ' . $email;
+                } else {
+                    // Email was already sent
+                    Log::channel('sendmailapproval')->info('Email CB FUPD doc_no '.$doc_no.' Entity ' . $entity_cd.' already sent to: ' . $email);
+                    return 'Email has already been sent to: ' . $email;
+                }
             } else {
-                Log::channel('sendmail')->warning("Tidak ada alamat email yang diberikan");
-                Log::channel('sendmail')->warning($doc_no);
-                return "Tidak ada alamat email yang diberikan";
+                // No email address provided
+                Log::channel('sendmail')->warning("No email address provided for document " . $doc_no);
+                return "No email address provided";
             }
         } catch (\Exception $e) {
             Log::channel('sendmail')->error('Gagal mengirim email: ' . $e->getMessage());
@@ -120,7 +141,7 @@ class CbFupdController extends Controller
     public function update($status, $encrypt, $reason)
     {
         Artisan::call('config:cache');
-Artisan::call('cache:clear');
+        Artisan::call('cache:clear');
         Cache::flush();
         $data = Crypt::decrypt($encrypt);
 
@@ -175,6 +196,6 @@ Artisan::call('cache:clear');
         );
         return view("email.after", $msg1);
         Artisan::call('config:cache');
-Artisan::call('cache:clear');
+        Artisan::call('cache:clear');
     }
 }

@@ -120,7 +120,7 @@ class StaffFeedbackController extends Controller
         
                 if (!file_exists($cacheFilePath)) {
                     // Send email
-                    Mail::to($email)->send(new StaffActionPoOrderMail($EmailBack));
+                    Mail::to($emails)->send(new StaffActionPoOrderMail($EmailBack));
             
                     // Mark email as sent
                     file_put_contents($cacheFilePath, 'sent');
@@ -234,7 +234,7 @@ class StaffFeedbackController extends Controller
         
                 if (!file_exists($cacheFilePath)) {
                     // Send email
-                    Mail::to($email)->send(new StaffActionCbFupdMail($EmailBack));
+                    Mail::to($emails)->send(new StaffActionCbFupdMail($EmailBack));
             
                     // Mark email as sent
                     file_put_contents($cacheFilePath, 'sent');
@@ -348,7 +348,7 @@ class StaffFeedbackController extends Controller
         
                 if (!file_exists($cacheFilePath)) {
                     // Send email
-                    Mail::to($email)->send(new StaffActionCbMail($EmailBack));
+                    Mail::to($emails)->send(new StaffActionCbMail($EmailBack));
             
                     // Mark email as sent
                     file_put_contents($cacheFilePath, 'sent');
