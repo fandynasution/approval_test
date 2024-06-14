@@ -81,8 +81,17 @@ class CmDoneController extends Controller
                 if (!file_exists($cacheDirectory)) {
                     mkdir($cacheDirectory, 0755, true);
                 }
+
+                // Acquire an exclusive lock
+                $lockFile = $cacheFilePath . '.lock';
+                $lockHandle = fopen($lockFile, 'w');
+                if (!flock($lockHandle, LOCK_EX)) {
+                    // Failed to acquire lock, handle appropriately
+                    fclose($lockHandle);
+                    throw new Exception('Failed to acquire lock');
+                }
         
-                if (!file_exists($cacheFilePath)) {
+                if (!file_exists($cacheFilePath) || (file_exists($cacheFilePath) && !strpos(file_get_contents($cacheFilePath), 'sent'))) {
                     // Send email
                     Mail::to($email)->send(new SendCmDoneMail($encryptedData, $dataArray));
         
@@ -98,9 +107,9 @@ class CmDoneController extends Controller
                     return 'Email has already been sent to: ' . $email;
                 }
             } else {
-                Log::channel('sendmail')->warning("Tidak ada alamat email yang diberikan");
-                Log::channel('sendmail')->info($doc_no);
-                return "Tidak ada alamat email yang diberikan";
+                // No email address provided
+                Log::channel('sendmail')->warning("No email address provided for document " . $doc_no);
+                return "No email address provided";
             }
         } catch (\Exception $e) {
             Log::channel('sendmail')->error('Gagal mengirim email: ' . $e->getMessage());

@@ -84,38 +84,59 @@ class PurchaseSelectionController extends Controller
         $encryptedData = Crypt::encrypt($data2Encrypt);
     
         try {
-            $emailAddresses = strtolower($request->email_addr);
-            $doc_no = $request->doc_no;
-            $entity_cd = $request->entity_cd;
+            $emailAddress = strtolower($request->email_addr);
+            $approveSeq = $request->approve_seq;
+            $entityCd = $request->entity_cd;
+            $docNo = $request->doc_no;
+            $levelNo = $request->level_no;
         
-            // Check if email addresses are provided and not empty
-            if (!empty($emailAddresses)) {
-                $emails = is_array($emailAddresses) ? $emailAddresses : [$emailAddresses];
-                
-                foreach ($emails as $email) {
-                    // Check if the email has been sent before for this document
-                    $cacheKey = 'email_sent_' . md5($doc_no . '_' . $entity_cd . '_' . $email);
-                    if (!Cache::has($cacheKey)) {
-                        // Send email
-                        Mail::to($email)->send(new SendPoSMail($encryptedData, $dataArray));
+            // Check if email address is provided and not empty
+            if (!empty($emailAddress)) {
+                // Check if the email has been sent before for this document
+                $cacheFile = 'email_sent_' . $approveSeq . '_' . $entityCd . '_' . $docNo . '_' . $levelNo . '.txt';
+                $cacheFilePath = storage_path('app/mail_cache/send_pos/' . date('Ymd') . '/' . $cacheFile);
+                $cacheDirectory = dirname($cacheFilePath);
         
-                        // Mark email as sent
-                        Cache::store('mail_app')->put($cacheKey, true, now()->addHours(24));
-                    }
+                // Ensure the directory exists
+                if (!file_exists($cacheDirectory)) {
+                    mkdir($cacheDirectory, 0755, true);
                 }
-                
-                $sentTo = is_array($emailAddresses) ? implode(', ', $emailAddresses) : $emailAddresses;
-                Log::channel('sendmailapproval')->info('Email doc_no ' . $doc_no . ' Entity ' . $entity_cd . ' berhasil dikirim ke: ' . $sentTo);
-                return "Email berhasil dikirim ke: " . $sentTo;
+        
+                // Acquire an exclusive lock
+                $lockFile = $cacheFilePath . '.lock';
+                $lockHandle = fopen($lockFile, 'w');
+                if (!flock($lockHandle, LOCK_EX)) {
+                    // Failed to acquire lock, handle appropriately
+                    fclose($lockHandle);
+                    throw new Exception('Failed to acquire lock for sending email');
+                }
+        
+                if (!file_exists($cacheFilePath) || (file_exists($cacheFilePath) && !strpos(file_get_contents($cacheFilePath), 'sent'))) {
+                    // Send email
+                    Mail::to($emailAddress)->send(new SendPoSMail($encryptedData, $dataArray));
+        
+                    // Mark email as sent
+                    file_put_contents($cacheFilePath, 'sent');
+        
+                    // Log the success
+                    Log::channel('sendmailapproval')->info('Email Purchase Selection doc_no '.$docNo.' Entity ' . $entityCd.' berhasil dikirim ke: ' . $emailAddress);
+                    return 'Email berhasil dikirim ke: ' . $emailAddress;
+                } else {
+                    // Email was already sent
+                    Log::channel('sendmailapproval')->info('Email Purchase Selection doc_no '.$docNo.' Entity ' . $entityCd.' already sent to: ' . $emailAddress);
+                    return 'Email has already been sent to: ' . $emailAddress;
+                }
             } else {
-                Log::channel('sendmail')->warning("Tidak ada alamat email yang diberikan");
-                Log::channel('sendmail')->info($doc_no);
-                return "Tidak ada alamat email yang diberikan";
+                // No email address provided
+                Log::channel('sendmail')->warning("No email address provided for document " . $docNo);
+                return "No email address provided";
             }
         } catch (\Exception $e) {
-            Log::channel('sendmail')->error('Gagal mengirim email: ' . $e->getMessage());
-            return "Gagal mengirim email: " . $e->getMessage();
+            // Error occurred
+            Log::channel('sendmail')->error('Failed to send email: ' . $e->getMessage());
+            return "Failed to send email: " . $e->getMessage();
         }
+        
     }
 
     public function processData($status = '', $encrypt = '')

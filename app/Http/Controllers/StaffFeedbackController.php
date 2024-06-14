@@ -96,32 +96,38 @@ class StaffFeedbackController extends Controller
             $status = $request->status;
             $approve_seq = $request->approve_seq;
             if (!empty($emailAddresses)) {
-                $emails = is_array($emailAddresses) ? $emailAddresses : [$emailAddresses];
+                $emails = $emailAddresses;
 
                 $emailSent = false;
-                
-                foreach ($emails as $email) {
-                    // Check if the email has been sent before for this document
-                    $cacheFile = 'email_feedback_sent_' . $approve_seq . '_' . $entity_cd . '_' . $doc_no . '_' . $status . '.txt';
-                    $cacheFilePath = storage_path('app/mail_cache/feedbackPoOrder/' . date('Ymd'). '/' . $cacheFile);
-                    $cacheDirectory = dirname($cacheFilePath);
-                
-                    // Ensure the directory exists
-                    if (!file_exists($cacheDirectory)) {
-                        mkdir($cacheDirectory, 0755, true);
-                    }
-                
-                    if (!file_exists($cacheFilePath)) {
-                        // Send email
-                        Mail::to($email)->send(new StaffActionPoOrderMail($EmailBack));
-                
-                        // Mark email as sent
-                        file_put_contents($cacheFilePath, 'sent');
-                        $sentTo = is_array($emailAddresses) ? implode(', ', $emailAddresses) : $emailAddresses;
-                        Log::channel('sendmailfeedback')->info('Email Feedback doc_no '.$doc_no.' Entity ' . $entity_cd.' berhasil dikirim ke: ' . $sentTo);
-                        return 'Email berhasil dikirim ke: ' . $sentTo;
-                        $emailSent = true;
-                    }
+                // Check if the email has been sent before for this document
+                $cacheFile = 'email_feedback_sent_' . $approve_seq . '_' . $entity_cd . '_' . $doc_no . '_' . $status . '.txt';
+                $cacheFilePath = storage_path('app/mail_cache/feedbackPoOrder/' . date('Ymd'). '/' . $cacheFile);
+                $cacheDirectory = dirname($cacheFilePath);
+            
+                // Ensure the directory exists
+                if (!file_exists($cacheDirectory)) {
+                    mkdir($cacheDirectory, 0755, true);
+                }
+
+                // Acquire an exclusive lock
+                $lockFile = $cacheFilePath . '.lock';
+                $lockHandle = fopen($lockFile, 'w');
+                if (!flock($lockHandle, LOCK_EX)) {
+                    // Failed to acquire lock, handle appropriately
+                    fclose($lockHandle);
+                    throw new Exception('Failed to acquire lock');
+                }
+        
+                if (!file_exists($cacheFilePath)) {
+                    // Send email
+                    Mail::to($email)->send(new StaffActionPoOrderMail($EmailBack));
+            
+                    // Mark email as sent
+                    file_put_contents($cacheFilePath, 'sent');
+                    $sentTo = $emailAddresses;
+                    Log::channel('sendmailfeedback')->info('Email Feedback doc_no '.$doc_no.' Entity ' . $entity_cd.' berhasil dikirim ke: ' . $sentTo);
+                    return 'Email berhasil dikirim ke: ' . $sentTo;
+                    $emailSent = true;
                 }
             } else {
                 Log::channel('sendmail')->warning("Tidak ada alamat email untuk feedback yang diberikan");
@@ -203,32 +209,39 @@ class StaffFeedbackController extends Controller
             $status = $request->status;
             $approve_seq = $request->approve_seq;
             if (!empty($emailAddresses)) {
-                $emails = is_array($emailAddresses) ? $emailAddresses : [$emailAddresses];
+                $emails = $emailAddresses;
 
                 $emailSent = false;
                 
-                foreach ($emails as $email) {
-                    // Check if the email has been sent before for this document
-                    $cacheFile = 'email_feedback_sent_' . $approve_seq . '_' . $entity_cd . '_' . $doc_no . '_' . $status . '.txt';
-                    $cacheFilePath = storage_path('app/mail_cache/feedbackCbFupd/' . date('Ymd'). '/' . $cacheFile);
-                    $cacheDirectory = dirname($cacheFilePath);
-                
-                    // Ensure the directory exists
-                    if (!file_exists($cacheDirectory)) {
-                        mkdir($cacheDirectory, 0755, true);
-                    }
-                
-                    if (!file_exists($cacheFilePath)) {
-                        // Send email
-                        Mail::to($email)->send(new StaffActionCbFupdMail($EmailBack));
-                
-                        // Mark email as sent
-                        file_put_contents($cacheFilePath, 'sent');
-                        $sentTo = is_array($emailAddresses) ? implode(', ', $emailAddresses) : $emailAddresses;
-                        Log::channel('sendmailfeedback')->info('Email Feedback doc_no '.$doc_no.' Entity ' . $entity_cd.' berhasil dikirim ke: ' . $sentTo);
-                        return 'Email berhasil dikirim ke: ' . $sentTo;
-                        $emailSent = true;
-                    }
+                // Check if the email has been sent before for this document
+                $cacheFile = 'email_feedback_sent_' . $approve_seq . '_' . $entity_cd . '_' . $doc_no . '_' . $status . '.txt';
+                $cacheFilePath = storage_path('app/mail_cache/feedbackCbFupd/' . date('Ymd'). '/' . $cacheFile);
+                $cacheDirectory = dirname($cacheFilePath);
+            
+                // Ensure the directory exists
+                if (!file_exists($cacheDirectory)) {
+                    mkdir($cacheDirectory, 0755, true);
+                }
+
+                // Acquire an exclusive lock
+                $lockFile = $cacheFilePath . '.lock';
+                $lockHandle = fopen($lockFile, 'w');
+                if (!flock($lockHandle, LOCK_EX)) {
+                    // Failed to acquire lock, handle appropriately
+                    fclose($lockHandle);
+                    throw new Exception('Failed to acquire lock');
+                }
+        
+                if (!file_exists($cacheFilePath)) {
+                    // Send email
+                    Mail::to($email)->send(new StaffActionCbFupdMail($EmailBack));
+            
+                    // Mark email as sent
+                    file_put_contents($cacheFilePath, 'sent');
+                    $sentTo = $emailAddresses;
+                    Log::channel('sendmailfeedback')->info('Email Feedback doc_no '.$doc_no.' Entity ' . $entity_cd.' berhasil dikirim ke: ' . $sentTo);
+                    return 'Email berhasil dikirim ke: ' . $sentTo;
+                    $emailSent = true;
                 }
             } else {
                 Log::channel('sendmail')->warning("Tidak ada alamat email untuk feedback yang diberikan");
@@ -310,32 +323,39 @@ class StaffFeedbackController extends Controller
             $status = $request->status;
             $approve_seq = $request->approve_seq;
             if (!empty($emailAddresses)) {
-                $emails = is_array($emailAddresses) ? $emailAddresses : [$emailAddresses];
+                $emails = $emailAddresses;
 
                 $emailSent = false;
                 
-                foreach ($emails as $email) {
-                    // Check if the email has been sent before for this document
-                    $cacheFile = 'email_feedback_sent_' . $approve_seq . '_' . $entity_cd . '_' . $doc_no . '_' . $status . '.txt';
-                    $cacheFilePath = storage_path('app/mail_cache/feedbackCb/' . date('Ymd'). '/' . $cacheFile);
-                    $cacheDirectory = dirname($cacheFilePath);
-                
-                    // Ensure the directory exists
-                    if (!file_exists($cacheDirectory)) {
-                        mkdir($cacheDirectory, 0755, true);
-                    }
-                
-                    if (!file_exists($cacheFilePath)) {
-                        // Send email
-                        Mail::to($email)->send(new StaffActionCbMail($EmailBack));
-                
-                        // Mark email as sent
-                        file_put_contents($cacheFilePath, 'sent');
-                        $sentTo = is_array($emailAddresses) ? implode(', ', $emailAddresses) : $emailAddresses;
-                        Log::channel('sendmailfeedback')->info('Email Feedback doc_no '.$doc_no.' Entity ' . $entity_cd.' berhasil dikirim ke: ' . $sentTo);
-                        return 'Email berhasil dikirim ke: ' . $sentTo;
-                        $emailSent = true;
-                    }
+                // Check if the email has been sent before for this document
+                $cacheFile = 'email_feedback_sent_' . $approve_seq . '_' . $entity_cd . '_' . $doc_no . '_' . $status . '.txt';
+                $cacheFilePath = storage_path('app/mail_cache/feedbackCb/' . date('Ymd'). '/' . $cacheFile);
+                $cacheDirectory = dirname($cacheFilePath);
+            
+                // Ensure the directory exists
+                if (!file_exists($cacheDirectory)) {
+                    mkdir($cacheDirectory, 0755, true);
+                }
+
+                // Acquire an exclusive lock
+                $lockFile = $cacheFilePath . '.lock';
+                $lockHandle = fopen($lockFile, 'w');
+                if (!flock($lockHandle, LOCK_EX)) {
+                    // Failed to acquire lock, handle appropriately
+                    fclose($lockHandle);
+                    throw new Exception('Failed to acquire lock');
+                }
+        
+                if (!file_exists($cacheFilePath)) {
+                    // Send email
+                    Mail::to($email)->send(new StaffActionCbMail($EmailBack));
+            
+                    // Mark email as sent
+                    file_put_contents($cacheFilePath, 'sent');
+                    $sentTo = $emailAddresses;
+                    Log::channel('sendmailfeedback')->info('Email Feedback doc_no '.$doc_no.' Entity ' . $entity_cd.' berhasil dikirim ke: ' . $sentTo);
+                    return 'Email berhasil dikirim ke: ' . $sentTo;
+                    $emailSent = true;
                 }
             } else {
                 Log::channel('sendmail')->warning("Tidak ada alamat email untuk feedback yang diberikan");
