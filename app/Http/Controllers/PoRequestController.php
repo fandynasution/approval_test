@@ -117,7 +117,7 @@ class PoRequestController extends Controller
         
                 if (!file_exists($cacheFilePath) || (file_exists($cacheFilePath) && !strpos(file_get_contents($cacheFilePath), 'sent'))) {
                     // Send email only if it has not been sent before
-                    Mail::to($emailAddress)->send(new SendPoMail($encryptedData, $dataArray));
+                    Mail::to($emailAddress)->send(new SendPoRMail($encryptedData, $dataArray));
         
                     // Mark email as sent
                     file_put_contents($cacheFilePath, 'sent');
