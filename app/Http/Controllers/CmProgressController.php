@@ -100,7 +100,6 @@ class CmProgressController extends Controller
             $approve_seq = $request->approve_seq;
             $entity_cd = $request->entity_cd;
             $doc_no = $request->doc_no;
-            $status = $request->status;
             $level_no = $request->level_no;
         
             // Check if email addresses are provided and not empty
@@ -108,7 +107,7 @@ class CmProgressController extends Controller
                 $email = $emailAddresses; // Since $emailAddresses is always a single email address (string)
                 
                 // Check if the email has been sent before for this document
-                $cacheFile = 'email_sent_' . $approve_seq . '_' . $entity_cd . '_' . $doc_no . '_' . $status . '_' . $level_no . '.txt';
+                $cacheFile = 'email_sent_' . $approve_seq . '_' . $entity_cd . '_' . $doc_no . '_' . $level_no . '.txt';
                 $cacheFilePath = storage_path('app/mail_cache/send_cmprogress/' . date('Ymd') . '/' . $cacheFile);
                 $cacheDirectory = dirname($cacheFilePath);
         
