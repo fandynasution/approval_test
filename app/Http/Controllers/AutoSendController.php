@@ -33,8 +33,8 @@ class AutoSendController extends Controller
         ->whereNull('sent_mail_date')
         ->where('status', 'P')
         ->whereNotNull('currency_cd')
+        ->where('entity_cd', '!=', 'DKY')
         ->where('audit_date', '>=', DB::raw("CONVERT(datetime, '2024-03-28', 120)"))
-        ->orderBy('entity_cd', 'desc')
         ->orderBy('doc_no', 'desc')
         ->get();
 
@@ -62,10 +62,8 @@ class AutoSendController extends Controller
                 $exec = 'mgr.x_send_mail_approval_cb_rpb';
             } else if ($type == 'G' && $module == "CB") {
                 $exec = 'mgr.x_send_mail_approval_cb_rum';
-            } else if ($type == 'E' && $module == "CM") {
-                $exec = 'mgr.xrl_send_mail_approval_cm_contract_entry';
-            } else if ($type == 'A' && $module == "CM") {
-                $exec = 'mgr.xrl_send_mail_approval_cm_progress';
+            } else if ($type == 'E' && $module == "CB") {
+                $exec = 'mgr.x_send_mail_approval_cb_fupd';
             } else if ($type == 'B' && $module == "PL") {
                 $exec = 'mgr.xrl_send_mail_approval_pl_budget_lyman';
             } else if ($type == 'R' && $module == "PL") {
@@ -159,85 +157,65 @@ class AutoSendController extends Controller
                 }
             } else if ($level_no > 1){
                 $downLevel  = $level_no - 1;
-                $where2 = array(
-                    'doc_no'            => $doc_no,
-                    'entity_cd'         => $entity_cd,
-                    'level_no'          => $downLevel,
-                    'type'              => $type,
-                    'module'            => $module
-                );
-
-                $query2 = DB::connection('BTID')
-                ->table('mgr.cb_cash_request_appr')
-                ->where($where2)
-                ->get();
-
-                // Check if the query returned any results
-                if ($query2->isNotEmpty()) {
-                    foreach ($query2 as $row) {
-                        $status = $row->status;
-                        if ($status == 'A') {
-                            if ($type == 'S' && $module == "PO") {
-                                $date = date('d-m-Y', strtotime($doc_date));
-                                $pdo = DB::connection('BTID')->getPdo();
-                                $sth = $pdo->prepare("SET NOCOUNT ON; EXEC mgr.x_send_mail_approval_po_selection ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?;");
-                                $sth->bindParam(1, $entity_cd);
-                                $sth->bindParam(2, $project_no);
-                                $sth->bindParam(3, $doc_no);
-                                $sth->bindParam(4, $ref_no);
-                                $sth->bindParam(5, $date);
-                                $sth->bindParam(6, $status);
-                                $sth->bindParam(7, $downLevel);
-                                $sth->bindParam(8, $user_group);
-                                $sth->bindParam(9, $user_id);
-                                $sth->bindParam(10, $supervisor);
-                                $sth->bindParam(11, $reason);
-                                $sth->execute();
-                            } else if ($type == 'Q' && $module == "PO") {
-                                $pdo = DB::connection('BTID')->getPdo();
-                                $sth = $pdo->prepare("SET NOCOUNT ON; EXEC mgr.x_send_mail_approval_po_request ?, ?, ?, ?, ?, ?, ?, ?, ?;");
-                                $sth->bindParam(1, $entity_cd);
-                                $sth->bindParam(2, $project_no);
-                                $sth->bindParam(3, $doc_no);
-                                $sth->bindParam(4, $status);
-                                $sth->bindParam(5, $downLevel);
-                                $sth->bindParam(6, $user_group);
-                                $sth->bindParam(7, $user_id);
-                                $sth->bindParam(8, $supervisor);
-                                $sth->bindParam(9, $reason);
-                                $sth->execute();
-                            } else {
-                                if ($module == 'CM') {
-                                    $pdo = DB::connection('BTID')->getPdo();
-                                    $sth = $pdo->prepare("SET NOCOUNT ON; EXEC ".$exec." ?, ?, ?, ?, ?, ?, ?, ?, ?, ?;");
-                                    $sth->bindParam(1, $entity_cd);
-                                    $sth->bindParam(2, $project_no);
-                                    $sth->bindParam(3, $doc_no);
-                                    $sth->bindParam(4, $ref_no);
-                                    $sth->bindParam(5, $status);
-                                    $sth->bindParam(6, $downLevel);
-                                    $sth->bindParam(7, $user_group);
-                                    $sth->bindParam(8, $user_id);
-                                    $sth->bindParam(9, $supervisor);
-                                    $sth->bindParam(10, $reason);
-                                    $sth->execute();
-                                } else {
-                                    $pdo = DB::connection('BTID')->getPdo();
-                                    $sth = $pdo->prepare("SET NOCOUNT ON; EXEC ".$exec." ?, ?, ?, ?, ?, ?, ?, ?, ?, ?;");
-                                    $sth->bindParam(1, $entity_cd);
-                                    $sth->bindParam(2, $project_no);
-                                    $sth->bindParam(3, $doc_no);
-                                    $sth->bindParam(4, $trx_type);
-                                    $sth->bindParam(5, $status);
-                                    $sth->bindParam(6, $downLevel);
-                                    $sth->bindParam(7, $user_group);
-                                    $sth->bindParam(8, $user_id);
-                                    $sth->bindParam(9, $supervisor);
-                                    $sth->bindParam(10, $reason);
-                                    $sth->execute();
-                                }
-                            }
-                        }
+                $status = 'A';
+                if ($type == 'S' && $module == "PO") {
+                    $date = date('d-m-Y', strtotime($doc_date));
+                    $pdo = DB::connection('BTID')->getPdo();
+                    $sth = $pdo->prepare("SET NOCOUNT ON; EXEC mgr.x_send_mail_approval_po_selection ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?;");
+                    $sth->bindParam(1, $entity_cd);
+                    $sth->bindParam(2, $project_no);
+                    $sth->bindParam(3, $doc_no);
+                    $sth->bindParam(4, $ref_no);
+                    $sth->bindParam(5, $date);
+                    $sth->bindParam(6, $status);
+                    $sth->bindParam(7, $downLevel);
+                    $sth->bindParam(8, $user_group);
+                    $sth->bindParam(9, $user_id);
+                    $sth->bindParam(10, $supervisor);
+                    $sth->bindParam(11, $reason);
+                    $sth->execute();
+                } else if ($type == 'Q' && $module == "PO") {
+                    $pdo = DB::connection('BTID')->getPdo();
+                    $sth = $pdo->prepare("SET NOCOUNT ON; EXEC mgr.x_send_mail_approval_po_request ?, ?, ?, ?, ?, ?, ?, ?, ?;");
+                    $sth->bindParam(1, $entity_cd);
+                    $sth->bindParam(2, $project_no);
+                    $sth->bindParam(3, $doc_no);
+                    $sth->bindParam(4, $status);
+                    $sth->bindParam(5, $downLevel);
+                    $sth->bindParam(6, $user_group);
+                    $sth->bindParam(7, $user_id);
+                    $sth->bindParam(8, $supervisor);
+                    $sth->bindParam(9, $reason);
+                    $sth->execute();
+                } else {
+                    if ($module == 'CM') {
+                        $pdo = DB::connection('BTID')->getPdo();
+                        $sth = $pdo->prepare("SET NOCOUNT ON; EXEC ".$exec." ?, ?, ?, ?, ?, ?, ?, ?, ?, ?;");
+                        $sth->bindParam(1, $entity_cd);
+                        $sth->bindParam(2, $project_no);
+                        $sth->bindParam(3, $doc_no);
+                        $sth->bindParam(4, $ref_no);
+                        $sth->bindParam(5, $status);
+                        $sth->bindParam(6, $downLevel);
+                        $sth->bindParam(7, $user_group);
+                        $sth->bindParam(8, $user_id);
+                        $sth->bindParam(9, $supervisor);
+                        $sth->bindParam(10, $reason);
+                        $sth->execute();
+                    } else {
+                        $pdo = DB::connection('BTID')->getPdo();
+                        $sth = $pdo->prepare("SET NOCOUNT ON; EXEC ".$exec." ?, ?, ?, ?, ?, ?, ?, ?, ?, ?;");
+                        $sth->bindParam(1, $entity_cd);
+                        $sth->bindParam(2, $project_no);
+                        $sth->bindParam(3, $doc_no);
+                        $sth->bindParam(4, $trx_type);
+                        $sth->bindParam(5, $status);
+                        $sth->bindParam(6, $downLevel);
+                        $sth->bindParam(7, $user_group);
+                        $sth->bindParam(8, $user_id);
+                        $sth->bindParam(9, $supervisor);
+                        $sth->bindParam(10, $reason);
+                        $sth->execute();
                     }
                 }
             }
