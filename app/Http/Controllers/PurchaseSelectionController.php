@@ -111,7 +111,7 @@ class PurchaseSelectionController extends Controller
                     throw new Exception('Failed to acquire lock for sending email');
                 }
         
-                if (!file_exists($cacheFilePath)) {
+                if (!file_exists($cacheFilePath) || (file_exists($cacheFilePath) && !strpos(file_get_contents($cacheFilePath), 'sent'))) {
                     // Send email
                     Mail::to($emailAddress)->send(new SendPoSMail($encryptedData, $dataArray));
         
@@ -264,10 +264,19 @@ class PurchaseSelectionController extends Controller
     public function getaccess(Request $request)
     {
         $data = Crypt::decrypt($request->encrypt);
-        $trx_date = $data["trx_date"];
-        $dateTime = DateTime::createFromFormat('d-m-Y', $trx_date);
+
+        $trx_date = rtrim($data["trx_date"], '.');
+
+        // Print the cleaned date string to verify its format
+
+        // First, parse the date using the correct format
+        $dateTime = DateTime::createFromFormat('Y-m-d H:i:s', $trx_date);
+
+        $dateTime = $dateTime->format('d-m-Y');
 
         $status = $request->status;
+
+        $reason = $request->reason;
 
         $descstatus = " ";
         $imagestatus = " ";
@@ -288,8 +297,11 @@ class PurchaseSelectionController extends Controller
             $descstatus = "Cancelled";
             $imagestatus = "reject.png";
         }
+        if ($reason=''||$reason=null||$reason=NULL||$reason='null'||$reason='NULL') {
+            $reason='0';
+        }
         $pdo = DB::connection('BTID')->getPdo();
-        $sth = $pdo->prepare("EXEC mgr.x_send_mail_approval_po_selection ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?;");
+        $sth = $pdo->prepare("SET NOCOUNT ON; EXEC mgr.x_send_mail_approval_po_selection ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?;");
         $sth->bindParam(1, $data["entity_cd"]);
         $sth->bindParam(2, $data["project_no"]);
         $sth->bindParam(3, $data["doc_no"]);
