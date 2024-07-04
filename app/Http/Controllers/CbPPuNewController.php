@@ -180,7 +180,7 @@ class CbPPuNewController extends Controller
 
         // Construct the WHERE clause dynamically
         $whereClause = [];
-        foreach ($where2 as $column => $value) {
+        foreach ($where as $column => $value) {
             $whereClause[] = "$column = :$column";
         }
         $sql .= implode(' AND ', $whereClause);
@@ -189,7 +189,7 @@ class CbPPuNewController extends Controller
         $stmt = $pdo->prepare($sql);
 
         // Bind the values to the parameters
-        foreach ($where2 as $column => $value) {
+        foreach ($where as $column => $value) {
             $stmt->bindValue(":$column", $value);
         }
 
