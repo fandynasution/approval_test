@@ -176,40 +176,15 @@ class CbPPuNewController extends Controller
             'module'        => $data["type_module"],
         );
 
-        $pdo = DB::connection('BTID')->getPdo();
-
-        // Prepare the query with the given conditions ($where2)
-        $sql = 'SELECT * FROM mgr.cb_cash_request_appr WHERE ';
-
-        // Construct the WHERE clause dynamically
-        $whereClause = [];
-        foreach ($where2 as $column => $value) {
-            $whereClause[] = "$column = :$column";
-        }
-        $sql .= implode(' AND ', $whereClause);
-
-        // Prepare the statement
-        $stmt = $pdo->prepare($sql);
-
-        // Bind the values to the parameters
-        foreach ($where2 as $column => $value) {
-            $stmt->bindValue(":$column", $value);
-        }
-
-        // Execute the query
-        $stmt->execute();
-
-        // Fetch the results
-        $results = $stmt->fetchAll();
-
-        // Count the results
-        $count = count($results);
-
-        echo "Number of results: $count\n";
+        $query = DB::connection('BTID')
+        ->table('mgr.cb_cash_request_appr')
+        ->where($where)
+        ->whereIn('status', ["A", "R", "C"])
+        ->get();
 
         Log::info('First query result: ' . json_encode($query));
 
-        if (count($results)>0) {
+        if (count($query)>0) {
             $msg = 'You Have Already Made a Request to '.$data["text"].' No. '.$data["doc_no"] ;
             $notif = 'Restricted !';
             $st  = 'OK';
