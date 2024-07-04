@@ -176,11 +176,14 @@ class CbPPuNewController extends Controller
             'module'        => $data["type_module"],
         );
 
+        $pdo = DB::connection('BTID')->getPdo();
+
+        // Prepare the query with the given conditions ($where2)
         $sql = 'SELECT * FROM mgr.cb_cash_request_appr WHERE ';
 
         // Construct the WHERE clause dynamically
         $whereClause = [];
-        foreach ($where as $column => $value) {
+        foreach ($where2 as $column => $value) {
             $whereClause[] = "$column = :$column";
         }
         $sql .= implode(' AND ', $whereClause);
@@ -189,7 +192,7 @@ class CbPPuNewController extends Controller
         $stmt = $pdo->prepare($sql);
 
         // Bind the values to the parameters
-        foreach ($where as $column => $value) {
+        foreach ($where2 as $column => $value) {
             $stmt->bindValue(":$column", $value);
         }
 
@@ -198,6 +201,11 @@ class CbPPuNewController extends Controller
 
         // Fetch the results
         $results = $stmt->fetchAll();
+
+        // Count the results
+        $count = count($results);
+
+        echo "Number of results: $count\n";
 
         Log::info('First query result: ' . json_encode($query));
 
