@@ -38,6 +38,7 @@
                                 <td style="text-align:center;padding: 50px 30px;">
                                     <img style="width:88px; margin-bottom:24px;" src="{{ url('public/images/' . $image) }}" alt="Verified">
                                     <p><?php echo $Pesan ?></p>
+                                    <p><?php echo config('DB_DATABASE3'); ?></p>
                                 </td>
                             </tr>
                         </tbody>
