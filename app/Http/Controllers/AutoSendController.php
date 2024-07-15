@@ -164,7 +164,7 @@ class AutoSendController extends Controller
                     'level_no'  => $downLevel
                 );
     
-                $querybefore = DB::connection('SSI')
+                $querybefore = DB::connection('BTID')
                 ->table('mgr.cb_cash_request_appr')
                 ->where($wherebefore)
                 ->get();
