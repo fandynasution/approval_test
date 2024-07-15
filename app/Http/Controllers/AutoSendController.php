@@ -30,12 +30,22 @@ class AutoSendController extends Controller
 
         $query = DB::connection('BTID')
         ->table('mgr.cb_cash_request_appr')
-        ->whereNull('sent_mail_date')
-        ->where('status', 'P')
-        ->whereNotNull('currency_cd')
-        ->where('entity_cd', '!=', 'DKY')
-        ->where('audit_date', '>=', DB::raw("CONVERT(datetime, '2024-03-28', 120)"))
-        ->orderBy('doc_no', 'desc')
+        ->whereNull('mgr.cb_cash_request_appr.sent_mail_date')
+        ->where('mgr.cb_cash_request_appr.status', '=', 'P')
+        ->whereNotNull('mgr.cb_cash_request_appr.currency_cd')
+        ->where('mgr.cb_cash_request_appr.entity_cd', '!=', 'DKY')
+        ->where('mgr.cb_cash_request_appr.audit_date', '>=', DB::raw("CONVERT(datetime, '2024-03-28', 120)"))
+        ->where('mgr.cb_cash_request_appr.level_no', '=', function ($query) {
+            $query->select(DB::raw('MIN(a.level_no)'))
+                ->from('mgr.cb_cash_request_appr as a')
+                ->whereColumn('a.entity_cd', '=', 'mgr.cb_cash_request_appr.entity_cd')
+                ->whereColumn('a.approve_seq', '=', 'mgr.cb_cash_request_appr.approve_seq')
+                ->whereColumn('a.doc_no', '=', 'mgr.cb_cash_request_appr.doc_no')
+                ->whereColumn('a.module', '=', 'mgr.cb_cash_request_appr.module')
+                ->whereColumn('a.request_type', '=', 'mgr.cb_cash_request_appr.request_type')
+                ->whereNull('a.sent_mail_date');
+        })
+        ->orderByDesc('mgr.cb_cash_request_appr.doc_no')
         ->get();
 
         foreach ($query as $data) {
