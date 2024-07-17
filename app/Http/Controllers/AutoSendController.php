@@ -26,8 +26,6 @@ class AutoSendController extends Controller
 {
     public function index()
     {
-        ini_set('memory_limit', '8192M');
-
         $query = DB::connection('BTID')
         ->table('mgr.cb_cash_request_appr')
         ->whereNull('sent_mail_date')
@@ -70,6 +68,17 @@ class AutoSendController extends Controller
 
             $user_group = $queryUg[0]->group_name;
 
+            $wheresupervisor = array(
+                'name' => $user_id
+            );
+
+            $querysupervisor = DB::connection('BTID')
+            ->table('mgr.security_users')
+            ->where($wheresupervisor)
+            ->get();
+
+            $supervisor = $querysupervisor[0]->supervisor;
+
             if ($level_no == 1) {
                 $statussend = 'P';
                 $downLevel = '0';
@@ -101,7 +110,6 @@ class AutoSendController extends Controller
                 ->get();
     
                 $level_data = $querybefore[0]->status;
-
                 if ($level_data == 'A'){
                     $pdo = DB::connection('BTID')->getPdo();
                     $sth = $pdo->prepare("SET NOCOUNT ON; EXEC ".$exec." ?, ?, ?, ?, ?, ?, ?, ?, ?, ?;");
