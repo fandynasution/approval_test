@@ -56,7 +56,9 @@ class AutoSendController extends Controller
 
             if ($type == 'U' && $module == "CB") {
                 $exec = 'mgr.x_send_mail_approval_cb_ppu';
-            } 
+            } else if ($type == 'V' && $module == "CB") {
+                $exec = 'mgr.x_send_mail_approval_cb_ppu_vvip';
+            }
             $whereUg = array(
                 'user_name' => $user_id
             );
