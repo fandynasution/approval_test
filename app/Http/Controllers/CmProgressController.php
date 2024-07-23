@@ -270,6 +270,8 @@ class CmProgressController extends Controller
 
         $status = $request->status;
 
+        $reasonget = $request->reason;
+
         $descstatus = " ";
         $imagestatus = " ";
 
@@ -278,6 +280,12 @@ class CmProgressController extends Controller
         $notif = " ";
         $st = " ";
         $image = " ";
+
+        if ($reasonget == '' || $reasonget == NULL) {
+            $reason = '0';
+        } else {
+            $reason = $reasonget;
+        }
 
         if ($status == "A") {
             $descstatus = "Approved";

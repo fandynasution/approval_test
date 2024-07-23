@@ -276,7 +276,7 @@ class PurchaseSelectionController extends Controller
 
         $status = $request->status;
 
-        $reason = $request->reason;
+        $reasonget = $request->reason;
 
         $descstatus = " ";
         $imagestatus = " ";
@@ -286,6 +286,12 @@ class PurchaseSelectionController extends Controller
         $notif = " ";
         $st = " ";
         $image = " ";
+
+        if ($reasonget == '' || $reasonget == NULL) {
+            $reason = '0';
+        } else {
+            $reason = $reasonget;
+        }
 
         if ($status == "A") {
             $descstatus = "Approved";
