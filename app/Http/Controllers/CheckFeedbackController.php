@@ -12,17 +12,12 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Storage;
-use App\Mail\SendPoSMail;
-use App\Mail\FeedbackMail;
-use App\Mail\StaffActionMail;
-use App\Mail\StaffActionPoRMail;
-use App\Mail\StaffActionPoSMail;
 use Carbon\Carbon;
 use PDO;
 use DateTime;
 
 
-class AutoFeedbackController extends Controller
+class CheckFeedbackController extends Controller
 {
     public function index()
     {
@@ -81,18 +76,7 @@ class AutoFeedbackController extends Controller
                 }
             
                 if (!file_exists($cacheFilePath)) {
-                    $pdo = DB::connection('BTID')->getPdo();
-                    $sth = $pdo->prepare("SET NOCOUNT ON; EXEC ".$exec." ?, ?, ?, ?, ?, ?, ?, ?, ?;");
-                    $sth->bindParam(1, $entity_cd);
-                    $sth->bindParam(2, $doc_no);
-                    $sth->bindParam(3, $level_no);
-                    $sth->bindParam(4, $status);
-                    $sth->bindParam(5, $type);
-                    $sth->bindParam(6, $module);
-                    $sth->bindParam(7, $descs);
-                    $sth->bindParam(8, $descsLong);
-                    $sth->bindParam(9, $reason);
-                    $sth->execute();
+                    var_dump($doc_no);
                 }
             } 
             else if ($trim_type == 'U' && $trim_module == "CB")
@@ -108,18 +92,7 @@ class AutoFeedbackController extends Controller
                 }
             
                 if (!file_exists($cacheFilePath)) {
-                    $pdo = DB::connection('BTID')->getPdo();
-                    $sth = $pdo->prepare("SET NOCOUNT ON; EXEC ".$exec." ?, ?, ?, ?, ?, ?, ?, ?, ?;");
-                    $sth->bindParam(1, $entity_cd);
-                    $sth->bindParam(2, $doc_no);
-                    $sth->bindParam(3, $level_no);
-                    $sth->bindParam(4, $status);
-                    $sth->bindParam(5, $type);
-                    $sth->bindParam(6, $module);
-                    $sth->bindParam(7, $descs);
-                    $sth->bindParam(8, $descsLong);
-                    $sth->bindParam(9, $reason);
-                    $sth->execute();
+                    var_dump($doc_no);
                 }
             } 
             else if ($trim_type == 'V' && $trim_module == "CB")
@@ -135,18 +108,7 @@ class AutoFeedbackController extends Controller
                 }
             
                 if (!file_exists($cacheFilePath)) {
-                    $pdo = DB::connection('BTID')->getPdo();
-                    $sth = $pdo->prepare("SET NOCOUNT ON; EXEC ".$exec." ?, ?, ?, ?, ?, ?, ?, ?, ?;");
-                    $sth->bindParam(1, $entity_cd);
-                    $sth->bindParam(2, $doc_no);
-                    $sth->bindParam(3, $level_no);
-                    $sth->bindParam(4, $status);
-                    $sth->bindParam(5, $type);
-                    $sth->bindParam(6, $module);
-                    $sth->bindParam(7, $descs);
-                    $sth->bindParam(8, $descsLong);
-                    $sth->bindParam(9, $reason);
-                    $sth->execute();
+                    var_dump($doc_no);
                 }
             } 
             else if ($trim_type == 'D' && $trim_module == "CB")
@@ -162,18 +124,7 @@ class AutoFeedbackController extends Controller
                 }
             
                 if (!file_exists($cacheFilePath)) {
-                    $pdo = DB::connection('BTID')->getPdo();
-                    $sth = $pdo->prepare("SET NOCOUNT ON; EXEC ".$exec." ?, ?, ?, ?, ?, ?, ?, ?, ?;");
-                    $sth->bindParam(1, $entity_cd);
-                    $sth->bindParam(2, $doc_no);
-                    $sth->bindParam(3, $level_no);
-                    $sth->bindParam(4, $status);
-                    $sth->bindParam(5, $type);
-                    $sth->bindParam(6, $module);
-                    $sth->bindParam(7, $descs);
-                    $sth->bindParam(8, $descsLong);
-                    $sth->bindParam(9, $reason);
-                    $sth->execute();
+                    var_dump($doc_no);
                 }
             } 
             else if ($trim_type == 'D' && $trim_module == "CB")
@@ -189,18 +140,7 @@ class AutoFeedbackController extends Controller
                 }
             
                 if (!file_exists($cacheFilePath)) {
-                    $pdo = DB::connection('BTID')->getPdo();
-                    $sth = $pdo->prepare("SET NOCOUNT ON; EXEC ".$exec." ?, ?, ?, ?, ?, ?, ?, ?, ?;");
-                    $sth->bindParam(1, $entity_cd);
-                    $sth->bindParam(2, $doc_no);
-                    $sth->bindParam(3, $level_no);
-                    $sth->bindParam(4, $status);
-                    $sth->bindParam(5, $type);
-                    $sth->bindParam(6, $module);
-                    $sth->bindParam(7, $descs);
-                    $sth->bindParam(8, $descsLong);
-                    $sth->bindParam(9, $reason);
-                    $sth->execute();
+                    var_dump($doc_no);
                 }
             } 
             else if ($trim_type == 'A' && $trim_module == "PO") 
@@ -216,18 +156,7 @@ class AutoFeedbackController extends Controller
                 }
             
                 if (!file_exists($cacheFilePath)) {
-                    $pdo = DB::connection('BTID')->getPdo();
-                    $sth = $pdo->prepare("SET NOCOUNT ON; EXEC ".$exec." ?, ?, ?, ?, ?, ?, ?, ?, ?;");
-                    $sth->bindParam(1, $entity_cd);
-                    $sth->bindParam(2, $doc_no);
-                    $sth->bindParam(3, $level_no);
-                    $sth->bindParam(4, $status);
-                    $sth->bindParam(5, $type);
-                    $sth->bindParam(6, $module);
-                    $sth->bindParam(7, $descs);
-                    $sth->bindParam(8, $descsLong);
-                    $sth->bindParam(9, $reason);
-                    $sth->execute();
+                    var_dump($doc_no);
                 }
             } 
             else if ($trim_type == 'Q' && $trim_module == "PO") 
@@ -243,18 +172,7 @@ class AutoFeedbackController extends Controller
                 }
             
                 if (!file_exists($cacheFilePath)) {
-                    $pdo = DB::connection('BTID')->getPdo();
-                    $sth = $pdo->prepare("SET NOCOUNT ON; EXEC ".$exec." ?, ?, ?, ?, ?, ?, ?, ?, ?;");
-                    $sth->bindParam(1, $entity_cd);
-                    $sth->bindParam(2, $doc_no);
-                    $sth->bindParam(3, $level_no);
-                    $sth->bindParam(4, $status);
-                    $sth->bindParam(5, $type);
-                    $sth->bindParam(6, $module);
-                    $sth->bindParam(7, $descs);
-                    $sth->bindParam(8, $descsLong);
-                    $sth->bindParam(9, $reason);
-                    $sth->execute();
+                    var_dump($doc_no);
                 }
             } 
             else if ($trim_type == 'S' && $trim_module == "PO") 
@@ -270,18 +188,7 @@ class AutoFeedbackController extends Controller
                 }
             
                 if (!file_exists($cacheFilePath)) {
-                    $pdo = DB::connection('BTID')->getPdo();
-                    $sth = $pdo->prepare("SET NOCOUNT ON; EXEC ".$exec." ?, ?, ?, ?, ?, ?, ?, ?, ?;");
-                    $sth->bindParam(1, $entity_cd);
-                    $sth->bindParam(2, $doc_no);
-                    $sth->bindParam(3, $level_no);
-                    $sth->bindParam(4, $status);
-                    $sth->bindParam(5, $type);
-                    $sth->bindParam(6, $module);
-                    $sth->bindParam(7, $descs);
-                    $sth->bindParam(8, $descsLong);
-                    $sth->bindParam(9, $reason);
-                    $sth->execute();
+                    var_dump($doc_no);
                 }
             } 
             else if ($trim_type == 'A' && $trim_module == 'CM') 
@@ -297,18 +204,7 @@ class AutoFeedbackController extends Controller
                 }
             
                 if (!file_exists($cacheFilePath)) {
-                    $pdo = DB::connection('BTID')->getPdo();
-                    $sth = $pdo->prepare("SET NOCOUNT ON; EXEC ".$exec." ?, ?, ?, ?, ?, ?, ?, ?, ?;");
-                    $sth->bindParam(1, $entity_cd);
-                    $sth->bindParam(2, $doc_no);
-                    $sth->bindParam(3, $level_no);
-                    $sth->bindParam(4, $status);
-                    $sth->bindParam(5, $type);
-                    $sth->bindParam(6, $module);
-                    $sth->bindParam(7, $descs);
-                    $sth->bindParam(8, $descsLong);
-                    $sth->bindParam(9, $reason);
-                    $sth->execute();
+                    var_dump($doc_no);
                 }
             } 
             else if ($trim_type == 'B' && $trim_module == 'CM') 
@@ -324,18 +220,7 @@ class AutoFeedbackController extends Controller
                 }
             
                 if (!file_exists($cacheFilePath)) {
-                    $pdo = DB::connection('BTID')->getPdo();
-                    $sth = $pdo->prepare("SET NOCOUNT ON; EXEC ".$exec." ?, ?, ?, ?, ?, ?, ?, ?, ?;");
-                    $sth->bindParam(1, $entity_cd);
-                    $sth->bindParam(2, $doc_no);
-                    $sth->bindParam(3, $level_no);
-                    $sth->bindParam(4, $status);
-                    $sth->bindParam(5, $type);
-                    $sth->bindParam(6, $module);
-                    $sth->bindParam(7, $descs);
-                    $sth->bindParam(8, $descsLong);
-                    $sth->bindParam(9, $reason);
-                    $sth->execute();
+                    var_dump($doc_no);
                 }
             } 
             else if ($trim_type == 'C' && $trim_module == 'CM') 
@@ -351,18 +236,7 @@ class AutoFeedbackController extends Controller
                 }
             
                 if (!file_exists($cacheFilePath)) {
-                    $pdo = DB::connection('BTID')->getPdo();
-                    $sth = $pdo->prepare("SET NOCOUNT ON; EXEC ".$exec." ?, ?, ?, ?, ?, ?, ?, ?, ?;");
-                    $sth->bindParam(1, $entity_cd);
-                    $sth->bindParam(2, $doc_no);
-                    $sth->bindParam(3, $level_no);
-                    $sth->bindParam(4, $status);
-                    $sth->bindParam(5, $type);
-                    $sth->bindParam(6, $module);
-                    $sth->bindParam(7, $descs);
-                    $sth->bindParam(8, $descsLong);
-                    $sth->bindParam(9, $reason);
-                    $sth->execute();
+                    var_dump($doc_no);
                 }
             } 
             else if ($trim_type == 'D' && $trim_module == 'CM') 
@@ -378,18 +252,7 @@ class AutoFeedbackController extends Controller
                 }
             
                 if (!file_exists($cacheFilePath)) {
-                    $pdo = DB::connection('BTID')->getPdo();
-                    $sth = $pdo->prepare("SET NOCOUNT ON; EXEC ".$exec." ?, ?, ?, ?, ?, ?, ?, ?, ?;");
-                    $sth->bindParam(1, $entity_cd);
-                    $sth->bindParam(2, $doc_no);
-                    $sth->bindParam(3, $level_no);
-                    $sth->bindParam(4, $status);
-                    $sth->bindParam(5, $type);
-                    $sth->bindParam(6, $module);
-                    $sth->bindParam(7, $descs);
-                    $sth->bindParam(8, $descsLong);
-                    $sth->bindParam(9, $reason);
-                    $sth->execute();
+                    var_dump($doc_no);
                 }
             } 
             else if ($trim_type == 'E' && $trim_module == 'CM') 
@@ -405,18 +268,7 @@ class AutoFeedbackController extends Controller
                 }
             
                 if (!file_exists($cacheFilePath)) {
-                    $pdo = DB::connection('BTID')->getPdo();
-                    $sth = $pdo->prepare("SET NOCOUNT ON; EXEC ".$exec." ?, ?, ?, ?, ?, ?, ?, ?, ?;");
-                    $sth->bindParam(1, $entity_cd);
-                    $sth->bindParam(2, $doc_no);
-                    $sth->bindParam(3, $level_no);
-                    $sth->bindParam(4, $status);
-                    $sth->bindParam(5, $type);
-                    $sth->bindParam(6, $module);
-                    $sth->bindParam(7, $descs);
-                    $sth->bindParam(8, $descsLong);
-                    $sth->bindParam(9, $reason);
-                    $sth->execute();
+                    var_dump($doc_no);
                 }
             }
         }
