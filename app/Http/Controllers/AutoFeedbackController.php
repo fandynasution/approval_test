@@ -46,378 +46,119 @@ class AutoFeedbackController extends Controller
         ->orderByDesc('mgr.cb_cash_request_appr.approved_date')
         ->get();
 
-
         foreach ($query as $data){
-            $approve_seq = $data->approve_seq;
-            $trim_approve_seq = rtrim($approve_seq);
             $entity_cd = $data->entity_cd;
-            $trim_entity_cd = rtrim($entity_cd);
-            $doc_no = $data->doc_no;
-            $trim_doc_no = rtrim($doc_no);
-            $status = $data->status;
-            $trim_status = rtrim($status);
-            $type = $data->TYPE;
-            $trim_type = rtrim($type);
-            $module = $data->module;
-            $trim_module = rtrim($module);
-            $approved_date = $data->approved_date;
-            $dateTime_app = new DateTime($approved_date);
             $exploded_values = explode(" ", $entity_cd);
+            $project_no = implode('', $exploded_values) . '01';
+            $doc_no = $data->doc_no;
+            $trx_type = $data->trx_type;
+            $level_no = $data->level_no;
+            $user_id = $data->user_id;
+            $approve_seq = $data->approve_seq;
+            $type = $data->TYPE;
+            $module = $data->module;
+            $status = $data->status;
+            $ref_no = $data->ref_no;
+            $doc_date = $data->doc_date;
             $descs = '(APPROVED)';
-            
-            $formatted_date = $dateTime_app->format('Ymd');
+            $dateTime = new DateTime($doc_date);
             $supervisor = 'Y';
             $reason = '0';
-            if ($trim_type == 'E' && $trim_module == "CB")
+            if ($type == 'E' && $module == "CB")
             {
                 $descsLong = 'Propose Transfer to Bank';
-                $cacheFile = 'email_feedback_sent_' . $trim_approve_seq . '_' . $trim_entity_cd . '_' . $trim_doc_no . '_' . $trim_status . '.txt';
+                $cacheFile = 'email_feedback_sent_' . $approve_seq . '_' . $entity_cd . '_' . $doc_no . '_' . $status . '.txt';
                 $exec = 'mgr.x_send_mail_approval_feedback_cb_fupd';
                 $folder = 'feedbackCbFupd';
-                $cacheFilePath = storage_path('app/mail_cache/'.$folder.'/' . $formatted_date . '/' . $cacheFile);
-                $cacheDirectory = dirname($cacheFilePath);
-                if (!file_exists($cacheDirectory)) {
-                    mkdir($cacheDirectory, 0755, true);
-                }
-            
-                if (!file_exists($cacheFilePath)) {
-                    $pdo = DB::connection('BTID')->getPdo();
-                    $sth = $pdo->prepare("SET NOCOUNT ON; EXEC ".$exec." ?, ?, ?, ?, ?, ?, ?, ?, ?;");
-                    $sth->bindParam(1, $entity_cd);
-                    $sth->bindParam(2, $doc_no);
-                    $sth->bindParam(3, $level_no);
-                    $sth->bindParam(4, $status);
-                    $sth->bindParam(5, $type);
-                    $sth->bindParam(6, $module);
-                    $sth->bindParam(7, $descs);
-                    $sth->bindParam(8, $descsLong);
-                    $sth->bindParam(9, $reason);
-                    $sth->execute();
-                }
-            } 
-            else if ($trim_type == 'U' && $trim_module == "CB")
+            } else if ($type == 'U' && $module == "CB")
             {
                 $descsLong = 'Payment Request';
-                $cacheFile = 'email_feedback_sent_' . $trim_approve_seq . '_' . $trim_entity_cd . '_' . $trim_doc_no . '_' . $trim_status . '.txt';
+                $cacheFile = 'email_feedback_sent_' . $approve_seq . '_' . $entity_cd . '_' . $doc_no . '_' . $status . '.txt';
                 $exec = 'mgr.x_send_mail_approval_feedback_cb_ppu';
                 $folder = 'feedbackCb';
-                $cacheFilePath = storage_path('app/mail_cache/'.$folder.'/' . $formatted_date . '/' . $cacheFile);
-                $cacheDirectory = dirname($cacheFilePath);
-                if (!file_exists($cacheDirectory)) {
-                    mkdir($cacheDirectory, 0755, true);
-                }
-            
-                if (!file_exists($cacheFilePath)) {
-                    $pdo = DB::connection('BTID')->getPdo();
-                    $sth = $pdo->prepare("SET NOCOUNT ON; EXEC ".$exec." ?, ?, ?, ?, ?, ?, ?, ?, ?;");
-                    $sth->bindParam(1, $entity_cd);
-                    $sth->bindParam(2, $doc_no);
-                    $sth->bindParam(3, $level_no);
-                    $sth->bindParam(4, $status);
-                    $sth->bindParam(5, $type);
-                    $sth->bindParam(6, $module);
-                    $sth->bindParam(7, $descs);
-                    $sth->bindParam(8, $descsLong);
-                    $sth->bindParam(9, $reason);
-                    $sth->execute();
-                }
-            } 
-            else if ($trim_type == 'V' && $trim_module == "CB")
+            } else if ($type == 'V' && $module == "CB")
             {
                 $descsLong = 'Payment Request';
-                $cacheFile = 'email_feedback_sent_' . $trim_approve_seq . '_' . $trim_entity_cd . '_' . $trim_doc_no . '_' . $trim_status . '.txt';
+                $cacheFile = 'email_feedback_sent_' . $approve_seq . '_' . $entity_cd . '_' . $doc_no . '_' . $status . '.txt';
                 $exec = 'mgr.x_send_mail_approval_feedback_cb_ppu_vvip';
                 $folder = 'feedbackCb';
-                $cacheFilePath = storage_path('app/mail_cache/'.$folder.'/' . $formatted_date . '/' . $cacheFile);
-                $cacheDirectory = dirname($cacheFilePath);
-                if (!file_exists($cacheDirectory)) {
-                    mkdir($cacheDirectory, 0755, true);
-                }
-            
-                if (!file_exists($cacheFilePath)) {
-                    $pdo = DB::connection('BTID')->getPdo();
-                    $sth = $pdo->prepare("SET NOCOUNT ON; EXEC ".$exec." ?, ?, ?, ?, ?, ?, ?, ?, ?;");
-                    $sth->bindParam(1, $entity_cd);
-                    $sth->bindParam(2, $doc_no);
-                    $sth->bindParam(3, $level_no);
-                    $sth->bindParam(4, $status);
-                    $sth->bindParam(5, $type);
-                    $sth->bindParam(6, $module);
-                    $sth->bindParam(7, $descs);
-                    $sth->bindParam(8, $descsLong);
-                    $sth->bindParam(9, $reason);
-                    $sth->execute();
-                }
-            } 
-            else if ($trim_type == 'D' && $trim_module == "CB")
+            } else if ($type == 'D' && $module == "CB")
             {
                 $descsLong = 'Recapitulation Bank';
-                $cacheFile = 'email_feedback_sent_' . $trim_approve_seq . '_' . $trim_entity_cd . '_' . $trim_doc_no . '_' . $trim_status . '.txt';
+                $cacheFile = 'email_feedback_sent_' . $approve_seq . '_' . $entity_cd . '_' . $doc_no . '_' . $status . '.txt';
                 $exec = 'mgr.x_send_mail_approval_feedback_cb_rpb';
                 $folder = 'feedbackCb';
-                $cacheFilePath = storage_path('app/mail_cache/'.$folder.'/' . $formatted_date . '/' . $cacheFile);
-                $cacheDirectory = dirname($cacheFilePath);
-                if (!file_exists($cacheDirectory)) {
-                    mkdir($cacheDirectory, 0755, true);
-                }
-            
-                if (!file_exists($cacheFilePath)) {
-                    $pdo = DB::connection('BTID')->getPdo();
-                    $sth = $pdo->prepare("SET NOCOUNT ON; EXEC ".$exec." ?, ?, ?, ?, ?, ?, ?, ?, ?;");
-                    $sth->bindParam(1, $entity_cd);
-                    $sth->bindParam(2, $doc_no);
-                    $sth->bindParam(3, $level_no);
-                    $sth->bindParam(4, $status);
-                    $sth->bindParam(5, $type);
-                    $sth->bindParam(6, $module);
-                    $sth->bindParam(7, $descs);
-                    $sth->bindParam(8, $descsLong);
-                    $sth->bindParam(9, $reason);
-                    $sth->execute();
-                }
-            } 
-            else if ($trim_type == 'D' && $trim_module == "CB")
+            } else if ($type == 'D' && $module == "CB")
             {
                 $descsLong = 'Cash Advance Settlement';
-                $cacheFile = 'email_feedback_sent_' . $trim_approve_seq . '_' . $trim_entity_cd . '_' . $trim_doc_no . '_' . $trim_status . '.txt';
+                $cacheFile = 'email_feedback_sent_' . $approve_seq . '_' . $entity_cd . '_' . $doc_no . '_' . $status . '.txt';
                 $exec = 'mgr.x_send_mail_approval_feedback_cb_rum';
                 $folder = 'feedbackCb';
-                $cacheFilePath = storage_path('app/mail_cache/'.$folder.'/' . $formatted_date . '/' . $cacheFile);
-                $cacheDirectory = dirname($cacheFilePath);
-                if (!file_exists($cacheDirectory)) {
-                    mkdir($cacheDirectory, 0755, true);
-                }
-            
-                if (!file_exists($cacheFilePath)) {
-                    $pdo = DB::connection('BTID')->getPdo();
-                    $sth = $pdo->prepare("SET NOCOUNT ON; EXEC ".$exec." ?, ?, ?, ?, ?, ?, ?, ?, ?;");
-                    $sth->bindParam(1, $entity_cd);
-                    $sth->bindParam(2, $doc_no);
-                    $sth->bindParam(3, $level_no);
-                    $sth->bindParam(4, $status);
-                    $sth->bindParam(5, $type);
-                    $sth->bindParam(6, $module);
-                    $sth->bindParam(7, $descs);
-                    $sth->bindParam(8, $descsLong);
-                    $sth->bindParam(9, $reason);
-                    $sth->execute();
-                }
-            } 
-            else if ($trim_type == 'A' && $trim_module == "PO") 
+            } else if ($type == 'A' && $module == "PO")
             {
                 $descsLong = 'Purchase Order';
-                $cacheFile = 'email_feedback_sent_' . $trim_approve_seq . '_' . $trim_entity_cd . '_' . $trim_doc_no . '_' . $trim_status . '.txt';
+                $cacheFile = 'email_feedback_sent_' . $approve_seq . '_' . $entity_cd . '_' . $doc_no . '_' . $status . '.txt';
                 $exec = 'mgr.x_send_mail_approval_feedback_po_order';
                 $folder = 'feedbackPoOrder';
-                $cacheFilePath = storage_path('app/mail_cache/'.$folder.'/' . $formatted_date . '/' . $cacheFile);
-                $cacheDirectory = dirname($cacheFilePath);
-                if (!file_exists($cacheDirectory)) {
-                    mkdir($cacheDirectory, 0755, true);
-                }
-            
-                if (!file_exists($cacheFilePath)) {
-                    $pdo = DB::connection('BTID')->getPdo();
-                    $sth = $pdo->prepare("SET NOCOUNT ON; EXEC ".$exec." ?, ?, ?, ?, ?, ?, ?, ?, ?;");
-                    $sth->bindParam(1, $entity_cd);
-                    $sth->bindParam(2, $doc_no);
-                    $sth->bindParam(3, $level_no);
-                    $sth->bindParam(4, $status);
-                    $sth->bindParam(5, $type);
-                    $sth->bindParam(6, $module);
-                    $sth->bindParam(7, $descs);
-                    $sth->bindParam(8, $descsLong);
-                    $sth->bindParam(9, $reason);
-                    $sth->execute();
-                }
-            } 
-            else if ($trim_type == 'Q' && $trim_module == "PO") 
+            } else if ($type == 'Q' && $module == "PO")
             {
                 $descsLong = 'Purchase Requisition';
-                $cacheFile = 'email_feedback_sent_' . $trim_approve_seq . '_' . $trim_entity_cd . '_' . $trim_doc_no . '_' . $trim_status . '.txt';
+                $cacheFile = 'email_feedback_sent_' . $approve_seq . '_' . $entity_cd . '_' . $doc_no . '_' . $status . '.txt';
                 $exec = 'mgr.x_send_mail_approval_feedback_po_request';
                 $folder = 'feedbackPOR';
-                $cacheFilePath = storage_path('app/mail_cache/'.$folder.'/' . $formatted_date . '/' . $cacheFile);
-                $cacheDirectory = dirname($cacheFilePath);
-                if (!file_exists($cacheDirectory)) {
-                    mkdir($cacheDirectory, 0755, true);
-                }
-            
-                if (!file_exists($cacheFilePath)) {
-                    $pdo = DB::connection('BTID')->getPdo();
-                    $sth = $pdo->prepare("SET NOCOUNT ON; EXEC ".$exec." ?, ?, ?, ?, ?, ?, ?, ?, ?;");
-                    $sth->bindParam(1, $entity_cd);
-                    $sth->bindParam(2, $doc_no);
-                    $sth->bindParam(3, $level_no);
-                    $sth->bindParam(4, $status);
-                    $sth->bindParam(5, $type);
-                    $sth->bindParam(6, $module);
-                    $sth->bindParam(7, $descs);
-                    $sth->bindParam(8, $descsLong);
-                    $sth->bindParam(9, $reason);
-                    $sth->execute();
-                }
-            } 
-            else if ($trim_type == 'S' && $trim_module == "PO") 
+            } else if ($type == 'S' && $module == "PO")
             {
                 $descsLong = 'Purchase Selection';
-                $cacheFile = 'email_feedback_sent_' . $trim_approve_seq . '_' . $trim_entity_cd . '_' . $trim_doc_no . '_' . $trim_status . '.txt';
+                $cacheFile = 'email_feedback_sent_' . $approve_seq . '_' . $entity_cd . '_' . $doc_no . '_' . $status . '.txt';
                 $exec = 'mgr.x_send_mail_approval_feedback_po_selection';
                 $folder = 'feedbackPOS';
-                $cacheFilePath = storage_path('app/mail_cache/'.$folder.'/' . $formatted_date . '/' . $cacheFile);
-                $cacheDirectory = dirname($cacheFilePath);
-                if (!file_exists($cacheDirectory)) {
-                    mkdir($cacheDirectory, 0755, true);
-                }
-            
-                if (!file_exists($cacheFilePath)) {
-                    $pdo = DB::connection('BTID')->getPdo();
-                    $sth = $pdo->prepare("SET NOCOUNT ON; EXEC ".$exec." ?, ?, ?, ?, ?, ?, ?, ?, ?;");
-                    $sth->bindParam(1, $entity_cd);
-                    $sth->bindParam(2, $doc_no);
-                    $sth->bindParam(3, $level_no);
-                    $sth->bindParam(4, $status);
-                    $sth->bindParam(5, $type);
-                    $sth->bindParam(6, $module);
-                    $sth->bindParam(7, $descs);
-                    $sth->bindParam(8, $descsLong);
-                    $sth->bindParam(9, $reason);
-                    $sth->execute();
-                }
-            } 
-            else if ($trim_type == 'A' && $trim_module == 'CM') 
-            {
+            } else if ($type == 'A' && $module == 'CM') {
                 $descsLong = 'Contract Progress';
-                $cacheFile = 'email_feedback_sent_' . $trim_approve_seq . '_' . $trim_entity_cd . '_' . $trim_doc_no . '_' . $trim_status . '.txt';
+                $cacheFile = 'email_feedback_sent_' . $approve_seq . '_' . $entity_cd . '_' . $doc_no . '_' . $status . '.txt';
                 $exec = 'mgr.x_send_mail_approval_feedback';
                 $folder = 'send_cmprogress';
-                $cacheFilePath = storage_path('app/mail_cache/'.$folder.'/' . $formatted_date . '/' . $cacheFile);
-                $cacheDirectory = dirname($cacheFilePath);
-                if (!file_exists($cacheDirectory)) {
-                    mkdir($cacheDirectory, 0755, true);
-                }
-            
-                if (!file_exists($cacheFilePath)) {
-                    $pdo = DB::connection('BTID')->getPdo();
-                    $sth = $pdo->prepare("SET NOCOUNT ON; EXEC ".$exec." ?, ?, ?, ?, ?, ?, ?, ?, ?;");
-                    $sth->bindParam(1, $entity_cd);
-                    $sth->bindParam(2, $doc_no);
-                    $sth->bindParam(3, $level_no);
-                    $sth->bindParam(4, $status);
-                    $sth->bindParam(5, $type);
-                    $sth->bindParam(6, $module);
-                    $sth->bindParam(7, $descs);
-                    $sth->bindParam(8, $descsLong);
-                    $sth->bindParam(9, $reason);
-                    $sth->execute();
-                }
-            } 
-            else if ($trim_type == 'B' && $trim_module == 'CM') 
-            {
+            } else if ($type == 'B' && $module == 'CM') {
                 $descsLong = 'Contract Complete';
-                $cacheFile = 'email_feedback_sent_' . $trim_approve_seq . '_' . $trim_entity_cd . '_' . $trim_doc_no . '_' . $trim_status . '.txt';
+                $cacheFile = 'email_feedback_sent_' . $approve_seq . '_' . $entity_cd . '_' . $doc_no . '_' . $status . '.txt';
                 $exec = 'mgr.x_send_mail_approval_feedback';
                 $folder = 'send_cmdone';
-                $cacheFilePath = storage_path('app/mail_cache/'.$folder.'/' . $formatted_date . '/' . $cacheFile);
-                $cacheDirectory = dirname($cacheFilePath);
-                if (!file_exists($cacheDirectory)) {
-                    mkdir($cacheDirectory, 0755, true);
-                }
-            
-                if (!file_exists($cacheFilePath)) {
-                    $pdo = DB::connection('BTID')->getPdo();
-                    $sth = $pdo->prepare("SET NOCOUNT ON; EXEC ".$exec." ?, ?, ?, ?, ?, ?, ?, ?, ?;");
-                    $sth->bindParam(1, $entity_cd);
-                    $sth->bindParam(2, $doc_no);
-                    $sth->bindParam(3, $level_no);
-                    $sth->bindParam(4, $status);
-                    $sth->bindParam(5, $type);
-                    $sth->bindParam(6, $module);
-                    $sth->bindParam(7, $descs);
-                    $sth->bindParam(8, $descsLong);
-                    $sth->bindParam(9, $reason);
-                    $sth->execute();
-                }
-            } 
-            else if ($trim_type == 'C' && $trim_module == 'CM') 
-            {
+            } else if ($type == 'C' && $module == 'CM') {
                 $descsLong = 'Warranty Complete';
-                $cacheFile = 'email_feedback_sent_' . $trim_approve_seq . '_' . $trim_entity_cd . '_' . $trim_doc_no . '_' . $trim_status . '.txt';
+                $cacheFile = 'email_feedback_sent_' . $approve_seq . '_' . $entity_cd . '_' . $doc_no . '_' . $status . '.txt';
                 $exec = 'mgr.x_send_mail_approval_feedback';
                 $folder = 'send_cmclose';
-                $cacheFilePath = storage_path('app/mail_cache/'.$folder.'/' . $formatted_date . '/' . $cacheFile);
-                $cacheDirectory = dirname($cacheFilePath);
-                if (!file_exists($cacheDirectory)) {
-                    mkdir($cacheDirectory, 0755, true);
-                }
-            
-                if (!file_exists($cacheFilePath)) {
-                    $pdo = DB::connection('BTID')->getPdo();
-                    $sth = $pdo->prepare("SET NOCOUNT ON; EXEC ".$exec." ?, ?, ?, ?, ?, ?, ?, ?, ?;");
-                    $sth->bindParam(1, $entity_cd);
-                    $sth->bindParam(2, $doc_no);
-                    $sth->bindParam(3, $level_no);
-                    $sth->bindParam(4, $status);
-                    $sth->bindParam(5, $type);
-                    $sth->bindParam(6, $module);
-                    $sth->bindParam(7, $descs);
-                    $sth->bindParam(8, $descsLong);
-                    $sth->bindParam(9, $reason);
-                    $sth->execute();
-                }
-            } 
-            else if ($trim_type == 'D' && $trim_module == 'CM') 
-            {
+            } else if ($type == 'D' && $module == 'CM') {
                 $descsLong = 'Varian Order';
-                $cacheFile = 'email_feedback_sent_' . $trim_approve_seq . '_' . $trim_entity_cd . '_' . $trim_doc_no . '_' . $trim_status . '.txt';
+                $cacheFile = 'email_feedback_sent_' . $approve_seq . '_' . $entity_cd . '_' . $doc_no . '_' . $status . '.txt';
                 $exec = 'mgr.x_send_mail_approval_feedback';
                 $folder = 'send_varianorder';
-                $cacheFilePath = storage_path('app/mail_cache/'.$folder.'/' . $formatted_date . '/' . $cacheFile);
-                $cacheDirectory = dirname($cacheFilePath);
-                if (!file_exists($cacheDirectory)) {
-                    mkdir($cacheDirectory, 0755, true);
-                }
-            
-                if (!file_exists($cacheFilePath)) {
-                    $pdo = DB::connection('BTID')->getPdo();
-                    $sth = $pdo->prepare("SET NOCOUNT ON; EXEC ".$exec." ?, ?, ?, ?, ?, ?, ?, ?, ?;");
-                    $sth->bindParam(1, $entity_cd);
-                    $sth->bindParam(2, $doc_no);
-                    $sth->bindParam(3, $level_no);
-                    $sth->bindParam(4, $status);
-                    $sth->bindParam(5, $type);
-                    $sth->bindParam(6, $module);
-                    $sth->bindParam(7, $descs);
-                    $sth->bindParam(8, $descsLong);
-                    $sth->bindParam(9, $reason);
-                    $sth->execute();
-                }
-            } 
-            else if ($trim_type == 'E' && $trim_module == 'CM') 
-            {
+            } else if ($type == 'E' && $module == 'CM') {
                 $descsLong = 'Contract Entry';
-                $cacheFile = 'email_feedback_sent_' . $trim_approve_seq . '_' . $trim_entity_cd . '_' . $trim_doc_no . '_' . $trim_status . '.txt';
+                $cacheFile = 'email_feedback_sent_' . $approve_seq . '_' . $entity_cd . '_' . $doc_no . '_' . $status . '.txt';
                 $exec = 'mgr.x_send_mail_approval_feedback';
                 $folder = 'send_cmentry';
-                $cacheFilePath = storage_path('app/mail_cache/'.$folder.'/' . $formatted_date . '/' . $cacheFile);
-                $cacheDirectory = dirname($cacheFilePath);
-                if (!file_exists($cacheDirectory)) {
-                    mkdir($cacheDirectory, 0755, true);
-                }
-            
-                if (!file_exists($cacheFilePath)) {
-                    $pdo = DB::connection('BTID')->getPdo();
-                    $sth = $pdo->prepare("SET NOCOUNT ON; EXEC ".$exec." ?, ?, ?, ?, ?, ?, ?, ?, ?;");
-                    $sth->bindParam(1, $entity_cd);
-                    $sth->bindParam(2, $doc_no);
-                    $sth->bindParam(3, $level_no);
-                    $sth->bindParam(4, $status);
-                    $sth->bindParam(5, $type);
-                    $sth->bindParam(6, $module);
-                    $sth->bindParam(7, $descs);
-                    $sth->bindParam(8, $descsLong);
-                    $sth->bindParam(9, $reason);
-                    $sth->execute();
-                }
+            }
+            $defaultDate = date('Ymd');
+            $cacheFilePath = storage_path('app/mail_cache/'.$folder.'/' . $defaultDate . '/' . $cacheFile);
+            $cacheDirectory = dirname($cacheFilePath);
+                
+            if (!file_exists($cacheDirectory)) {
+                mkdir($cacheDirectory, 0755, true);
+            }
+        
+            if (!file_exists($cacheFilePath)) {
+                $pdo = DB::connection('BTID')->getPdo();
+                $sth = $pdo->prepare("SET NOCOUNT ON; EXEC ".$exec." ?, ?, ?, ?, ?, ?, ?, ?, ?;");
+                $sth->bindParam(1, $entity_cd);
+                $sth->bindParam(2, $doc_no);
+                $sth->bindParam(3, $level_no);
+                $sth->bindParam(4, $status);
+                $sth->bindParam(5, $type);
+                $sth->bindParam(6, $module);
+                $sth->bindParam(7, $descs);
+                $sth->bindParam(8, $descsLong);
+                $sth->bindParam(9, $reason);
+                $sth->execute();
             }
         }
     }
