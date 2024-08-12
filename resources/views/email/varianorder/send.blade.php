@@ -77,7 +77,7 @@
                                     </p>
                                     <p style="text-align:left; margin-bottom: 15px; margin-top: 0; color: #000000; font-size: 16px; list-style-type: circle;">
                                         <b>VO No. :{{ $dataArray['doc_no'] }}</b><br>
-                                        With a VO amount of {{ $dataArray['curr_cd'] }} {{ $dataArray['vo_appr_amt'] }}<br>
+                                        With a VO amount of {{ $dataArray['curr_cd'] }} {{ $dataArray['vo_sub_amt'] }}<br>
                                     </p>
 
                                     @php
@@ -97,6 +97,27 @@
                                         @endif
                                     @endforeach
                     
+                                    @if($hasAttachment)
+                                        </p>
+                                    @endif
+
+                                    @php
+                                        $hasAttachment = false;
+                                    @endphp
+
+                                    @if($dataArray['doc_link'] !== '' && $dataArray['doc_link'] !== 'EMPTY')
+                                        @if(strpos($dataArray['doc_link'], 'http://') === 0 || strpos($dataArray['doc_link'], 'https://') === 0)
+                                            @if(!$hasAttachment)
+                                                @php
+                                                    $hasAttachment = true;
+                                                @endphp
+                                                <p style="text-align:left; margin-bottom: 15px; color: #000000; font-size: 16px;">
+                                                    <span>This request comes with additional supporting documents, such as detailed specifications, that you can access from the link below :</span><br>
+                                            @endif
+                                            <a href="{{ $dataArray['doc_link'] }}" target="_blank">Additional Document Link</a><br>
+                                        @endif
+                                    @endif
+
                                     @if($hasAttachment)
                                         </p>
                                     @endif
