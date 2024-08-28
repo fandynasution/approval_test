@@ -96,3 +96,7 @@ Route::POST('/varianorder', [VarianOrder::class, 'Mail']);
 Route::GET('/varianorder/{status}/{encrypt}', [VarianOrder::class, 'processData']);
 Route::POST('/varianorder/getaccess', [VarianOrder::class, 'update']);
 
+use App\Http\Controllers\ContractRenewController as ContractRenew;
+Route::POST('/contractrenew', [ContractRenew::class, 'Mail']);
+Route::GET('/contractrenew/{status}/{encrypt}', [ContractRenew::class, 'processData']);
+Route::POST('/contractrenew/getaccess', [ContractRenew::class, 'update']);
