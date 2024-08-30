@@ -195,6 +195,20 @@ class StaffActionController extends Controller
             $status = $request->status;
             $approve_seq = $request->approve_seq;
             $email_cc = $request->email_cc;
+            try {
+                // Attempt to parse using a common format
+                $date_approved = Carbon::createFromFormat('M  j Y h:iA', $request->date_approved)->format('Ymd');
+            } catch (\Exception $e) {
+                // Fallback if the format doesn't match
+                try {
+                    // Attempt another format if needed
+                    $date_approved = Carbon::createFromFormat('Y-m-d H:i:s', $request->date_approved)->format('Ymd');
+                } catch (\Exception $e) {
+                    // Handle error or provide a default
+                    $date_approved = Carbon::now()->format('Ymd');
+                }
+            }
+            
         
             // Check if email addresses are provided and not empty
             if (!empty($emailAddresses)) {
@@ -223,7 +237,7 @@ class StaffActionController extends Controller
         
                 // Check if the email has been sent before for this document
                 $cacheFile = 'email_feedback_sent_' . $approve_seq . '_' . $entity_cd . '_' . $doc_no . '_' . $status . '.txt';
-                $cacheFilePath = storage_path('app/mail_cache/feedbackPOR/' . date('Ymd') . '/' . $cacheFile);
+                $cacheFilePath = storage_path('app/mail_cache/feedbackPOR/' . $date_approved . '/' . $cacheFile);
                 $cacheDirectory = dirname($cacheFilePath);
         
                 // Ensure the directory exists
@@ -389,17 +403,17 @@ class StaffActionController extends Controller
         $folder_name = $request->folder_name;
 
         // Connect to FTP server
-        $ftp_server = "34.101.201.127";
-        $ftp_conn = ftp_connect($ftp_server) or die("Could not connect to $ftp_server");
+        $ftp_server = "uat.ifca.co.id";
+        $ftp_conn = ftp_connect($ftp_server, 2111) or die("Could not connect to $ftp_server");
 
         // Log in to FTP server
-        $ftp_user_name = "ifca_dev";
-        $ftp_user_pass = "@Serangan1212";
+        $ftp_user_name = "btid";
+        $ftp_user_pass = "1fc41fc4";
         $login = ftp_login($ftp_conn, $ftp_user_name, $ftp_user_pass);
 
         $file = "ifca-att/".$folder_name."/".$file_name;
 
-        if (ftp_size($ftp_conn, $file) >= 0) {
+        if (ftp_size($ftp_conn, $file) > 0) {
             echo "Ada File";
         } else {
             echo "Tidak Ada File";
