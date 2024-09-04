@@ -195,7 +195,7 @@ class StaffActionController extends Controller
             $status = $request->status;
             $approve_seq = $request->approve_seq;
             $email_cc = $request->email_cc;
-            try {
+	    try {
                 // Attempt to parse using a common format
                 $date_approved = Carbon::createFromFormat('M  j Y h:iA', $request->date_approved)->format('Ymd');
             } catch (\Exception $e) {
@@ -208,7 +208,6 @@ class StaffActionController extends Controller
                     $date_approved = Carbon::now()->format('Ymd');
                 }
             }
-            
         
             // Check if email addresses are provided and not empty
             if (!empty($emailAddresses)) {
@@ -403,12 +402,12 @@ class StaffActionController extends Controller
         $folder_name = $request->folder_name;
 
         // Connect to FTP server
-        $ftp_server = "uat.ifca.co.id";
-        $ftp_conn = ftp_connect($ftp_server, 2111) or die("Could not connect to $ftp_server");
+        $ftp_server = "34.101.201.127";
+        $ftp_conn = ftp_connect($ftp_server) or die("Could not connect to $ftp_server");
 
         // Log in to FTP server
-        $ftp_user_name = "btid";
-        $ftp_user_pass = "1fc41fc4";
+        $ftp_user_name = "ifca_btid";
+        $ftp_user_pass = "@Serangan1212";
         $login = ftp_login($ftp_conn, $ftp_user_name, $ftp_user_pass);
 
         $file = "ifca-att/".$folder_name."/".$file_name;

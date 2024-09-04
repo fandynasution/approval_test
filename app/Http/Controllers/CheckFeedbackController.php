@@ -196,7 +196,7 @@ class CheckFeedbackController extends Controller
                 $descsLong = 'Contract Progress';
                 $cacheFile = 'email_feedback_sent_' . $trim_approve_seq . '_' . $trim_entity_cd . '_' . $trim_doc_no . '_' . $trim_status . '.txt';
                 $exec = 'mgr.x_send_mail_approval_feedback';
-                $folder = 'send_cmprogress';
+                $folder = 'feedbackCb';
                 $cacheFilePath = storage_path('app/mail_cache/'.$folder.'/' . $formatted_date . '/' . $cacheFile);
                 $cacheDirectory = dirname($cacheFilePath);
                 if (!file_exists($cacheDirectory)) {
@@ -212,7 +212,7 @@ class CheckFeedbackController extends Controller
                 $descsLong = 'Contract Complete';
                 $cacheFile = 'email_feedback_sent_' . $trim_approve_seq . '_' . $trim_entity_cd . '_' . $trim_doc_no . '_' . $trim_status . '.txt';
                 $exec = 'mgr.x_send_mail_approval_feedback';
-                $folder = 'send_cmdone';
+                $folder = 'feedbackCb';
                 $cacheFilePath = storage_path('app/mail_cache/'.$folder.'/' . $formatted_date . '/' . $cacheFile);
                 $cacheDirectory = dirname($cacheFilePath);
                 if (!file_exists($cacheDirectory)) {
@@ -228,7 +228,7 @@ class CheckFeedbackController extends Controller
                 $descsLong = 'Warranty Complete';
                 $cacheFile = 'email_feedback_sent_' . $trim_approve_seq . '_' . $trim_entity_cd . '_' . $trim_doc_no . '_' . $trim_status . '.txt';
                 $exec = 'mgr.x_send_mail_approval_feedback';
-                $folder = 'send_cmclose';
+                $folder = 'feedbackCb';
                 $cacheFilePath = storage_path('app/mail_cache/'.$folder.'/' . $formatted_date . '/' . $cacheFile);
                 $cacheDirectory = dirname($cacheFilePath);
                 if (!file_exists($cacheDirectory)) {
@@ -244,7 +244,7 @@ class CheckFeedbackController extends Controller
                 $descsLong = 'Varian Order';
                 $cacheFile = 'email_feedback_sent_' . $trim_approve_seq . '_' . $trim_entity_cd . '_' . $trim_doc_no . '_' . $trim_status . '.txt';
                 $exec = 'mgr.x_send_mail_approval_feedback';
-                $folder = 'send_varianorder';
+                $folder = 'feedbackCb';
                 $cacheFilePath = storage_path('app/mail_cache/'.$folder.'/' . $formatted_date . '/' . $cacheFile);
                 $cacheDirectory = dirname($cacheFilePath);
                 if (!file_exists($cacheDirectory)) {
@@ -260,7 +260,7 @@ class CheckFeedbackController extends Controller
                 $descsLong = 'Contract Entry';
                 $cacheFile = 'email_feedback_sent_' . $trim_approve_seq . '_' . $trim_entity_cd . '_' . $trim_doc_no . '_' . $trim_status . '.txt';
                 $exec = 'mgr.x_send_mail_approval_feedback';
-                $folder = 'send_cmentry';
+                $folder = 'feedbackCb';
                 $cacheFilePath = storage_path('app/mail_cache/'.$folder.'/' . $formatted_date . '/' . $cacheFile);
                 $cacheDirectory = dirname($cacheFilePath);
                 if (!file_exists($cacheDirectory)) {
