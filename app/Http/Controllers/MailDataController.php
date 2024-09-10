@@ -132,7 +132,12 @@ class MailDataController extends Controller
                     "bgcolor"   => $bgcolor,
                     "valuebt"   => $valuebt
                 );
-                return view('email/passcheckwithremark', $data);
+                if ( $dataArray["type"] == "Q" &&  $dataArray["type_module"] == 'PO' &&  ($dataArray["level_no"] == '1' || $dataArray["level_no"] == 1)) 
+                {
+                    return view('email/por/passcheckwithremark', $data);
+                } else {
+                    return view('email/passcheckwithremark', $data);
+                }
                 Artisan::call('config:cache');
             }
         }
@@ -147,7 +152,7 @@ class MailDataController extends Controller
         $module=$request->module;
         $reason=$request->reason;
         if (empty($request->reason)) {
-            $reason = '0';
+            $reason = 'no note';
         }
         try {
             $controllerName = 'App\\Http\\Controllers\\' . $module . 'Controller';
