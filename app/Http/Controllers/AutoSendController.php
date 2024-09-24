@@ -52,7 +52,13 @@ class AutoSendController extends Controller
             $supervisor = 'Y';
             $reason = '0';
 
-            
+            if ($type == 'U' && $module == "CB") {
+                $exec = 'mgr.x_send_mail_approval_cb_ppu';
+            } else if ($type == 'V' && $module == "CB") {
+                $exec = 'mgr.x_send_mail_approval_cb_ppu_vvip';
+            } else if ($type == 'Q' && $module == "PO") {
+                $exec = 'mgr.x_send_mail_approval_po_request';
+            }
             $whereUg = array(
                 'user_name' => $user_id
             );
@@ -76,13 +82,6 @@ class AutoSendController extends Controller
             $supervisor = $querysupervisor[0]->supervisor;
 
             if ($level_no == 1) {
-                if ($type == 'U' && $module == "CB") {
-                    $exec = 'mgr.x_send_mail_approval_cb_ppu';
-                } else if ($type == 'V' && $module == "CB") {
-                    $exec = 'mgr.x_send_mail_approval_cb_ppu_vvip';
-                } else if ($type == 'Q' && $module == "PO") {
-                    $exec = 'mgr.x_send_mail_approval_po_request';
-                }
                 if ($type == 'Q' && $module == "PO") {
                     $statussend = 'P';
                     $downLevel = '0';
@@ -98,6 +97,9 @@ class AutoSendController extends Controller
                     $sth->bindParam(8, $supervisor);
                     $sth->bindParam(9, $reason);
                     $sth->execute();
+                }  else if ($type == 'D' && $module == "CB") {
+                    // Skip this condition, do nothing for type 'D' and module 'CB'
+                    continue;  // This will skip the current iteration of the loop
                 } else {
                     $statussend = 'P';
                     $downLevel = '0';
@@ -131,13 +133,6 @@ class AutoSendController extends Controller
     
                 $level_data = $querybefore[0]->status;
                 if ($level_data == 'A'){
-                    if ($type == 'U' && $module == "CB") {
-                        $exec = 'mgr.x_send_mail_approval_cb_ppu';
-                    } else if ($type == 'V' && $module == "CB") {
-                        $exec = 'mgr.x_send_mail_approval_cb_ppu_vvip';
-                    } else if ($type == 'Q' && $module == "PO") {
-                        $exec = 'mgr.x_send_mail_approval_po_request';
-                    }
                     if ($type == 'Q' && $module == "PO") {
                         $pdo = DB::connection('BTID')->getPdo();
                         $sth = $pdo->prepare("SET NOCOUNT ON; EXEC mgr.x_send_mail_approval_po_request ?, ?, ?, ?, ?, ?, ?, ?, ?;");
@@ -151,6 +146,9 @@ class AutoSendController extends Controller
                         $sth->bindParam(8, $supervisor);
                         $sth->bindParam(9, $reason);
                         $sth->execute();
+                    }  else if ($type == 'D' && $module == "CB") {
+                        // Skip this condition, do nothing for type 'D' and module 'CB'
+                        continue;  // This will skip the current iteration of the loop
                     } else {
                         $pdo = DB::connection('BTID')->getPdo();
                         $sth = $pdo->prepare("SET NOCOUNT ON; EXEC ".$exec." ?, ?, ?, ?, ?, ?, ?, ?, ?, ?;");
