@@ -25,11 +25,11 @@ class PurchaseSelectionController extends Controller
         
         $list_of_urls = explode('; ', $request->url_file);
         $list_of_files = explode('; ', $request->file_name);
-	$list_of_doc = explode('; ', $request->document_link);
+	    $list_of_doc = explode('; ', $request->document_link);
 
         $url_data = [];
         $file_data = [];
-	$doc_data = [];
+	    $doc_data = [];
 
         foreach ($list_of_urls as $url) {
             $url_data[] = $url;
@@ -39,9 +39,9 @@ class PurchaseSelectionController extends Controller
             $file_data[] = $file;
         }
 
-	foreach ($list_of_doc as $doc) {
-	    $doc_data[] = $doc;
-	}
+        foreach ($list_of_doc as $doc) {
+            $doc_data[] = $doc;
+        }
 
         $list_of_approve = explode('; ',  $request->approve_exist);
         $approve_data = [];
@@ -63,7 +63,7 @@ class PurchaseSelectionController extends Controller
             'user_name'     => $request->user_name,
             'url_file'      => $url_data,
             'file_name'     => $file_data,
-	    'doc_link'	    => $doc_data,
+	        'doc_link'	    => $doc_data,
             'approve_list'  => $approve_data,
             'curr_cd'       => $request->curr_cd,
             'total_amt'     => $total_amt,

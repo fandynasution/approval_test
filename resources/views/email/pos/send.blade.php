@@ -101,7 +101,7 @@
                                         </p>
                                     @endif
 
-				    @php
+				                    @php
                                         $hasAttachment = false;
                                     @endphp
                     
