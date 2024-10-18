@@ -14,7 +14,7 @@ use App\Mail\SendPoRMail;
 
 class PoRequestController extends Controller
 {
-    public function processModule($data) 
+    public function processModule($data)
     {
         if (strpos($data["req_hd_descs"], "\n") !== false) {
             $req_hd_descs = str_replace("\n", ' (', $data["req_hd_descs"]) . ')';
@@ -49,7 +49,7 @@ class PoRequestController extends Controller
         }
 
         $formattedNumber = number_format($data["total_price"], 2, '.', ',');
-        
+
         $dataArray = array(
             'sender'        => $data["sender"],
             'entity_name'   => $data["entity_name"],
@@ -87,25 +87,26 @@ class PoRequestController extends Controller
 
         // Melakukan enkripsi pada $dataArray
         $encryptedData = Crypt::encrypt($data2Encrypt);
-    
+
         try {
             $emailAddress = strtolower($data["email_addr"]);
             $approveSeq = $data["approve_seq"];
             $entityCd = $data["entity_cd"];
             $docNo = $data["doc_no"];
             $levelNo = $data["level_no"];
-        
+            $entity_name = $data["entity_name"];
+
             if (!empty($emailAddress)) {
                 // Check if the email has been sent before for this document
                 $cacheFile = 'email_sent_' . $approveSeq . '_' . $entityCd . '_' . $docNo . '_' . $levelNo . '.txt';
                 $cacheFilePath = storage_path('app/mail_cache/send_porequeset/' . date('Ymd') . '/' . $cacheFile);
                 $cacheDirectory = dirname($cacheFilePath);
-        
+
                 // Ensure the directory exists
                 if (!file_exists($cacheDirectory)) {
                     mkdir($cacheDirectory, 0755, true);
                 }
-        
+
                 // Acquire an exclusive lock
                 $lockFile = $cacheFilePath . '.lock';
                 $lockHandle = fopen($lockFile, 'w');
@@ -114,14 +115,14 @@ class PoRequestController extends Controller
                     fclose($lockHandle);
                     throw new Exception('Failed to acquire lock');
                 }
-        
+
                 if (!file_exists($cacheFilePath)) {
                     // Send email only if it has not been sent before
-                    Mail::to($emailAddress)->send(new SendPoRMail($encryptedData, $dataArray));
-        
+                    Mail::to($emailAddress)->send(new SendPoRMail($encryptedData, $dataArray, $entity_name));
+
                     // Mark email as sent
                     file_put_contents($cacheFilePath, 'sent');
-        
+
                     // Log the success
                     Log::channel('sendmailapproval')->info('Email Purchase Requisition doc_no '.$docNo.' Entity ' . $entityCd.' berhasil dikirim ke: ' . $emailAddress);
                     return 'Email berhasil dikirim ke: ' . $emailAddress;
@@ -140,7 +141,7 @@ class PoRequestController extends Controller
             Log::channel('sendmail')->error('Gagal mengirim email: ' . $e->getMessage());
             return "Gagal mengirim email: " . $e->getMessage();
         }
-        
+
     }
 
     public function update($status, $encrypt, $reason)
@@ -155,7 +156,7 @@ class PoRequestController extends Controller
         $notif = " ";
         $st = " ";
         $image = " ";
-        
+
         if ($status == "A") {
             $descstatus = "Approved";
             $imagestatus = "approved.png";

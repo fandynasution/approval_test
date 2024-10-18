@@ -15,11 +15,13 @@ class SendPoRMail extends Mailable
 
     public $encryptedData;
     public $dataArray;
+    public $fromName;
 
     /**
      * Create a new message instance.
      *
      * @param array $encryptedData
+     * @param array $dataArray
      * @param array $dataArray
      * @return void
      */
@@ -27,6 +29,7 @@ class SendPoRMail extends Mailable
     {
         $this->encryptedData = $encryptedData;
         $this->dataArray = $dataArray;
+        $this->fromName = $fromName ?? config('mail.from.name');
     }
 
     /**
@@ -37,7 +40,8 @@ class SendPoRMail extends Mailable
     public function build()
     {
 
-        return $this->subject($this->dataArray['subject'])
+        return $this->from(config('mail.from.address'), $this->fromName)
+                    ->subject($this->dataArray['subject'])
                     ->view('email.por.send')
                     ->with([
                         'encryptedData' => $this->encryptedData,
