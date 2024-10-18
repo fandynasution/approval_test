@@ -22,14 +22,14 @@ class SendPoRMail extends Mailable
      *
      * @param array $encryptedData
      * @param array $dataArray
-     * @param array $dataArray
+     * @param string|null $fromName
      * @return void
      */
-    public function __construct($encryptedData, $dataArray)
+    public function __construct($encryptedData, $dataArray, $fromName = null)
     {
         $this->encryptedData = $encryptedData;
         $this->dataArray = $dataArray;
-        $this->fromName = $fromName ?? config('mail.from.name');
+        $this->fromName = $fromName ?? config('mail.from.name');  // Fallback to .env if not provided
     }
 
     /**
@@ -39,7 +39,6 @@ class SendPoRMail extends Mailable
      */
     public function build()
     {
-
         return $this->from(config('mail.from.address'), $this->fromName)
                     ->subject($this->dataArray['subject'])
                     ->view('email.por.send')
