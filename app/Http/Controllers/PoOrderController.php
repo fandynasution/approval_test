@@ -13,7 +13,7 @@ use App\Mail\SendPoMail;
 
 class PoOrderController extends Controller
 {
-    public function processModule($data) 
+    public function processModule($data)
     {
 
         $list_of_urls = explode('; ', $data["url_file"]);
@@ -51,7 +51,7 @@ class PoOrderController extends Controller
         foreach ($list_of_order_no as $order_no) {
             $order_no_data[] = $order_no;
         }
-        
+
         $list_of_order_remarks = explode('; ', $data["order_remarks"]);
 
         $order_remarks_data = [];
@@ -75,7 +75,7 @@ class PoOrderController extends Controller
         }
 
         $po_amt = number_format($data["po_amt"], 2, '.', ',');
-        
+
         $dataArray = array(
             'module'        => "PoOrder",
             'sender'        => $data["sender"],
@@ -119,25 +119,26 @@ class PoOrderController extends Controller
         Cache::flush();
         // Melakukan enkripsi pada $dataArray
         $encryptedData = Crypt::encrypt($data2Encrypt);
-    
+
         try {
             $emailAddress = strtolower($data["email_addr"]);
             $approveSeq = $data["approve_seq"];
             $entityCd = $data["entity_cd"];
             $docNo = $data["doc_no"];
             $levelNo = $data["level_no"];
-        
+            $entity_name = $data["entity_name"];
+
             if (!empty($emailAddress)) {
                 // Check if the email has been sent before for this document
                 $cacheFile = 'email_sent_' . $approveSeq . '_' . $entityCd . '_' . $docNo . '_' . $levelNo . '.txt';
                 $cacheFilePath = storage_path('app/mail_cache/send_porder/' . date('Ymd') . '/' . $cacheFile);
                 $cacheDirectory = dirname($cacheFilePath);
-        
+
                 // Ensure the directory exists
                 if (!file_exists($cacheDirectory)) {
                     mkdir($cacheDirectory, 0755, true);
                 }
-        
+
                 // Acquire an exclusive lock
                 $lockFile = $cacheFilePath . '.lock';
                 $lockHandle = fopen($lockFile, 'w');
@@ -146,14 +147,14 @@ class PoOrderController extends Controller
                     fclose($lockHandle);
                     throw new Exception('Failed to acquire lock');
                 }
-        
+
                 if (!file_exists($cacheFilePath)) {
                     // Send email
-                    Mail::to($emailAddress)->send(new SendPoMail($encryptedData, $dataArray));
-        
+                    Mail::to($emailAddress)->send(new SendPoMail($encryptedData, $dataArray, 'IFCA SOFTWARE - '.$entity_name));
+
                     // Mark email as sent
                     file_put_contents($cacheFilePath, 'sent');
-        
+
                     // Log the success
                     Log::channel('sendmailapproval')->info('Email Purchase Order doc_no '.$docNo.' Entity ' . $entityCd.' berhasil dikirim ke: ' . $emailAddress);
                     return 'Email berhasil dikirim ke: ' . $emailAddress;
@@ -172,7 +173,7 @@ class PoOrderController extends Controller
             Log::channel('sendmail')->error('Failed to send email: ' . $e->getMessage());
             return "Failed to send email: " . $e->getMessage();
         }
-        
+
     }
 
     public function update($status, $encrypt, $reason)

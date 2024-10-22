@@ -27,7 +27,7 @@ class CmProgressController extends Controller
         $prev_progress_amt = number_format( $request->prev_progress_amt , 2 , '.' , ',' );
 
         $list_of_approve = explode('; ',  $request->approve_exist);
-        
+
         $approve_data = [];
         foreach ($list_of_approve as $approve) {
             $approve_data[] = $approve;
@@ -90,27 +90,28 @@ class CmProgressController extends Controller
             'text'          => 'Contract Progress'
         );
 
-        
+
 
         // Melakukan enkripsi pada $dataArray
         $encryptedData = Crypt::encrypt($data2Encrypt);
-    
+
         try {
             $emailAddresses = strtolower($request->email_addr);
             $approve_seq = $request->approve_seq;
             $entity_cd = $request->entity_cd;
             $doc_no = $request->doc_no;
             $level_no = $request->level_no;
-        
+            $entity_name = $request->entity_name;
+
             // Check if email addresses are provided and not empty
             if (!empty($emailAddresses)) {
                 $email = $emailAddresses; // Since $emailAddresses is always a single email address (string)
-                
+
                 // Check if the email has been sent before for this document
                 $cacheFile = 'email_sent_' . $approve_seq . '_' . $entity_cd . '_' . $doc_no . '_' . $level_no . '.txt';
                 $cacheFilePath = storage_path('app/mail_cache/send_cmprogress/' . date('Ymd') . '/' . $cacheFile);
                 $cacheDirectory = dirname($cacheFilePath);
-        
+
                 // Ensure the directory exists
                 if (!file_exists($cacheDirectory)) {
                     mkdir($cacheDirectory, 0755, true);
@@ -124,14 +125,14 @@ class CmProgressController extends Controller
                     fclose($lockHandle);
                     throw new Exception('Failed to acquire lock');
                 }
-        
+
                 if (!file_exists($cacheFilePath)) {
                     // Send email
-                    Mail::to($email)->send(new SendCmProgressMail($encryptedData, $dataArray));
-        
+                    Mail::to($email)->send(new SendCmProgressMail($encryptedData, $dataArray, 'IFCA SOFTWARE - '.$entity_name));
+
                     // Mark email as sent
                     file_put_contents($cacheFilePath, 'sent');
-        
+
                     // Log the success
                     Log::channel('sendmailapproval')->info('Email CM Progress doc_no '.$doc_no.' Entity ' . $entity_cd.' berhasil dikirim ke: ' . $email);
                     return 'Email berhasil dikirim ke: ' . $email;
@@ -166,7 +167,7 @@ class CmProgressController extends Controller
 
         Log::info('Starting database query execution for processData');
         $data = Crypt::decrypt($encrypt);
-        
+
         $msg = " ";
         $msg1 = " ";
         $notif = " ";

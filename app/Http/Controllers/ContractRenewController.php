@@ -18,7 +18,7 @@ class ContractRenewController extends Controller
     public function Mail(Request $request)
     {
         $list_of_approve = explode('; ',  $request->approve_exist);
-        
+
         $approve_data = [];
         foreach ($list_of_approve as $approve) {
             $approve_data[] = $approve;
@@ -59,11 +59,11 @@ class ContractRenewController extends Controller
             'text'          => 'Contract Renew'
         );
 
-        
+
 
         // Melakukan enkripsi pada $dataArray
         $encryptedData = Crypt::encrypt($data2Encrypt);
-    
+
         try {
             $emailAddresses = strtolower($request->email_addr);
             $approve_seq = $request->approve_seq;
@@ -71,16 +71,17 @@ class ContractRenewController extends Controller
             $ref_no = $request->ref_no;
             $level_no = $request->level_no;
             $doc_no = $request->doc_no;
-        
+            $entity_name = $request->entity_name;
+
             // Check if email addresses are provided and not empty
             if (!empty($emailAddresses)) {
                 $email = $emailAddresses; // Since $emailAddresses is always a single email address (string)
-                
+
                 // Check if the email has been sent before for this document
                 $cacheFile = 'email_sent_' . $approve_seq . '_' . $entity_cd . '_' . $ref_no . '_' . $level_no . '.txt';
                 $cacheFilePath = storage_path('app/mail_cache/send_contract_renew/' . date('Ymd') . '/' . $cacheFile);
                 $cacheDirectory = dirname($cacheFilePath);
-        
+
                 // Ensure the directory exists
                 if (!file_exists($cacheDirectory)) {
                     mkdir($cacheDirectory, 0755, true);
@@ -94,14 +95,14 @@ class ContractRenewController extends Controller
                     fclose($lockHandle);
                     throw new Exception('Failed to acquire lock');
                 }
-        
+
                 if (!file_exists($cacheFilePath)) {
                     // Send email
-                    Mail::to($email)->send(new SendContractRenewMail($encryptedData, $dataArray));
-        
+                    Mail::to($email)->send(new SendContractRenewMail($encryptedData, $dataArray, 'IFCA SOFTWARE - '.$entity_name));
+
                     // Mark email as sent
                     file_put_contents($cacheFilePath, 'sent');
-        
+
                     // Log the success
                     Log::channel('sendmailapproval')->info('Email Contract Renew doc_no '.$doc_no.' Entity ' . $entity_cd.' berhasil dikirim ke: ' . $email);
                     return 'Email berhasil dikirim';

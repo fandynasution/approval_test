@@ -18,7 +18,7 @@ class CmCloseController extends Controller
     public function Mail(Request $request)
     {
         $list_of_approve = explode('; ',  $request->approve_exist);
-        
+
         $approve_data = [];
         foreach ($list_of_approve as $approve) {
             $approve_data[] = $approve;
@@ -30,7 +30,7 @@ class CmCloseController extends Controller
             'descs'             => $request->descs,
             'user_name'         => $request->user_name,
             'entity_name'       => $request->entity_name,
-            'approve_seq'   => $request->approve_seq,
+            'approve_seq'       => $request->approve_seq,
             'module'            => $request->module,
             'approve_list'      => $approve_data,
             'clarify_user'      => $request->clarify_user,
@@ -55,27 +55,28 @@ class CmCloseController extends Controller
             'text'          => 'Contract Progress'
         );
 
-        
+
 
         // Melakukan enkripsi pada $dataArray
         $encryptedData = Crypt::encrypt($data2Encrypt);
-    
+
         try {
             $emailAddresses = strtolower($request->email_addr);
             $approve_seq = $request->approve_seq;
             $entity_cd = $request->entity_cd;
             $doc_no = $request->doc_no;
             $level_no = $request->level_no;
-        
+            $entity_name = $request->entity_name;
+
             // Check if email addresses are provided and not empty
             if (!empty($emailAddresses)) {
                 $email = $emailAddresses; // Since $emailAddresses is always a single email address (string)
-                
+
                 // Check if the email has been sent before for this document
                 $cacheFile = 'email_sent_' . $approve_seq . '_' . $entity_cd . '_' . $doc_no . '_' . $level_no . '.txt';
                 $cacheFilePath = storage_path('app/mail_cache/send_cmclose/' . date('Ymd') . '/' . $cacheFile);
                 $cacheDirectory = dirname($cacheFilePath);
-        
+
                 // Ensure the directory exists
                 if (!file_exists($cacheDirectory)) {
                     mkdir($cacheDirectory, 0755, true);
@@ -89,14 +90,14 @@ class CmCloseController extends Controller
                     fclose($lockHandle);
                     throw new Exception('Failed to acquire lock');
                 }
-        
+
                 if (!file_exists($cacheFilePath)) {
                     // Send email
-                    Mail::to($email)->send(new SendCmCloseMail($encryptedData, $dataArray));
-        
+                    Mail::to($email)->send(new SendCmCloseMail($encryptedData, $dataArray, 'IFCA SOFTWARE - '.$entity_name));
+
                     // Mark email as sent
                     file_put_contents($cacheFilePath, 'sent');
-        
+
                     // Log the success
                     Log::channel('sendmailapproval')->info('Email CM Close doc_no '.$doc_no.' Entity ' . $entity_cd.' berhasil dikirim ke: ' . $email);
                     return 'Email berhasil dikirim ke: ' . $email;

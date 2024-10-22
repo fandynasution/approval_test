@@ -18,7 +18,7 @@ class VarianOrderController extends Controller
     public function Mail(Request $request)
     {
         $list_of_approve = explode('; ',  $request->approve_exist);
-        
+
         $approve_data = [];
         foreach ($list_of_approve as $approve) {
             $approve_data[] = $approve;
@@ -46,7 +46,6 @@ class VarianOrderController extends Controller
             'entity_name'       => $request->entity_name,
             'descs'             => $request->descs,
             'user_name'         => $request->user_name,
-            'entity_name'       => $request->entity_name,
             'approve_seq'       => $request->approve_seq,
             'url_file'          => $url_data,
             'file_name'         => $file_data,
@@ -78,11 +77,11 @@ class VarianOrderController extends Controller
             'text'          => 'Varian Order'
         );
 
-        
+
 
         // Melakukan enkripsi pada $dataArray
         $encryptedData = Crypt::encrypt($data2Encrypt);
-    
+
         try {
             $emailAddresses = strtolower($request->email_addr);
             $approve_seq = $request->approve_seq;
@@ -90,16 +89,17 @@ class VarianOrderController extends Controller
             $doc_no = $request->doc_no;
             $status = $request->status;
             $level_no = $request->level_no;
-        
+            $entity_name = $request->entity_name;
+
             // Check if email addresses are provided and not empty
             if (!empty($emailAddresses)) {
                 $email = $emailAddresses; // Since $emailAddresses is always a single email address (string)
-                
+
                 // Check if the email has been sent before for this document
                 $cacheFile = 'email_sent_' . $approve_seq . '_' . $entity_cd . '_' . $doc_no . '_' . $status . '_' . $level_no . '.txt';
                 $cacheFilePath = storage_path('app/mail_cache/send_varianorder/' . date('Ymd') . '/' . $cacheFile);
                 $cacheDirectory = dirname($cacheFilePath);
-        
+
                 // Ensure the directory exists
                 if (!file_exists($cacheDirectory)) {
                     mkdir($cacheDirectory, 0755, true);
@@ -113,14 +113,14 @@ class VarianOrderController extends Controller
                     fclose($lockHandle);
                     throw new Exception('Failed to acquire lock');
                 }
-        
+
                 if (!file_exists($cacheFilePath)) {
                     // Send email
-                    Mail::to($email)->send(new SendVarianOrderMail($encryptedData, $dataArray));
-        
+                    Mail::to($email)->send(new SendVarianOrderMail($encryptedData, $dataArray, 'IFCA SOFTWARE - '.$entity_name));
+
                     // Mark email as sent
                     file_put_contents($cacheFilePath, 'sent');
-        
+
                     // Log the success
                     Log::channel('sendmailapproval')->info('Email Varian Order doc_no '.$doc_no.' Entity ' . $entity_cd.' berhasil dikirim ke: ' . $email);
                     return 'Email berhasil dikirim ke: ' . $email;
@@ -155,7 +155,7 @@ class VarianOrderController extends Controller
 
         Log::info('Starting database query execution for processData');
         $data = Crypt::decrypt($encrypt);
-        
+
         $msg = " ";
         $msg1 = " ";
         $notif = " ";
@@ -201,12 +201,12 @@ class VarianOrderController extends Controller
                 'type'          => $data["type"],
                 'module'        => $data["type_module"],
             );
-    
+
             $query2 = DB::connection('BTID')
             ->table('mgr.cb_cash_request_appr')
             ->where($where2)
             ->get();
-    
+
             Log::info('Second query result: ' . json_encode($query2));
 
             if (count($query2) == 0) {

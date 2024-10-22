@@ -13,7 +13,7 @@ use App\Mail\SendPLLymanMail;
 
 class PlBudgetLymanController extends Controller
 {
-    public function processModule($data) 
+    public function processModule($data)
     {
         $amount = number_format( $data["amount"] , 2 , '.' , ',' );
 
@@ -50,32 +50,33 @@ class PlBudgetLymanController extends Controller
             'type'          => 'B',
             'type_module'   => 'PL',
             'text'          => 'Budget Lyman'
-        );  
+        );
 
         // Melakukan enkripsi pada $dataArray
         $encryptedData = Crypt::encrypt($data2Encrypt);
-    
+
         try {
             $emailAddresses = strtolower($data["email_addr"]);
             $doc_no = $data["doc_no"];
             $entity_cd = $data["entity_cd"];
-        
+            $entity_name = $data["entity_name"];
+
             // Check if email addresses are provided and not empty
             if (!empty($emailAddresses)) {
                 $emails = is_array($emailAddresses) ? $emailAddresses : [$emailAddresses];
-                
+
                 foreach ($emails as $email) {
                     // Check if the email has been sent before for this document
                     $cacheKey = 'email_sent_' . md5($doc_no . '_' . $entity_cd . '_' . $email);
                     if (!Cache::has($cacheKey)) {
                         // Send email
-                        Mail::to($email)->send(new SendPLLymanMail($encryptedData, $dataArray));
-        
+                        Mail::to($email)->send(new SendPLLymanMail($encryptedData, $dataArray, 'IFCA SOFTWARE - '.$entity_name));
+
                         // Mark email as sent
                         Cache::store('mail_app')->put($cacheKey, true, now()->addHours(24));
                     }
                 }
-                
+
                 $sentTo = is_array($emailAddresses) ? implode(', ', $emailAddresses) : $emailAddresses;
                 Log::channel('sendmailapproval')->info('Email doc_no ' . $doc_no . ' Entity ' . $entity_cd . ' berhasil dikirim ke: ' . $sentTo);
                 return "Email berhasil dikirim ke: " . $sentTo;
