@@ -20,7 +20,7 @@ class CbRpbController extends Controller
         } else {
             $rpb_descs = $data["rpb_descs"];
         }
-        
+
         $list_of_urls = explode(',', $data["url_file"]);
         $list_of_files = explode(',', $data["file_name"]);
 
@@ -81,23 +81,24 @@ class CbRpbController extends Controller
 
         // Melakukan enkripsi pada $dataArray
         $encryptedData = Crypt::encrypt($data2Encrypt);
-    
+
         try {
             $emailAddresses = strtolower($data["email_addr"]);
             $approve_seq = $data["approve_seq"];
             $entity_cd = $data["entity_cd"];
             $doc_no = $data["doc_no"];
             $level_no = $data["level_no"];
-        
+            $entity_name = $data["entity_name"];
+
             // Check if email addresses are provided and not empty
             if (!empty($emailAddresses)) {
                 $email = $emailAddresses; // Since $emailAddresses is always a single email address (string)
-                
+
                 // Check if the email has been sent before for this document
                 $cacheFile = 'email_sent_' . $approve_seq . '_' . $entity_cd . '_' . $doc_no . '_' . $level_no . '.txt';
                 $cacheFilePath = storage_path('app/mail_cache/send_cbrpb/' . date('Ymd') . '/' . $cacheFile);
                 $cacheDirectory = dirname($cacheFilePath);
-        
+
                 // Ensure the directory exists
                 if (!file_exists($cacheDirectory)) {
                     mkdir($cacheDirectory, 0755, true);
@@ -111,14 +112,14 @@ class CbRpbController extends Controller
                     fclose($lockHandle);
                     throw new Exception('Failed to acquire lock');
                 }
-        
+
                 if (!file_exists($cacheFilePath)) {
                     // Send email
-                    Mail::to($email)->send(new SendCbRpbMail($encryptedData, $dataArray));
-        
+                    Mail::to($email)->send(new SendCbRpbMail($encryptedData, $dataArray, 'IFCA SOFTWARE - '.$entity_name));
+
                     // Mark email as sent
                     file_put_contents($cacheFilePath, 'sent');
-        
+
                     // Log the success
                     Log::channel('sendmailapproval')->info('Email CB RPB doc_no '.$doc_no.' Entity ' . $entity_cd.' berhasil dikirim ke: ' . $email);
                     return 'Email berhasil dikirim ke: ' . $email;
