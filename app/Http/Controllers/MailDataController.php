@@ -183,12 +183,11 @@ class MailDataController extends Controller
                 $table = $status === 'A' ? 'mgr.cb_cash_request_appr' : 'mgr.cb_cash_request_appr_his';
 
                 $query2 = DB::connection('BTID')
-                    ->table($table)
-                    ->where($whereerr)
-                    ->get();
-                    \Log::error('SQL Query: ' . $query2->toSql());
-                    \Log::error('Bindings: ' . json_encode($query2->getBindings()));
-                if ($query2->isEmpty()) {
+                ->table($table)
+                ->where($whereerr)
+                ->get();
+
+                if (count($query2)==0) {
                     \Log::error('Error in Read Data: ' . $query2);
                     return view("email.after", [
                         "Pesan" => $query2,
