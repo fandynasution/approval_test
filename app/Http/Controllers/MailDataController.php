@@ -183,7 +183,7 @@ class MailDataController extends Controller
                     ->get();
 
                 if ($query2->isEmpty()) {
-                    \Log::error('Error in Read Data: ' . $e->getMessage());
+                    \Log::error('Error in Read Data: ' . $query2);
                     return view("email.after", [
                         "Pesan" => $e->getMessage(),
                         "image" => "reject.png"
