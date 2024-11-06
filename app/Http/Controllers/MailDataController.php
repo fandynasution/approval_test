@@ -162,12 +162,84 @@ class MailDataController extends Controller
             $result = call_user_func_array([$controllerInstance, $methodName], $arguments);
             return $result;
 
+        } catch (\Illuminate\Database\QueryException $e) {
+	        \Log::error('Error in getAccess method: ' . $e->getMessage());
+            if ($e->getCode() === '23000') {
+                $whereerr = [
+                    'doc_no' => $doc_no,
+                    'status' => $status,
+                    'entity_cd' => $data["entity_cd"],
+                    'type' => $data["type"],
+                    'module' => $data["type_module"],
+                ];
+                $table = $status === 'A' ? 'mgr.cb_cash_request_appr' : 'mgr.cb_cash_request_appr_his';
+
+                $query2 = DB::connection('BTID')
+                    ->table($table)
+                    ->where($whereerr)
+                    ->get();
+
+                if ($query2->isEmpty()) {
+                    \Log::error('Error in Read Data: ' . $e->getMessage());
+                    return view("email.after", [
+                        "Pesan" => $e->getMessage(),
+                        "image" => "reject.png"
+                    ]);
+                } else {
+                    // Determine the full description based on the module
+                    $fulldesc = match($module) {
+                        'CbFupd' => 'Propose Transfer to Bank',
+                        'CbPpu', 'CbPpuVvip' => 'Payment Request',
+                        'CbRpb' => 'Recapitulation Bank',
+                        'CbRum' => 'Cash Advance Settlement',
+                        'PoOrder' => 'Purchase Order',
+                        'PoRequest' => 'Purchase Requisition',
+                        'CmEntry' => 'Contract Entry',
+                        'CmClose' => 'Warranty Complete',
+                        'CmDone' => 'Contract Complete',
+                        'CmProgress' => 'Contract Progress',
+                        'PlBudgetLyman' => 'RAB Budget',
+                        'PlBudgetRevision' => 'Revision RAB Budget',
+                        default => 'Unknown Module',
+                    };
+
+                    // Determine status description and image
+                    $statusDetails = match($status) {
+                        'A' => ['Approved', 'approved.png'],
+                        'R' => ['Revised', 'revise.png'],
+                        'C' => ['Cancelled', 'reject.png'],
+                    };
+
+                    // Prepare the message based on the full description
+                    if ($fulldesc === 'Unknown Module') {
+                        $msg = "You Have Successfully {$statusDetails[0]} Doc No. {$data['doc_no']}";
+                    } else {
+                        $msg = "You Have Successfully {$statusDetails[0]} the {$fulldesc} No. {$data['doc_no']}";
+                    }
+
+                    return view("email.after", [
+                        "Pesan" => $msg,
+                        "St" => 'OK',
+                        "notif" => $statusDetails[0] . "!",
+                        "image" => $statusDetails[1]
+                    ]);
+                }
+            } else {
+                // Handle other database exceptions
+                \Log::error('Database error in getAccess method: ' . $e->getMessage());
+                $msg1 = [
+                    "Pesan" => $e->getMessage(),
+                    "image" => "reject.png"
+                ];
+                return view("email.after", $msg1);
+            }
         } catch (\Exception $e) {
-	    \Log::error('Error in getAccess method: ' . $e->getMessage());
-            $msg1 = array(
-                "Pesan" => 'SQLSTATE[HY000] [1045] Result Not Found',
+            // Handle non-database exceptions
+            \Log::error('Error in getAccess method: ' . $e->getMessage());
+            $msg1 = [
+                "Pesan" => $e->getMessage(),
                 "image" => "reject.png"
-            );
+            ];
             return view("email.after", $msg1);
         }
     }
