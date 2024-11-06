@@ -231,7 +231,7 @@ class MailDataController extends Controller
             } catch (\Exception $decryptionException) {
                 \Log::error('Error decrypting data in getAccess: ' . $decryptionException->getMessage());
                 return view("email.after", [
-                    "Pesan" => "Error occurred, document number unknown.",
+                    "Pesan" => $decryptionException->getMessage(),
                     "image" => "reject.png",
                     "doc_no" => 'unknown',
                     "status" => $status,
