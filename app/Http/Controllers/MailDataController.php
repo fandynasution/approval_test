@@ -162,8 +162,9 @@ class MailDataController extends Controller
             $result = call_user_func_array([$controllerInstance, $methodName], $arguments);
             return $result;
 
-        } catch (\Illuminate\Database\QueryException $e) {
+        } catch (\Exception $e) {
 	        \Log::error('Error in getAccess method: ' . $e->getMessage());
+            \Log::error('Error Code: ' . $e->getCode());
             if ($e->getCode() === '23000') {
                 $whereerr = [
                     'doc_no' => $doc_no,
@@ -233,14 +234,6 @@ class MailDataController extends Controller
                 ];
                 return view("email.after", $msg1);
             }
-        } catch (\Exception $e) {
-            // Handle non-database exceptions
-            \Log::error('Error in getAccess method: ' . $e->getMessage());
-            $msg1 = [
-                "Pesan" => $e->getMessage(),
-                "image" => "reject.png"
-            ];
-            return view("email.after", $msg1);
         }
     }
 }
