@@ -9,8 +9,6 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
-use PDO;
-use DateTime;
 
 class MailDataController extends Controller
 {
@@ -148,133 +146,27 @@ class MailDataController extends Controller
     public function getAccess(Request $request)
     {
         $dataFromExternal = $request->all();
+        // Extracting parameters from the request
         $status = $request->status;
-        $encrypt = $request->encrypt;
         $doc_no = $request->doc_no;
-        $email = $request->email;
+        $encrypt = $request->encrypt;
         $module = $request->module;
-        $reason = $request->reason;
-
-        if (empty($request->reason)) {
-            $reason = 'no note';
-        }
-
+        $reason = $request->reason ?: 'no note'; // Default reason if empty
         try {
-            // Dynamically calling controller's update method
             $controllerName = 'App\\Http\\Controllers\\' . $module . 'Controller';
             $methodName = 'update';
             $arguments = [$status, $encrypt, $reason];
-
             $controllerInstance = new $controllerName();
             $result = call_user_func_array([$controllerInstance, $methodName], $arguments);
             return $result;
 
         } catch (\Exception $e) {
-            // Log the exception message and code
             \Log::error('Error in getAccess method: ' . $e->getMessage());
-            \Log::error('Error Code: ' . $e->getCode());
-            if (strpos($e->getMessage(), 'SQLSTATE[23000]') !== false) {
-                try {
-                    $dataFromExternal = $request->all();
-                    $status = $request->status;
-                    $encrypt = $request->encrypt;
-                    $doc_no = $request->doc_no;
-                    $email = $request->email;
-                    $module = $request->module;
-                    $reason = $request->reason;
-                    $data = Crypt::decrypt($encrypt);
-                    \Log::error('Decrypted data: ' . json_encode($data));
-
-                    // Log query parameters
-                    \Log::error('doc_no ' . $doc_no);
-                    \Log::error('status ' . $status);
-                    \Log::error('entity_cd ' . $data["entity_cd"]);
-                    \Log::error('type ' . $data["type"]);
-                    \Log::error('module ' . $data["type_module"]);
-
-
-                    \Log::error('Query Parameters: doc_no=' . $doc_no . ', status=' . $status . ', entity_cd=' . $data["entity_cd"] . ', type=' . $data["type"] . ', module=' . $data["type_module"]);
-
-                    $pdo = DB::connection('BTID')->getPdo();
-                    $sth = $pdo->prepare("SELECT * FROM mgr.cb_cash_request_appr WHERE entity_cd = ? AND doc_no = ?");
-
-                    // Bind the parameters
-                    $sth->bindParam(1, $data["entity_cd"]);
-                    $sth->bindParam(2, $data["doc_no"]);
-
-                    // Execute the query
-                    $sth->execute();
-
-                    // Fetch the results
-                    $results = $sth->fetchAll(PDO::FETCH_ASSOC);
-
-                    // Log or handle the results
-                    \Log::info('Query Results: ' . json_encode($results));
-                    if ($query->isEmpty()) {
-                        \Log::error('Error in Read Data: ' . json_encode($query->toArray()));
-                        return view("email.after", [
-                            "Pesan" => 'No data found for the given parameters.',
-                            "image" => "reject.png"
-                        ]);
-                    } else {
-                        // Determine full description based on module
-                        $fulldesc = match($module) {
-                            'CbFupd' => 'Propose Transfer to Bank',
-                            'CbPpu', 'CbPpuVvip' => 'Payment Request',
-                            'CbRpb' => 'Recapitulation Bank',
-                            'CbRum' => 'Cash Advance Settlement',
-                            'PoOrder' => 'Purchase Order',
-                            'PoRequest' => 'Purchase Requisition',
-                            'CmEntry' => 'Contract Entry',
-                            'CmClose' => 'Warranty Complete',
-                            'CmDone' => 'Contract Complete',
-                            'CmProgress' => 'Contract Progress',
-                            'PlBudgetLyman' => 'RAB Budget',
-                            'PlBudgetRevision' => 'Revision RAB Budget',
-                            default => 'Unknown Module',
-                        };
-
-                        // Determine status description and image
-                        $statusDetails = match($status) {
-                            'A' => ['Approved', 'approved.png'],
-                            'R' => ['Revised', 'revise.png'],
-                            'C' => ['Cancelled', 'reject.png'],
-                        };
-
-                        // Prepare the message based on the full description
-                        if ($fulldesc === 'Unknown Module') {
-                            $msg = "You Have Successfully {$statusDetails[0]} Doc No. {$data['doc_no']}";
-                        } else {
-                            $msg = "You Have Successfully {$statusDetails[0]} the {$fulldesc} No. {$data['doc_no']}";
-                        }
-
-                        // Return the view with the message
-                        return view("email.after", [
-                            "Pesan" => $msg,
-                            "St" => 'OK',
-                            "notif" => $statusDetails[0] . "!",
-                            "image" => $statusDetails[1]
-                        ]);
-                    }
-                } catch (\Exception $decryptException) {
-                    \Log::error('Decryption error: ' . $decryptException->getMessage());
-                    \Log::error('Decryption error code: ' . $decryptException->getCode());
-                    $msg1 = [
-                        "Pesan" => 'Decryption failed. Invalid data.',
-                        "image" => "reject.png"
-                    ];
-                    return view("email.after", $msg1);
-                }
-            } else {
-                // Handle other database exceptions
-                \Log::error('Database error in getAccess method: ' . $e->getMessage());
-                $msg1 = [
-                    "Pesan" => $e->getMessage(),
-                    "image" => "reject.png"
-                ];
-                return view("email.after", $msg1);
-            }
+            $msg1 = array(
+                "Pesan" => $e->getMessage(),
+                "image" => "reject.png"
+            );
+            return view("email.after", $msg1);
         }
     }
-
 }
