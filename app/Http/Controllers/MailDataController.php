@@ -186,8 +186,8 @@ class MailDataController extends Controller
                     ->table($table)
                     ->where($whereerr)
                     ->get();
-                \Log::error('Error ' . $query2);
-                \Log::error('table ' . $table);
+                    \Log::error('SQL Query: ' . $query2->toSql());
+                    \Log::error('Bindings: ' . json_encode($query2->getBindings()));
                 if ($query2->isEmpty()) {
                     \Log::error('Error in Read Data: ' . $query2);
                     return view("email.after", [
