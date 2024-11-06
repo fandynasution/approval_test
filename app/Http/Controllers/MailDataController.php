@@ -179,14 +179,6 @@ class MailDataController extends Controller
                 try {
                     $data = Crypt::decrypt($encrypt);
 
-                    $whereerr = [
-                        'doc_no' => $doc_no,
-                        'status' => $status,
-                        'entity_cd' => $data["entity_cd"],
-                        'type' => $data["type"],
-                        'module' => $data["type_module"],
-                    ];
-
                     // Log query parameters
                     \Log::error('doc_no ' . $doc_no);
                     \Log::error('status ' . $status);
@@ -194,20 +186,20 @@ class MailDataController extends Controller
                     \Log::error('type ' . $data["type"]);
                     \Log::error('module ' . $data["type_module"]);
 
-                    // Choose the correct table based on status
-                    $table = $status === 'A' ? 'mgr.cb_cash_request_appr' : 'mgr.cb_cash_request_appr_his';
+                    $query = DB::connection('BTID')
+                    ->table('mgr.cb_cash_request_appr')
+                    ->where('doc_no', $doc_no)
+                    ->where('status', $status)
+                    ->where('entity_cd', $data["entity_cd"])
+                    ->where('type', $data["type"])
+                    ->where('module', $data["type_module"])
+                    ->get();
 
-                    // Query the database
-                    $query2 = DB::connection('BTID')
-                        ->table($table)
-                        ->where($whereerr)
-                        ->get();
-
-                    \Log::info('First query result: ' . json_encode($query2->toArray()));
-
+                    $count = $query->count();
+                    \Log::info('count ' . $count);
                     // Check if the query returns no results
-                    if ($query2->isEmpty()) {
-                        \Log::error('Error in Read Data: ' . json_encode($query2->toArray()));
+                    if ($query->isEmpty()) {
+                        \Log::error('Error in Read Data: ' . json_encode($query->toArray()));
                         return view("email.after", [
                             "Pesan" => 'No data found for the given parameters.',
                             "image" => "reject.png"
