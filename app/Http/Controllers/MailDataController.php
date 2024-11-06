@@ -185,7 +185,7 @@ class MailDataController extends Controller
                 if ($query2->isEmpty()) {
                     \Log::error('Error in Read Data: ' . $query2);
                     return view("email.after", [
-                        "Pesan" => $e->getMessage(),
+                        "Pesan" => $query2,
                         "image" => "reject.png"
                     ]);
                 } else {
