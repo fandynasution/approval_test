@@ -195,9 +195,6 @@ class MailDataController extends Controller
 
                     \Log::error('Query Parameters: doc_no=' . $doc_no . ', status=' . $status . ', entity_cd=' . $data["entity_cd"] . ', type=' . $data["type"] . ', module=' . $data["type_module"]);
 
-                    \Log::error('SQL Query: ' . $query->toSql());
-
-
                     $query = DB::connection('BTID')
                         ->table('mgr.cb_cash_request_appr_his')
                         ->where('doc_no', $doc_no)
@@ -206,6 +203,8 @@ class MailDataController extends Controller
                         ->where('type', $data["type"])
                         ->where('module', $data["type_module"])
                         ->get();
+
+                    \Log::error('SQL Query: ' . $query->toSql());
 
                     $count = $query->count();
                     \Log::info('count ' . $count);
