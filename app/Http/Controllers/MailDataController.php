@@ -148,6 +148,7 @@ class MailDataController extends Controller
         $dataFromExternal = $request->all();
         $status = $request->status;
         $encrypt= $request->encrypt;
+        $doc_no= $request->doc_no;
         $email=$request->email;
         $module=$request->module;
         $reason=$request->reason;
@@ -166,6 +167,7 @@ class MailDataController extends Controller
 	        \Log::error('Error in getAccess method: ' . $e->getMessage());
             \Log::error('Error Code: ' . $e->getCode());
             if ($e->getCode() === '23000') {
+                $data = Crypt::decrypt($encrypt);
                 $whereerr = [
                     'doc_no' => $doc_no,
                     'status' => $status,
