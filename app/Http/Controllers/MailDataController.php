@@ -175,6 +175,11 @@ class MailDataController extends Controller
                     'type' => $data["type"],
                     'module' => $data["type_module"],
                 ];
+                \Log::error('doc_no ' . $doc_no);
+                \Log::error('status ' . $doc_no);
+                \Log::error('entity_cd ' . $data["entity_cd"]);
+                \Log::error('type ' . $data["type"]);
+                \Log::error('module ' . $data["type_module"]);
                 $table = $status === 'A' ? 'mgr.cb_cash_request_appr' : 'mgr.cb_cash_request_appr_his';
 
                 $query2 = DB::connection('BTID')
