@@ -187,6 +187,7 @@ class MailDataController extends Controller
                     ->where($whereerr)
                     ->get();
                 \Log::error('Error ' . $query2);
+                \Log::error('table ' . $table);
                 if ($query2->isEmpty()) {
                     \Log::error('Error in Read Data: ' . $query2);
                     return view("email.after", [
