@@ -185,7 +185,7 @@ class MailDataController extends Controller
                     \Log::error('module ' . $data["type_module"]);
 
                     $query = DB::connection('BTID')
-                        ->table('mgr.cb_cash_request_appr')
+                        ->table('mgr.cb_cash_request_appr_his')
                         ->where('doc_no', $doc_no)
                         ->where('status', $status)
                         ->where('entity_cd', $data["entity_cd"])
