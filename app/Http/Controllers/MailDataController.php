@@ -176,13 +176,12 @@ class MailDataController extends Controller
                     'module' => $data["type_module"],
                 ];
                 $table = $status === 'A' ? 'mgr.cb_cash_request_appr' : 'mgr.cb_cash_request_appr_his';
-
+                \Log::error('Error ' . $whereerr);
                 $query2 = DB::connection('BTID')
                     ->table($table)
                     ->where($whereerr)
                     ->get();
-                    dd($query2);
-                    \Log::error('Error ' . $query2);
+
                 if ($query2->isEmpty()) {
                     \Log::error('Error in Read Data: ' . $query2);
                     return view("email.after", [
