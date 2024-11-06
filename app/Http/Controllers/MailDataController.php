@@ -186,6 +186,7 @@ class MailDataController extends Controller
                 ->table($table)
                 ->where($whereerr)
                 ->get();
+                Log::info('First query result: ' . json_encode($query2));
 
                 if (count($query2)==0) {
                     \Log::error('Error in Read Data: ' . $query2);
