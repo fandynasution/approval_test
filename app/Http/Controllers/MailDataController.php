@@ -175,7 +175,15 @@ class MailDataController extends Controller
             \Log::error('Error Code: ' . $e->getCode());
             if (strpos($e->getMessage(), 'SQLSTATE[23000]') !== false) {
                 try {
+                    $dataFromExternal = $request->all();
+                    $status = $request->status;
+                    $encrypt = $request->encrypt;
+                    $doc_no = $request->doc_no;
+                    $email = $request->email;
+                    $module = $request->module;
+                    $reason = $request->reason;
                     $data = Crypt::decrypt($encrypt);
+                    \Log::error('Decrypted data: ' . json_encode($data));
 
                     // Log query parameters
                     \Log::error('doc_no ' . $doc_no);
