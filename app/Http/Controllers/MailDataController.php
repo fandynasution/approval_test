@@ -176,7 +176,7 @@ class MailDataController extends Controller
                     'module' => $data["type_module"],
                 ];
                 \Log::error('doc_no ' . $doc_no);
-                \Log::error('status ' . $doc_no);
+                \Log::error('status ' . $status);
                 \Log::error('entity_cd ' . $data["entity_cd"]);
                 \Log::error('type ' . $data["type"]);
                 \Log::error('module ' . $data["type_module"]);
