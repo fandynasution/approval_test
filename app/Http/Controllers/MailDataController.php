@@ -173,9 +173,7 @@ class MailDataController extends Controller
             // Log the exception message and code
             \Log::error('Error in getAccess method: ' . $e->getMessage());
             \Log::error('Error Code: ' . $e->getCode());
-
-            // Check if exception code is 23000 (Integrity constraint violation)
-            if ($e->getCode() === 23000) {
+            if (strpos($e->getMessage(), 'SQLSTATE[23000]') !== false) {
                 try {
                     $data = Crypt::decrypt($encrypt);
 
@@ -187,13 +185,13 @@ class MailDataController extends Controller
                     \Log::error('module ' . $data["type_module"]);
 
                     $query = DB::connection('BTID')
-                    ->table('mgr.cb_cash_request_appr')
-                    ->where('doc_no', $doc_no)
-                    ->where('status', $status)
-                    ->where('entity_cd', $data["entity_cd"])
-                    ->where('type', $data["type"])
-                    ->where('module', $data["type_module"])
-                    ->get();
+                        ->table('mgr.cb_cash_request_appr')
+                        ->where('doc_no', $doc_no)
+                        ->where('status', $status)
+                        ->where('entity_cd', $data["entity_cd"])
+                        ->where('type', $data["type"])
+                        ->where('module', $data["type_module"])
+                        ->get();
 
                     $count = $query->count();
                     \Log::info('count ' . $count);
