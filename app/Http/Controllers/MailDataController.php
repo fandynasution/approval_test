@@ -195,20 +195,21 @@ class MailDataController extends Controller
 
                     \Log::error('Query Parameters: doc_no=' . $doc_no . ', status=' . $status . ', entity_cd=' . $data["entity_cd"] . ', type=' . $data["type"] . ', module=' . $data["type_module"]);
 
-                    $query = DB::connection('BTID')
-                        ->table('mgr.cb_cash_request_appr_his')
-                        ->where('doc_no', $doc_no)
-                        ->where('status', $status)
-                        ->where('entity_cd', $data["entity_cd"])
-                        ->where('type', $data["type"])
-                        ->where('module', $data["type_module"])
-                        ->get();
+                    $pdo = DB::connection('BTID')->getPdo();
+                    $sth = $pdo->prepare("SELECT * FROM mgr.cb_cash_request_appr WHERE entity_cd = ? AND doc_no = ?");
 
-                    \Log::error('SQL Query: ' . $query->toSql());
+                    // Bind the parameters
+                    $sth->bindParam(1, $data["entity_cd"]);
+                    $sth->bindParam(2, $data["doc_no"]);
 
-                    $count = $query->count();
-                    \Log::info('count ' . $count);
-                    // Check if the query returns no results
+                    // Execute the query
+                    $sth->execute();
+
+                    // Fetch the results
+                    $results = $sth->fetchAll(PDO::FETCH_ASSOC);
+
+                    // Log or handle the results
+                    \Log::info('Query Results: ' . json_encode($results));
                     if ($query->isEmpty()) {
                         \Log::error('Error in Read Data: ' . json_encode($query->toArray()));
                         return view("email.after", [
