@@ -102,6 +102,7 @@ class CmProgressController extends Controller
             $doc_no = $request->doc_no;
             $level_no = $request->level_no;
             $entity_name = $request->entity_name;
+            $request_type = $request->request_type;
 
             // Check if email addresses are provided and not empty
             if (!empty($emailAddresses)) {
@@ -127,8 +128,16 @@ class CmProgressController extends Controller
                 }
 
                 if (!file_exists($cacheFilePath)) {
+                    // Prepare email
+                    $mail = Mail::to($email);
+
+                    // Add BCC if request_type is G7
+                    if ($request_type === 'G7') {
+                        $mail->bcc('ricky.setiawan@kurakurabali.com'); // Replace with actual BCC email address
+                    }
+
                     // Send email
-                    Mail::to($email)->send(new SendCmProgressMail($encryptedData, $dataArray, 'IFCA SOFTWARE - '.$entity_name));
+                    $mail->send(new SendCmProgressMail($encryptedData, $dataArray, 'IFCA SOFTWARE - '.$entity_name));
 
                     // Mark email as sent
                     file_put_contents($cacheFilePath, 'sent');
