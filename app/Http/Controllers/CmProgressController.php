@@ -131,6 +131,14 @@ class CmProgressController extends Controller
                     // Prepare email
                     $mail = Mail::to($email);
 
+<<<<<<< HEAD
+=======
+                    // Add BCC if request_type is G7
+                    // if ($request_type === 'G7') {
+                    //     $mail->bcc('ricky.setiawan@kurakurabali.com'); // Replace with actual BCC email address
+                    // }
+
+>>>>>>> 284b6166ad4248357863974529f7f158d45b8344
                     // Send email
                     $mail->send(new SendCmProgressMail($encryptedData, $dataArray, 'IFCA SOFTWARE - '.$entity_name));
 
