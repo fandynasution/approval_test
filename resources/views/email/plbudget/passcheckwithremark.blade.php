@@ -6,7 +6,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="x-apple-disable-message-reformatting">
     <title>IFCA - BTID</title>
-    <link rel="shortcut icon" type="image/x-icon" href="<?php echo e(url('public/images/KuraKuraBali-iconew.ico')); ?>">
+    <link rel="shortcut icon" type="image/x-icon" href="{{ url('public/images/KuraKuraBali-iconew.ico') }}">
     
     <style>
         body {
@@ -29,7 +29,7 @@
                         <tbody>
                             <tr>
                                 <td style="text-align: center; padding-bottom:25px">
-                                    <img width = "120" src="<?php echo e(url('public/images/KURAKURABALI_LOGO.jpg')); ?>" alt="logo">
+                                   <img width = "120" src="{{ url('public/images/KURAKURABALI_LOGO.jpg') }}" alt="logo">
                                     <p style="font-size: 16px; color: #026735; padding-top: 0px;">PT. BALI TURTLE ISLAND DEVELOPMENT</p>
                                 </td>
                             </tr>
@@ -39,10 +39,10 @@
                         <tbody>
                             <tr>
                                 <td style="text-align:center;padding: 50px 30px;">
-                                    <img style="width:88px; margin-bottom:24px;" src="<?php echo e(url('public/images/double_approve.png')); ?>" alt="Verified">
-                                    <p>Do you want to <?php echo e($valuebt); ?> this request ?</p>
-                                    <form id="frmEditor" class="form-horizontal" method="POST" action="<?php echo e(url('/api/cmentry/getaccess')); ?>" enctype="multipart/form-data">
-                                    <?php echo csrf_field(); ?>
+                                    <img style="width:88px; margin-bottom:24px;" src="{{ url('public/images/double_approve.png') }}" alt="Verified">
+                                    <p>Do you want to {{ $valuebt }} this request ?</p>
+                                    <form id="frmEditor" class="form-horizontal" method="POST" action="{{ url('/api/budgetlyman/getaccess') }}" enctype="multipart/form-data">
+                                    @csrf
                                     <input type="text" id="status" name="status" value="<?php echo $status?>" hidden>
                                     <input type="text" id="encrypt" name="encrypt" value="<?php echo $encrypt?>" hidden>
                                     <?php if ($status != 'A'): ?>
@@ -75,4 +75,4 @@
         </table>
     </div>
 </body>
-</html><?php /**PATH /var/www/html/approval_live/resources/views/email/cmentry/passcheckwithremark.blade.php ENDPATH**/ ?>
+</html>

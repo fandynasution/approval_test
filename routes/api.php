@@ -100,3 +100,17 @@ use App\Http\Controllers\ContractRenewController as ContractRenew;
 Route::POST('/contractrenew', [ContractRenew::class, 'Mail']);
 Route::GET('/contractrenew/{status}/{encrypt}', [ContractRenew::class, 'processData']);
 Route::POST('/contractrenew/getaccess', [ContractRenew::class, 'update']);
+
+use App\Http\Controllers\PLBudgetLymanController as PLBudgetLyman;
+Route::POST('/budgetlyman', [PLBudgetLyman::class, 'Mail']);
+Route::GET('/budgetlyman/{status}/{encrypt}', [PLBudgetLyman::class, 'processData']);
+Route::POST('/budgetlyman/getaccess', [PLBudgetLyman::class, 'update']);
+
+use App\Http\Controllers\PLBudgetRevisionController as PLBudgetRevision;
+Route::POST('/budgetrevision', [PLBudgetRevision::class, 'Mail']);
+Route::GET('/budgetrevision/{status}/{encrypt}', [PLBudgetRevision::class, 'processData']);
+Route::POST('/budgetrevision/getaccess', [PLBudgetRevision::class, 'update']);
+
+use App\Http\Controllers\FeedbackPLController as FeedbackPL;
+Route::POST('/feedbackbudgetlyman', [FeedbackPL::class, 'feedbackbudgetlyman']);
+Route::POST('/feedbackbudgetrevision', [FeedbackPL::class, 'feedbackbudgetrevision']);

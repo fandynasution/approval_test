@@ -42,7 +42,7 @@ class SendPLLymanMail extends Mailable
 
         return $this->from(config('mail.from.address'), $this->fromName)
                     ->subject($this->dataArray['subject'])
-                    ->view('email.pllyman.send')
+                    ->view('email.plbudget.send')
                     ->with([
                         'encryptedData' => $this->encryptedData,
                         'dataArray' => $this->dataArray,

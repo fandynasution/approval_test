@@ -25,8 +25,8 @@
                         <tbody>
                             <tr>
                                 <td style="text-align: center; padding-bottom:25px">
-                                    <img width = "120" src="{{ url('public/images/grand_outlet.jpg') }}" alt="logo">
-                                        <p style="font-size: 16px; color: #026735; padding-top: 0px;">PT. GRAND OUTLET BALI</p>
+                                    <img width = "120" src="{{ url('public/images/KURAKURABALI_LOGO.jpg') }}" alt="logo">
+                                        <p style="font-size: 16px; color: #026735; padding-top: 0px;">{{ $dataArray['entity_name'] }}</p>
                                 </td>
                             </tr>
                         </tbody>
@@ -36,11 +36,11 @@
                             <tr>
                                 <td style="padding: 30px 30px">
                                     <h5 style="text-align:left;margin-bottom: 24px; color: #000000; font-size: 20px; font-weight: 400; line-height: 28px;">Dear {{ $dataArray['user_name'] }}, </h5>
-                                    <p style="text-align:left;margin-bottom: 15px; color: #000000; font-size: 16px;">Below is a Revision RAB Budget that requires your approval :</p>
+                                    <p style="text-align:left;margin-bottom: 15px; color: #000000; font-size: 16px;">Below is a RAB Budget that requires your approval :</p>
                                     <p style="text-align:left; margin-bottom: 15px; margin-top: 0; color: #000000; font-size: 16px; list-style-type: circle;">
                                         <b>{{ $dataArray['descs'] }}</b><br>
                                         With a total amount of IDR {{ $dataArray['amount'] }}<br>
-                                        Revision RAB Budget No. : {{ $dataArray['doc_no'] }}<br>
+                                        RAB Budget No. : {{ $dataArray['doc_no'] }}<br>
                                     </p>
                                     @php
                                         $hasAttachment = false;
@@ -62,9 +62,9 @@
                                     @if($hasAttachment)
                                         </p>
                                     @endif
-                                    <a href="{{ url('api') }}/budgetrevision/A/{{ $encryptedData }}" style="display: inline-block; font-size: 13px; font-weight: 600; line-height: 20px; text-align: center; text-decoration: none; text-transform: uppercase; padding: 10px 40px; background-color: #1ee0ac; border-radius: 4px; color: #ffffff;">Approve</a>
-                                    <a href="{{ url('api') }}/budgetrevision/R/{{ $encryptedData }}" style="display: inline-block; font-size: 13px; font-weight: 600; line-height: 20px; text-align: center; text-decoration: none; text-transform: uppercase; padding: 10px 40px; background-color: #f4bd0e; border-radius: 4px; color: #ffffff;">Revise</a>
-                                    <a href="{{ url('api') }}/budgetrevision/C/{{ $encryptedData }}" style="display: inline-block; font-size: 13px; font-weight: 600; line-height: 20px; text-align: center; text-decoration: none; text-transform: uppercase; padding: 10px 40px; background-color: #e85347; border-radius: 4px; color: #ffffff;">Reject</a>
+                                    <a href="{{ url('api') }}/budgetlyman/A/{{ $encryptedData }}" style="display: inline-block; font-size: 13px; font-weight: 600; line-height: 20px; text-align: center; text-decoration: none; text-transform: uppercase; padding: 10px 40px; background-color: #1ee0ac; border-radius: 4px; color: #ffffff;">Approve</a>
+                                    <a href="{{ url('api') }}/budgetlyman/R/{{ $encryptedData }}" style="display: inline-block; font-size: 13px; font-weight: 600; line-height: 20px; text-align: center; text-decoration: none; text-transform: uppercase; padding: 10px 40px; background-color: #f4bd0e; border-radius: 4px; color: #ffffff;">Revise</a>
+                                    <a href="{{ url('api') }}/budgetlyman/C/{{ $encryptedData }}" style="display: inline-block; font-size: 13px; font-weight: 600; line-height: 20px; text-align: center; text-decoration: none; text-transform: uppercase; padding: 10px 40px; background-color: #e85347; border-radius: 4px; color: #ffffff;">Reject</a>
                                     <br>
                                     <p style="text-align:left;margin-bottom: 15px; color: #000000; font-size: 16px;">
                                         In case you need some clarification, kindly approach : <br>
