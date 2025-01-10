@@ -25,3 +25,14 @@ Route::get('/env', [EnvController::class, 'index']);
 
 Route::get('auth/azure', [AzureController::class, 'redirectToAzure'])->name('azure.login');
 Route::get('auth/azure/callback', [AzureController::class, 'handleAzureCallback'])->name('azure.callback');
+
+Route::get('/callback', function () {
+    $user = Socialite::driver('azure')->user();
+
+    // Menyimpan data pengguna ke session atau database jika diperlukan
+    auth()->login($user);
+
+    // Mengambil URL yang disimpan di session dan mengarahkan pengguna kembali ke sana
+    $redirectUrl = session('redirect_url', '/default-url');  // Gunakan URL default jika tidak ada yang disimpan
+    return redirect($redirectUrl);
+});
