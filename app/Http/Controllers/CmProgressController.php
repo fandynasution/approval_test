@@ -131,11 +131,6 @@ class CmProgressController extends Controller
                     // Prepare email
                     $mail = Mail::to($email);
 
-                    // Add BCC if request_type is G7
-                    if ($request_type === 'G7') {
-                        $mail->bcc('ricky.setiawan@kurakurabali.com'); // Replace with actual BCC email address
-                    }
-
                     // Send email
                     $mail->send(new SendCmProgressMail($encryptedData, $dataArray, 'IFCA SOFTWARE - '.$entity_name));
 
@@ -174,6 +169,8 @@ class CmProgressController extends Controller
             Cache::forget($cacheKey);
         }
 
+        $user = Auth::user();
+
         Log::info('Starting database query execution for processData');
         $data = Crypt::decrypt($encrypt);
 
@@ -184,6 +181,8 @@ class CmProgressController extends Controller
         $image = " ";
 
         Log::info('Decrypted data: ' . json_encode($data));
+
+        \Log::info("User: " . $user->name . " - Email: " . $user->email . " - Action: $status");
 
         $where = [
             'doc_no'        => $data["doc_no"],
