@@ -33,6 +33,6 @@ Route::get('/callback', function () {
     auth()->login($user);
 
     // Mengambil URL yang disimpan di session dan mengarahkan pengguna kembali ke sana
-    $redirectUrl = session('redirect_url', '/default-url');  // Gunakan URL default jika tidak ada yang disimpan
+    $redirectUrl = session('redirect_url', '/default-url');
     return redirect($redirectUrl);
 });

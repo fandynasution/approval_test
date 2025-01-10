@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "cc50460bd4ea28febad12902ec5a38a5",
+    "content-hash": "6db4dba97238a9c65e0c37820c5ef53e",
     "packages": [
         {
             "name": "asm89/stack-cors",
@@ -3435,6 +3435,137 @@
                 }
             ],
             "time": "2024-04-27T21:32:50+00:00"
+        },
+        {
+            "name": "socialiteproviders/azureadb2c",
+            "version": "4.5.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/SocialiteProviders/AzureADB2C.git",
+                "reference": "a35a619e14cf5009ba421689819ee61f8274d5ce"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/SocialiteProviders/AzureADB2C/zipball/a35a619e14cf5009ba421689819ee61f8274d5ce",
+                "reference": "a35a619e14cf5009ba421689819ee61f8274d5ce",
+                "shasum": ""
+            },
+            "require": {
+                "ext-json": "*",
+                "ext-openssl": "*",
+                "firebase/php-jwt": "^6.8",
+                "php": "^8.0",
+                "socialiteproviders/manager": "^4.4"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "SocialiteProviders\\AzureADB2C\\": ""
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Naohiro Fujie",
+                    "email": "naohiro.fujie@eidentity.jp"
+                }
+            ],
+            "description": "AzureADB2C OAuth2 Provider for Laravel Socialite",
+            "keywords": [
+                "Azure AD",
+                "Azure AD B2C",
+                "Azure Active Directory B2C",
+                "OpenID Connect",
+                "azure active directory",
+                "laravel",
+                "laravel Azure AD B2C",
+                "laravel socialite",
+                "oauth",
+                "provider",
+                "socialite",
+                "socialite Azure AD B2C"
+            ],
+            "support": {
+                "source": "https://github.com/SocialiteProviders/AzureADB2C/tree/4.5.0"
+            },
+            "time": "2024-11-13T15:38:10+00:00"
+        },
+        {
+            "name": "socialiteproviders/manager",
+            "version": "v4.8.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/SocialiteProviders/Manager.git",
+                "reference": "e93acc38f8464cc775a2b8bf09df311d1fdfefcb"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/SocialiteProviders/Manager/zipball/e93acc38f8464cc775a2b8bf09df311d1fdfefcb",
+                "reference": "e93acc38f8464cc775a2b8bf09df311d1fdfefcb",
+                "shasum": ""
+            },
+            "require": {
+                "illuminate/support": "^8.0 || ^9.0 || ^10.0 || ^11.0",
+                "laravel/socialite": "^5.5",
+                "php": "^8.1"
+            },
+            "require-dev": {
+                "mockery/mockery": "^1.2",
+                "phpunit/phpunit": "^9.0"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "SocialiteProviders\\Manager\\ServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "SocialiteProviders\\Manager\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Andy Wendt",
+                    "email": "andy@awendt.com"
+                },
+                {
+                    "name": "Anton Komarev",
+                    "email": "a.komarev@cybercog.su"
+                },
+                {
+                    "name": "Miguel Piedrafita",
+                    "email": "soy@miguelpiedrafita.com"
+                },
+                {
+                    "name": "atymic",
+                    "email": "atymicq@gmail.com",
+                    "homepage": "https://atymic.dev"
+                }
+            ],
+            "description": "Easily add new or override built-in providers in Laravel Socialite.",
+            "homepage": "https://socialiteproviders.com",
+            "keywords": [
+                "laravel",
+                "manager",
+                "oauth",
+                "providers",
+                "socialite"
+            ],
+            "support": {
+                "issues": "https://github.com/socialiteproviders/manager/issues",
+                "source": "https://github.com/socialiteproviders/manager"
+            },
+            "time": "2025-01-03T09:40:37+00:00"
         },
         {
             "name": "swiftmailer/swiftmailer",
