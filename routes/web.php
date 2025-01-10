@@ -4,6 +4,8 @@ use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\EnvController;
 
+use App\Http\Controllers\Auth\AzureController;
+
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -20,3 +22,6 @@ Route::get('/', function () {
 });
 
 Route::get('/env', [EnvController::class, 'index']);
+
+Route::get('auth/azure', [AzureController::class, 'redirectToAzure'])->name('azure.login');
+Route::get('auth/azure/callback', [AzureController::class, 'handleAzureCallback'])->name('azure.callback');
