@@ -3,6 +3,8 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
+use SocialiteProviders\Manager\SocialiteWasCalled;
+use SocialiteProviders\Azure\AzureExtendSocialite;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -23,6 +25,12 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        //
+        $this->app->make('Laravel\Socialite\Contracts\Factory')->extend(
+            'azure',
+            function ($app) {
+                return $app->make('Laravel\Socialite\Contracts\Factory')
+                        ->buildProvider(AzureExtendSocialite::class, config('services.azure'));
+            }
+        );
     }
 }
