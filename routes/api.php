@@ -78,7 +78,10 @@ Route::POST('/cmdone/getaccess', [CmDone::class, 'update']);
 
 use App\Http\Controllers\CmProgressController as CmProgress;
 Route::POST('/cmprogress', [CmProgress::class, 'Mail']);
-Route::GET('/cmprogress/{status}/{encrypt}', [CmProgress::class, 'processData'])->middleware('azure.login');
+// Route::GET('/cmprogress/{status}/{encrypt}', [CmProgress::class, 'processData'])->middleware('azure.login');
+Route::middleware(['web', 'azure'])->group(function () {
+    Route::get('/cmprogress/{status}/{encrypt}', [CmProgress::class, 'processData']);
+});
 Route::POST('/cmprogress/getaccess', [CmProgress::class, 'update']);
 
 use App\Http\Controllers\CmEntryController as CmEntry;
