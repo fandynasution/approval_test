@@ -13,6 +13,8 @@ class AzureLoginMiddleware
         // Menyimpan URL yang diminta ke session
         if (!auth()->check()) {
             session(['redirect_url' => url()->current()]);
+
+            // Mengarahkan ke halaman login Azure
             return Socialite::driver('azure')->redirect();
         }
 
