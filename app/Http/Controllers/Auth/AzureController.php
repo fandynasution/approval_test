@@ -11,23 +11,20 @@ class AzureController extends Controller
 {
     public function redirectToAzure()
     {
-        return Socialite::driver('azure')
-                        ->setTenantId(config('services.azure.tenant'))
+        return Socialite::driver('microsoft')
+                        ->setTenantId(config('services.microsoft.tenant'))
                         ->redirect();
     }
 
     public function handleAzureCallback()
     {
         try {
-            $azureUser = Socialite::driver('azure')->user();
+            $azureUser = Socialite::driver('microsoft')->user();
 
-            // Log the Azure user for debugging
-            \Log::info('Azure User:', (array)$azureUser);
-    
             // Find or create the user in your database
             $user = User::firstOrCreate(
-                ['email' => $azureUser->email],
-                ['name' => $azureUser->name]
+                ['email' => $azureUser->getEmail()],
+                ['name' => $azureUser->getName()]
             );
 
             // Log the user in
@@ -35,7 +32,7 @@ class AzureController extends Controller
 
             return redirect()->intended('/');
         } catch (\Exception $e) {
-            \Log::error('Azure Authentication Error: '.$e->getMessage());
+            \Log::error('Azure Authentication Error:', ['error' => $e->getMessage()]);
             return redirect()->route('azure.login')->withErrors(['error' => 'Failed to authenticate.']);
         }
     }
