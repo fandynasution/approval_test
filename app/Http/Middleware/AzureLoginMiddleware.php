@@ -11,11 +11,8 @@ class AzureLoginMiddleware
     public function handle(Request $request, Closure $next)
     {
         // Menyimpan URL yang diminta ke session
-        if (!auth()->check()) {
-            session(['redirect_url' => url()->current()]);
-
-            // Mengarahkan ke halaman login Azure
-            return Socialite::driver('azure')->redirect();
+        if (!Auth::check()) {
+            return redirect()->route('azure.login'); // Redirect to Azure login route
         }
 
         return $next($request);

@@ -11,10 +11,9 @@ class AzureController extends Controller
 {
     public function redirectToAzure()
     {
-        $codeVerifier = bin2hex(random_bytes(32));
-        session(['pkce_code_verifier' => $codeVerifier]);
-
-        return Socialite::driver('microsoft')->redirect();
+        return Socialite::driver('microsoft')
+                        ->setTenantId(config('services.microsoft.tenant'))
+                        ->redirect();
     }
 
     public function handleAzureCallback()
