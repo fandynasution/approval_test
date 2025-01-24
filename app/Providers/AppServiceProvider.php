@@ -25,12 +25,15 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        $this->app->make('Laravel\Socialite\Contracts\Factory')->extend(
-            'azure',
-            function ($app) {
-                return $app->make('Laravel\Socialite\Contracts\Factory')
-                        ->buildProvider(AzureExtendSocialite::class, config('services.azure'));
-            }
-        );
+        \Socialite::extend('microsoft', function ($app) {
+            $config = $app['config']['services.microsoft'];
+    
+            return new AzureSocialiteProvider(
+                $app['request'],
+                $config['client_id'],
+                $config['client_secret'],
+                $config['redirect']
+            );
+        });
     }
 }
