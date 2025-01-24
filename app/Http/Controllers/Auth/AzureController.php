@@ -32,6 +32,7 @@ class AzureController extends Controller
 
             return redirect()->intended('/');
         } catch (\Exception $e) {
+            \Log::error('Azure Authentication Error: '.$e->getMessage());
             return redirect()->route('azure.login')->withErrors(['error' => 'Failed to authenticate.']);
         }
     }
