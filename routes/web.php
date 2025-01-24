@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\EnvController;
 
-use App\Http\Controllers\Auth\AzureController as AzureController;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -23,10 +23,15 @@ Route::get('/', function () {
 
 Route::get('/env', [EnvController::class, 'index']);
 
-Route::middleware(['web'])->group(function () {
-    Route::get('/auth/azure/redirect', [AzureController::class, 'redirectToAzure'])->name('azure.login');
-    Route::get('/auth/azure/callback', [AzureController::class, 'handleAzureCallback']);
-});
+// Route::middleware(['web'])->group(function () {
+//     Route::get('/auth/azure/redirect', [AzureController::class, 'redirectToAzure'])->name('azure.login');
+//     Route::get('/auth/azure/callback', [AzureController::class, 'handleAzureCallback']);
+// });
+
+use App\Http\Controllers\Auth\AzureController as AzureController;
+Route::get('/auth/azure/redirect', [AzureController::class, 'redirectToAzure'])->name('azure.login');
+Route::get('/auth/azure/callback', [AzureController::class, 'handleAzureCallback']);
+
 
 Route::get('/callback', function () {
     $user = Socialite::driver('azure')->user();

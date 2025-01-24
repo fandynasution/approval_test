@@ -21,6 +21,9 @@ class AzureController extends Controller
         try {
             $azureUser = Socialite::driver('azure')->user();
 
+            // Log the Azure user for debugging
+            \Log::info('Azure User:', (array)$azureUser);
+    
             // Find or create the user in your database
             $user = User::firstOrCreate(
                 ['email' => $azureUser->email],
