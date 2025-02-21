@@ -125,6 +125,12 @@
                                     <a href="<?php echo e(url('api')); ?>/processdata/<?php echo e($dataArray['module']); ?>/C/<?php echo e($encryptedData); ?>" style="display: inline-block; font-size: 13px; font-weight: 600; line-height: 20px; text-align: center; text-decoration: none; text-transform: uppercase; padding: 10px 40px; background-color: #e85347; border-radius: 4px; color: #ffffff;">Reject</a>
                                     <br>
                                     <p style="text-align:left;margin-bottom: 15px; color: #000000; font-size: 16px;">
+                                        To check approval status, kindly click on the following link :<br>
+                                        <a href="https://checkapprovalstatus.kurakurabali.com/">
+                                            https://checkapprovalstatus.kurakurabali.com/
+                                        </a>
+                                    </p>
+                                    <p style="text-align:left;margin-bottom: 15px; color: #000000; font-size: 16px;">
                                         In case you need some clarification, kindly approach : <br>
                                         <a href="mailto:<?php echo e($dataArray['clarify_email']); ?>" style="text-decoration: none; color: inherit;">
                                             <?php echo e($dataArray['clarify_user']); ?>
@@ -134,7 +140,7 @@
                     
                                     <p style="text-align:left;margin-bottom: 15px; color: #000000; font-size: 16px;">
                                         <b>Thank you,</b><br>
-                                        <a href="mailto:<?php echo e($dataArray['sender_addr']); ?>" style="text-decoration: none; color: inherit;">
+                                        <a href="mailto:<?php echo e($dataArray['sender_addr']); ?>">
                                             <?php echo e($dataArray['sender']); ?>
 
                                         </a>

@@ -165,7 +165,7 @@ class MailDataController extends Controller
         } catch (\Exception $e) {
 	    \Log::error('Error in getAccess method: ' . $e->getMessage());
             $msg1 = array(
-                "Pesan" => "FAILED",
+                "Pesan" => $e->getMessage(),
                 "image" => "reject.png"
             );
             return view("email.after", $msg1);

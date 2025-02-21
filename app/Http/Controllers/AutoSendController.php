@@ -101,6 +101,7 @@ class AutoSendController extends Controller
                     // Skip this condition, do nothing for type 'D' and module 'CB'
                     continue;  // This will skip the current iteration of the loop
                 } else {
+		    \Log::info($doc_no);
                     $statussend = 'P';
                     $downLevel = '0';
                     $pdo = DB::connection('BTID')->getPdo();

@@ -322,6 +322,7 @@ class StaffFeedbackController extends Controller
             $entity_cd = $request->entity_cd;
             $status = $request->status;
             $approve_seq = $request->approve_seq;
+            $dateTime_app = Carbon::createFromFormat('M  j Y h:iA', $request->approved_date)->format('Ymd');
             if (!empty($emailAddresses)) {
                 $emails = $emailAddresses;
 
@@ -329,7 +330,7 @@ class StaffFeedbackController extends Controller
                 
                 // Check if the email has been sent before for this document
                 $cacheFile = 'email_feedback_sent_' . $approve_seq . '_' . $entity_cd . '_' . $doc_no . '_' . $status . '.txt';
-                $cacheFilePath = storage_path('app/mail_cache/feedbackCb/' . date('Ymd'). '/' . $cacheFile);
+                $cacheFilePath = storage_path('app/mail_cache/feedbackCb/' . $dateTime_app . '/' . $cacheFile);
                 $cacheDirectory = dirname($cacheFilePath);
             
                 // Ensure the directory exists

@@ -274,7 +274,7 @@ class CbPPuVvipNewController extends Controller
         $image = " ";
 
         if ($reasonget == '' || $reasonget == NULL) {
-            $reason = '0';
+            $reason = 'no reason';
         } else {
             $reason = $reasonget;
         }
