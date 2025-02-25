@@ -92,7 +92,7 @@ class CbFupdController extends Controller
             var_dump($data["entity_cd"]);
             var_dump($data["doc_no"]);
             var_dump($type);
-            var_dump($level_no);
+            var_dump($data["level_no"]);
             var_dump($type_module);
             var_dump($module);
             var_dump($encryptedData);
@@ -101,7 +101,7 @@ class CbFupdController extends Controller
             $sth->bindParam(1, $data["entity_cd"]);
             $sth->bindParam(2, $data["doc_no"]);
             $sth->bindParam(3, $type);      
-            $sth->bindParam(4, $level_no);
+            $sth->bindParam(4, $data["level_no"]);
             $sth->bindParam(5, $type_module);
             $sth->bindParam(6, $module);
             $sth->bindParam(7, $encryptedData);
