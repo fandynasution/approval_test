@@ -100,7 +100,47 @@ class CbFupdController extends Controller
             $sth->execute();
             $result = $sth->fetch(PDO::FETCH_NUM);
             $columnValue = $result[2];
-            dd($columnValue);
+            
+            $emailAddresses = strtolower($data["email_addr"]);
+            $approve_seq = $data["approve_seq"];
+            $entity_cd = $data["entity_cd"];
+            $doc_no = $data["doc_no"];
+            $level_no = $data["level_no"];
+            $dataArray['approve_id'] = $columnValue;
+            if (!empty($emailAddresses)) {
+                $email = $emailAddresses;
+        
+                // Caching untuk mencegah email ganda
+                $cacheFile = 'email_sent_' . $approve_seq . '_' . $entity_cd . '_' . $doc_no . '_' . $level_no . '.txt';
+                $cacheFilePath = storage_path('app/mail_cache/send_cbfupd/' . date('Ymd') . '/' . $cacheFile);
+                $cacheDirectory = dirname($cacheFilePath);
+        
+                if (!file_exists($cacheDirectory)) {
+                    mkdir($cacheDirectory, 0755, true);
+                }
+        
+                $lockFile = $cacheFilePath . '.lock';
+                $lockHandle = fopen($lockFile, 'w');
+                if (!flock($lockHandle, LOCK_EX)) {
+                    fclose($lockHandle);
+                    throw new Exception('Failed to acquire lock');
+                }
+        
+                if (!file_exists($cacheFilePath)) {
+                    Mail::to($email)->send(new SendCbFupdMail($encryptedData, $dataArray));
+        
+                    file_put_contents($cacheFilePath, 'sent');
+        
+                    Log::channel('sendmailapproval')->info('Email CB FUPD doc_no '.$doc_no.' Entity ' . $entity_cd . ' berhasil dikirim ke: ' . $email);
+                    return 'Email berhasil dikirim ke: ' . $email;
+                } else {
+                    Log::channel('sendmailapproval')->info('Email CB FUPD doc_no '.$doc_no.' Entity ' . $entity_cd.' already sent to: ' . $email);
+                    return 'Email has already been sent to: ' . $email;
+                }
+            } else {
+                Log::channel('sendmail')->warning("No email address provided for document " . $doc_no);
+                return "No email address provided";
+            }
         } catch (\Exception $e) {
             Log::channel('sendmail')->error('Gagal mengirim email: ' . $e->getMessage());
             return "Gagal mengirim email: " . $e->getMessage();
