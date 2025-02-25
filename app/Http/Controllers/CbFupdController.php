@@ -98,9 +98,9 @@ class CbFupdController extends Controller
             $sth->execute();
             
             $sth->execute();
-            $result = $sth->fetchColumn();
-            $result2 = $sth->fetchAll(PDO::FETCH_ASSOC);
-            dd($result);
+            $result = $sth->fetch(PDO::FETCH_NUM);
+            $columnValue = $result[2];
+            dd($columnValue);
         } catch (\Exception $e) {
             Log::channel('sendmail')->error('Gagal mengirim email: ' . $e->getMessage());
             return "Gagal mengirim email: " . $e->getMessage();
