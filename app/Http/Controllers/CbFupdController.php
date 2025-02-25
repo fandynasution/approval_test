@@ -86,7 +86,8 @@ class CbFupdController extends Controller
     
         try {
             $pdo = DB::connection('BTID')->getPdo();
-            $sth = $pdo->prepare("EXEC mgr.x_send_mail_approval_azure ?, ?, ?, ?, ?, ?, ?;");
+            $sql = "DECLARE @result INT; EXEC mgr.x_send_mail_approval_azure ?, ?, ?, ?, ?, ?, ?, @result OUTPUT; SELECT @result;";
+            $sth = $pdo->prepare($sql);
             
             $sth->bindParam(1, $data["entity_cd"]);
             $sth->bindParam(2, $data["doc_no"]);
@@ -95,6 +96,7 @@ class CbFupdController extends Controller
             $sth->bindParam(5, $type_module);
             $sth->bindParam(6, $module);
             $sth->bindParam(7, $encryptedData);
+            $sth->bindParam(8, $result, PDO::PARAM_INT | PDO::PARAM_INPUT_OUTPUT, 4);
             
             $sth->execute();
             $result = $sth->fetchColumn();
