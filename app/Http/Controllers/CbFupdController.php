@@ -77,64 +77,89 @@ class CbFupdController extends Controller
             'text'          => 'Propose Transfer to Bank'
         );
 
-        // var_dump($data2Encrypt);
-
         // Melakukan enkripsi pada $dataArray
         $encryptedData = Crypt::encrypt($data2Encrypt);
+
+        $type = $data2Encrypt['type']; // 'E'
+        $type_module = $data2Encrypt['type_module']; // 'CB'
+        $module = $dataArray['module'];
     
         try {
-            $emailAddresses = strtolower($data["email_addr"]);
-            $approve_seq = $data["approve_seq"];
-            $entity_cd = $data["entity_cd"];
-            $doc_no = $data["doc_no"];
-            $level_no = $data["level_no"];
-        
-            // Check if email addresses are provided and not empty
-            if (!empty($emailAddresses)) {
-                $email = $emailAddresses; // Since $emailAddresses is always a single email address (string)
-                
-                // Check if the email has been sent before for this document
-                $cacheFile = 'email_sent_' . $approve_seq . '_' . $entity_cd . '_' . $doc_no . '_' . $level_no . '.txt';
-                $cacheFilePath = storage_path('app/mail_cache/send_cbfupd/' . date('Ymd') . '/' . $cacheFile);
-                $cacheDirectory = dirname($cacheFilePath);
-        
-                // Ensure the directory exists
-                if (!file_exists($cacheDirectory)) {
-                    mkdir($cacheDirectory, 0755, true);
-                }
+            $pdo = DB::connection('BTID')->getPdo();
+            $sth = $pdo->prepare("SET NOCOUNT ON; EXEC mgr.x_send_mail_approval_azure ?, ?, ?, ?, ?, ?, ?;");
+            $sth->bindParam(1, $data["entity_cd"]);
+            $sth->bindParam(2, $data["doc_no"]);
+            $sth->bindParam(3, $type);      
+            $sth->bindParam(4, $level_no);
+            $sth->bindParam(5, $type_module);
+            $sth->bindParam(6, $module);
+            $sth->bindParam(7, $encryptedData);
+            $sth->execute();
 
-                // Acquire an exclusive lock
-                $lockFile = $cacheFilePath . '.lock';
-                $lockHandle = fopen($lockFile, 'w');
-                if (!flock($lockHandle, LOCK_EX)) {
-                    // Failed to acquire lock, handle appropriately
-                    fclose($lockHandle);
-                    throw new Exception('Failed to acquire lock');
-                }
-        
-                if (!file_exists($cacheFilePath)) {
-                    // Send email
-                    Mail::to($email)->send(new SendCbFupdMail($encryptedData, $dataArray));
-        
-                    // Mark email as sent
-                    file_put_contents($cacheFilePath, 'sent');
-        
-                    // Log the success
-                    Log::channel('sendmailapproval')->info('Email CB FUPD doc_no '.$doc_no.' Entity ' . $entity_cd.' berhasil dikirim ke: ' . $email);
-                    return 'Email berhasil dikirim ke: ' . $email;
-                } else {
-                    // Email was already sent
-                    Log::channel('sendmailapproval')->info('Email CB FUPD doc_no '.$doc_no.' Entity ' . $entity_cd.' already sent to: ' . $email);
-                    return 'Email has already been sent to: ' . $email;
-                }
+            $result = $sth->fetchColumn();
+
+            if ($result == 1) {
+                Log::channel('sendmail')->error('Stored procedure execution failed.');
             } else {
-                // No email address provided
-                Log::channel('sendmail')->warning("No email address provided for document " . $doc_no);
-                return "No email address provided";
+                try {
+                    $emailAddresses = strtolower($data["email_addr"]);
+                    $approve_seq = $data["approve_seq"];
+                    $entity_cd = $data["entity_cd"];
+                    $doc_no = $data["doc_no"];
+                    $level_no = $data["level_no"];
+                    $dataArray['approve_id'] = $result;
+                
+                    // Check if email addresses are provided and not empty
+                    if (!empty($emailAddresses)) {
+                        $email = $emailAddresses; // Since $emailAddresses is always a single email address (string)
+                        
+                        // Check if the email has been sent before for this document
+                        $cacheFile = 'email_sent_' . $approve_seq . '_' . $entity_cd . '_' . $doc_no . '_' . $level_no . '.txt';
+                        $cacheFilePath = storage_path('app/mail_cache/send_cbfupd/' . date('Ymd') . '/' . $cacheFile);
+                        $cacheDirectory = dirname($cacheFilePath);
+                
+                        // Ensure the directory exists
+                        if (!file_exists($cacheDirectory)) {
+                            mkdir($cacheDirectory, 0755, true);
+                        }
+        
+                        // Acquire an exclusive lock
+                        $lockFile = $cacheFilePath . '.lock';
+                        $lockHandle = fopen($lockFile, 'w');
+                        if (!flock($lockHandle, LOCK_EX)) {
+                            // Failed to acquire lock, handle appropriately
+                            fclose($lockHandle);
+                            throw new Exception('Failed to acquire lock');
+                        }
+                
+                        if (!file_exists($cacheFilePath)) {
+                            // Send email
+                            Mail::to($email)->send(new SendCbFupdMail($encryptedData, $dataArray));
+                
+                            // Mark email as sent
+                            file_put_contents($cacheFilePath, 'sent');
+                
+                            // Log the success
+                            Log::channel('sendmailapproval')->info('Email CB FUPD doc_no '.$doc_no.' Entity ' . $entity_cd.' berhasil dikirim ke: ' . $email);
+                            return 'Email berhasil dikirim ke: ' . $email;
+                        } else {
+                            // Email was already sent
+                            Log::channel('sendmailapproval')->info('Email CB FUPD doc_no '.$doc_no.' Entity ' . $entity_cd.' already sent to: ' . $email);
+                            return 'Email has already been sent to: ' . $email;
+                        }
+                    } else {
+                        // No email address provided
+                        Log::channel('sendmail')->warning("No email address provided for document " . $doc_no);
+                        return "No email address provided";
+                    }
+                } catch (\Exception $e) {
+                    Log::channel('sendmail')->error('Gagal mengirim email: ' . $e->getMessage());
+                    return "Gagal mengirim email: " . $e->getMessage();
+                }
             }
         } catch (\Exception $e) {
-            Log::channel('sendmail')->error('Gagal mengirim email: ' . $e->getMessage());
-            return "Gagal mengirim email: " . $e->getMessage();
+            Log::channel('sendmail')->error('Error Input to DB Azure ' . $e->getMessage());
+            return "Error Input to DB Azure" . $e->getMessage();
         }
     }
 
