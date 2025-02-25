@@ -107,7 +107,7 @@ class CbFupdController extends Controller
                     $entity_cd = $data["entity_cd"];
                     $doc_no = $data["doc_no"];
                     $level_no = $data["level_no"];
-                    // $dataArray['approve_id'] = $result;
+                    $dataArray['approve_id'] = $result;
                 
                     // Check if email addresses are provided and not empty
                     if (!empty($emailAddresses)) {
