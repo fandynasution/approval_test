@@ -97,11 +97,11 @@ class CbFupdController extends Controller
             $sth->execute();
             
             $sth->execute();
-            $result = $sth->fetchColumn();
+            $result = $sth->fetch(PDO::FETCH_ASSOC);
         
-            if ($result === 'FAIL' || $result === 'DATA ALREADY EXIST') {
-                Log::channel('sendmail')->error('Stored procedure execution failed. Result: ' . $result);
-                return "Stored procedure execution failed.";
+            if ($result['result'] === 'FAIL' || $result['result'] === 'DATA ALREADY EXIST') {
+                Log::channel('sendmail')->error('Stored procedure execution failed. Result: ' . json_encode($result));
+                return "Stored procedure execution failed: " . $result['error_message'] ?? $result['result'];
             } else {
                 var_dump($result);
             }
