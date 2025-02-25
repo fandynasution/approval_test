@@ -84,7 +84,9 @@ class CbFupdController extends Controller
         $type_module = $data2Encrypt['type_module']; // 'CB'
         $module = $dataArray['module'];
 
-        var_dump("aaa");
+        var_dump($type);
+        var_dump($type_module);
+        var_dump($module);
     
         try {
             $pdo = DB::connection('BTID')->getPdo();
