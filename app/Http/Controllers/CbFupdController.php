@@ -100,7 +100,7 @@ class CbFupdController extends Controller
             var_dump($result);
             if ($result == 1) {
                 Log::channel('sendmail')->error('Stored procedure execution failed.');
-                return "Stored procedure execution failed. " . $e->getMessage();
+                return "Stored procedure execution failed. ";
             } else {
                 try {
                     $emailAddresses = strtolower($data["email_addr"]);
