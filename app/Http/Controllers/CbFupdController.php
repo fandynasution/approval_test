@@ -86,7 +86,7 @@ class CbFupdController extends Controller
     
         try {
             $pdo = DB::connection('BTID')->getPdo();
-            $sql = "DECLARE @result INT; EXEC mgr.x_send_mail_approval_azure ?, ?, ?, ?, ?, ?, ?, @result OUTPUT; SELECT @result;";
+            $sql = "EXEC mgr.x_send_mail_approval_azure ?, ?, ?, ?, ?, ?, ?;";
             $sth = $pdo->prepare($sql);
             
             $sth->bindParam(1, $data["entity_cd"]);
@@ -96,12 +96,11 @@ class CbFupdController extends Controller
             $sth->bindParam(5, $type_module);
             $sth->bindParam(6, $module);
             $sth->bindParam(7, $encryptedData);
-            $sth->bindParam(8, $result, PDO::PARAM_INT | PDO::PARAM_INPUT_OUTPUT, 4);
             
             $sth->execute();
             $result = $sth->fetchColumn();
         
-            if ((int)$result === 1) {
+            if ($result === 'FAIL') {
                 Log::channel('sendmail')->error('Stored procedure execution failed. Result: ' . $result);
                 return "Stored procedure execution failed.";
             }
