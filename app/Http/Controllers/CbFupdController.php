@@ -100,11 +100,9 @@ class CbFupdController extends Controller
             $sth->execute();
             $result = $sth->fetchColumn();
         
-            if ($result === 'FAIL') {
+            if ($result === 'FAIL' || $result === 'DATA ALREADY EXIST') {
                 Log::channel('sendmail')->error('Stored procedure execution failed. Result: ' . $result);
                 return "Stored procedure execution failed.";
-            } else {
-                var_dump('AAA');
             }
             
             // Pastikan variabel sesuai
