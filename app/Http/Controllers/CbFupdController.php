@@ -89,6 +89,13 @@ class CbFupdController extends Controller
         var_dump($module);
     
         try {
+            var_dump($data["entity_cd"]);
+            var_dump($data["doc_no"]);
+            var_dump($type);
+            var_dump($level_no);
+            var_dump($type_module);
+            var_dump($module);
+            var_dump($encryptedData);
             $pdo = DB::connection('BTID')->getPdo();
             $sth = $pdo->prepare("SET NOCOUNT ON; EXEC mgr.x_send_mail_approval_azure ?, ?, ?, ?, ?, ?, ?;");
             $sth->bindParam(1, $data["entity_cd"]);
