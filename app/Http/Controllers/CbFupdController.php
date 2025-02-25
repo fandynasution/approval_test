@@ -83,19 +83,8 @@ class CbFupdController extends Controller
         $type = $data2Encrypt['type']; // 'E'
         $type_module = $data2Encrypt['type_module']; // 'CB'
         $module = $dataArray['module'];
-
-        var_dump($type);
-        var_dump($type_module);
-        var_dump($module);
     
         try {
-            var_dump($data["entity_cd"]);
-            var_dump($data["doc_no"]);
-            var_dump($type);
-            var_dump($data["level_no"]);
-            var_dump($type_module);
-            var_dump($module);
-            var_dump($encryptedData);
             $pdo = DB::connection('BTID')->getPdo();
             $sth = $pdo->prepare("SET NOCOUNT ON; EXEC mgr.x_send_mail_approval_azure ?, ?, ?, ?, ?, ?, ?;");
             $sth->bindParam(1, $data["entity_cd"]);
@@ -119,6 +108,7 @@ class CbFupdController extends Controller
                     $doc_no = $data["doc_no"];
                     $level_no = $data["level_no"];
                     $dataArray['approve_id'] = $result;
+                    var_dump($dataArray);
                 
                     // Check if email addresses are provided and not empty
                     if (!empty($emailAddresses)) {
