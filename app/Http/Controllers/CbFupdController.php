@@ -86,9 +86,7 @@ class CbFupdController extends Controller
     
         try {
             $pdo = DB::connection('BTID')->getPdo();
-            $sql = "EXEC mgr.x_send_mail_approval_azure ?, ?, ?, ?, ?, ?, ?;";
-            $sth = $pdo->prepare($sql);
-            
+            $sth = $pdo->prepare("SET NOCOUNT ON; EXEC mgr.x_send_mail_approval_azure ?, ?, ?, ?, ?, ?, ?;");
             $sth->bindParam(1, $data["entity_cd"]);
             $sth->bindParam(2, $data["doc_no"]);
             $sth->bindParam(3, $type);
@@ -96,6 +94,7 @@ class CbFupdController extends Controller
             $sth->bindParam(5, $type_module);
             $sth->bindParam(6, $module);
             $sth->bindParam(7, $encryptedData);
+            $sth->execute();
             
             $sth->execute();
             $result = $sth->fetchColumn();
@@ -103,49 +102,9 @@ class CbFupdController extends Controller
             if ($result === 'FAIL' || $result === 'DATA ALREADY EXIST') {
                 Log::channel('sendmail')->error('Stored procedure execution failed. Result: ' . $result);
                 return "Stored procedure execution failed.";
+            } else {
+                var_dump($result);
             }
-            
-            // Pastikan variabel sesuai
-            $emailAddresses = strtolower($data["email_addr"]);
-            $approve_seq = $data["approve_seq"];
-            $entity_cd = $data["entity_cd"];
-            $doc_no = $data["doc_no"];
-            $level_no = $data["level_no"];
-        
-            // if (!empty($emailAddresses)) {
-            //     $email = $emailAddresses;
-        
-            //     // Caching untuk mencegah email ganda
-            //     $cacheFile = 'email_sent_' . $approve_seq . '_' . $entity_cd . '_' . $doc_no . '_' . $level_no . '.txt';
-            //     $cacheFilePath = storage_path('app/mail_cache/send_cbfupd/' . date('Ymd') . '/' . $cacheFile);
-            //     $cacheDirectory = dirname($cacheFilePath);
-        
-            //     if (!file_exists($cacheDirectory)) {
-            //         mkdir($cacheDirectory, 0755, true);
-            //     }
-        
-            //     $lockFile = $cacheFilePath . '.lock';
-            //     $lockHandle = fopen($lockFile, 'w');
-            //     if (!flock($lockHandle, LOCK_EX)) {
-            //         fclose($lockHandle);
-            //         throw new Exception('Failed to acquire lock');
-            //     }
-        
-            //     if (!file_exists($cacheFilePath)) {
-            //         Mail::to($email)->send(new SendCbFupdMail($encryptedData, $dataArray));
-        
-            //         file_put_contents($cacheFilePath, 'sent');
-        
-            //         Log::channel('sendmailapproval')->info('Email CB FUPD doc_no '.$doc_no.' Entity ' . $entity_cd . ' berhasil dikirim ke: ' . $email);
-            //         return 'Email berhasil dikirim ke: ' . $email;
-            //     } else {
-            //         Log::channel('sendmailapproval')->info('Email CB FUPD doc_no '.$doc_no.' Entity ' . $entity_cd.' already sent to: ' . $email);
-            //         return 'Email has already been sent to: ' . $email;
-            //     }
-            // } else {
-            //     Log::channel('sendmail')->warning("No email address provided for document " . $doc_no);
-            //     return "No email address provided";
-            // }
         } catch (\Exception $e) {
             Log::channel('sendmail')->error('Gagal mengirim email: ' . $e->getMessage());
             return "Gagal mengirim email: " . $e->getMessage();
