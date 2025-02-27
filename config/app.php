@@ -56,6 +56,8 @@ return [
 
     'asset_url' => env('ASSET_URL', null),
 
+    'APP_APPR' => env('APP_APPR', 'https://default.url'),
+
     /*
     |--------------------------------------------------------------------------
     | Application Timezone
