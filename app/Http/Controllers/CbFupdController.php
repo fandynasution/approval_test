@@ -87,7 +87,7 @@ class CbFupdController extends Controller
     
         try {
             $pdo = DB::connection('BTID')->getPdo();
-            $sth = $pdo->prepare("SET NOCOUNT ON; EXEC mgr.x_send_mail_approval_azure ?, ?, ?, ?, ?, ?, ?;");
+            $sth = $pdo->prepare("SET NOCOUNT ON; EXEC mgr.x_send_mail_approval_azure ?, ?, ?, ?, ?, ?, ?, ?;");
             $sth->bindParam(1, $data["entity_cd"]);
             $sth->bindParam(2, $data["doc_no"]);
             $sth->bindParam(3, $type);
@@ -95,6 +95,7 @@ class CbFupdController extends Controller
             $sth->bindParam(5, $type_module);
             $sth->bindParam(6, $module);
             $sth->bindParam(7, $encryptedData);
+            $sth->bindParam(8, $data["email_addr"]);
             $sth->execute();
             
             $sth->execute();
