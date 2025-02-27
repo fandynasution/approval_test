@@ -56,7 +56,7 @@ return [
 
     'asset_url' => env('ASSET_URL', null),
 
-    'APP_APPR' => env('APP_APPR', 'https://ifcadev.kurakurabali.com:8003'),
+    'APP_APPR' => env('APP_APPR', 'https://ifcadev.kurakurabali.com:8003/en'),
 
     /*
     |--------------------------------------------------------------------------
