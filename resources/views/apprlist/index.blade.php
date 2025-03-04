@@ -53,8 +53,12 @@
                 </div>
             </div>
         </div>
+        <div id="loading-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); z-index: 9999; display: flex; justify-content: center; align-items: center; color: white; font-size: 20px;">
+            <span>Processing...</span>
+        </div>
         <script>
             $(document).ready(function() {
+                $('#loading-overlay').hide();
                 $('#DataTables_Table_0').DataTable({
                     processing: true,
                     serverSide: true,
@@ -72,39 +76,24 @@
                             orderable: false,
                             searchable: false,
                             render: function(data, type, row) {
-                                if (row.module === 'PO' && row.TYPE === 'S') {
-                                    return 'Quotation';
-                                } else if (row.module === 'PO' && row.TYPE === 'Q') {
-                                    return 'Purchase Requisition';
-                                } else if (row.module === 'PO' && row.TYPE === 'A') {
-                                    return 'Purchase Order';
-                                } else if (row.module === 'CB' && row.TYPE === 'D') {
-                                    return 'Recapitulation Bank';
-                                } else if (row.module === 'CB' && row.TYPE === 'E') {
-                                    return 'Propose Transfer';
-                                } else if (row.module === 'CB' && row.TYPE === 'G') {
-                                    return 'Cash Advance Settlement';
-                                } else if (row.module === 'CB' && row.TYPE === 'U') {
-                                    return 'Payment Request';
-                                } else if (row.module === 'CB' && row.TYPE === 'V') {
-                                    return 'Payment Request VVIP';
-                                } else if (row.module === 'CM' && row.TYPE === 'A') {
-                                    return 'Contract Progress';
-                                } else if (row.module === 'CM' && row.TYPE === 'B') {
-                                    return 'Contract Complete';
-                                } else if (row.module === 'CM' && row.TYPE === 'C') {
-                                    return 'Warranty Complete';
-                                } else if (row.module === 'CM' && row.TYPE === 'D') {
-                                    return 'Varian Order';
-                                } else if (row.module === 'CM' && row.TYPE === 'E') {
-                                    return 'Contract Entry';
-                                } else if (row.module === 'PL' && row.TYPE === 'Y') {
-                                    return 'PL Budget';
-                                } else if (row.module === 'TM' && row.TYPE === 'R') {
-                                    return 'Contract Renew';
-                                } else {
-                                    return ''; // Bisa dikosongkan atau diisi dengan teks lain
-                                }
+                                let options = {
+                                    'PO-S': 'Quotation',
+                                    'PO-Q': 'Purchase Requisition',
+                                    'PO-A': 'Purchase Order',
+                                    'CB-D': 'Recapitulation Bank',
+                                    'CB-E': 'Propose Transfer',
+                                    'CB-G': 'Cash Advance Settlement',
+                                    'CB-U': 'Payment Request',
+                                    'CB-V': 'Payment Request VVIP',
+                                    'CM-A': 'Contract Progress',
+                                    'CM-B': 'Contract Complete',
+                                    'CM-C': 'Warranty Complete',
+                                    'CM-D': 'Varian Order',
+                                    'CM-E': 'Contract Entry',
+                                    'PL-Y': 'PL Budget',
+                                    'TM-R': 'Contract Renew'
+                                };
+                                return options[`${row.module}-${row.TYPE}`] || '';
                             }
                         },
                         {
@@ -129,6 +118,9 @@
                     let doc_no = $(this).data('doc_no');
                     let user_id = $(this).data('user_id');
 
+                    // Tampilkan overlay loading sebelum request dikirim
+                    $('#loading-overlay').fadeIn();
+
                     $.ajax({
                         url: "{{ route('apprlist.sendData') }}", // Pastikan route ini sesuai
                         type: "POST",
@@ -145,6 +137,11 @@
                         },
                         error: function(xhr, status, error) {
                             alert("Terjadi kesalahan: " + xhr.responseText);
+                        },
+                        complete: function() {
+                            // Sembunyikan overlay loading setelah request selesai
+                            $('#loading-overlay').fadeOut();
+                            table.ajax.reload(null, false);
                         }
                     });
                 });
