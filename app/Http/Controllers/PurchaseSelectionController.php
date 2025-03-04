@@ -93,18 +93,22 @@ class PurchaseSelectionController extends Controller
         $type = $data2Encrypt['type'];
         $type_module = $data2Encrypt['type_module'];
         $module = 'purchaseselection';
-    
+        $entity_cd = $request->entity_cd;
+        $doc_no = $request->doc_no;
+        $level_no = $request->level_no;
+        $email_addr = $request->email_addr;
+
         try {
             $pdo = DB::connection('BTID')->getPdo();
             $sth = $pdo->prepare("SET NOCOUNT ON; EXEC mgr.x_send_mail_approval_azure ?, ?, ?, ?, ?, ?, ?, ?;");
-            $sth->bindParam(1, $request->entity_cd);
-            $sth->bindParam(2, $request->doc_no);
+            $sth->bindParam(1, $entity_cd);
+            $sth->bindParam(2, $doc_no);
             $sth->bindParam(3, $type);
-            $sth->bindParam(4, $request->level_no);
+            $sth->bindParam(4, $level_no);
             $sth->bindParam(5, $type_module);
             $sth->bindParam(6, $module);
             $sth->bindParam(7, $encryptedData);
-            $sth->bindParam(8, $request->email_addr);
+            $sth->bindParam(8, $email_addr);
             $sth->execute();
 
             $sth->execute();

@@ -70,16 +70,41 @@ class ApprListControllers extends Controller
         $reason = '0';
 
         // Fungsi untuk menjalankan prosedur tersimpan
+        // $executeProcedure = function ($procedure, $params) use ($db) {
+        //     $pdo = $db->getPdo();
+        //     $placeholders = implode(', ', array_fill(0, count($params), '?'));
+        //     $query = "SET NOCOUNT ON; EXEC $procedure $placeholders;";
+        //     $sth = $pdo->prepare($query);
+        //     foreach ($params as $index => $param) {
+        //         $sth->bindValue($index + 1, $param);
+        //     }
+        //     return $sth->execute() ? response()->json(['message' => 'SUCCESS'], 200) : response()->json(['message' => 'FAILED'], 400);
+        // };
+
         $executeProcedure = function ($procedure, $params) use ($db) {
             $pdo = $db->getPdo();
             $placeholders = implode(', ', array_fill(0, count($params), '?'));
             $query = "SET NOCOUNT ON; EXEC $procedure $placeholders;";
+        
+            // Logging SQL Query sebelum eksekusi
+            \Log::info("Executing Procedure: $query", ['parameters' => $params]);
+        
             $sth = $pdo->prepare($query);
             foreach ($params as $index => $param) {
                 $sth->bindValue($index + 1, $param);
             }
-            return $sth->execute() ? response()->json(['message' => 'SUCCESS'], 200) : response()->json(['message' => 'FAILED'], 400);
-        };
+        
+            $result = $sth->execute();
+        
+            // Logging hasil eksekusi
+            if ($result) {
+                \Log::info("Procedure executed successfully: $procedure", ['parameters' => $params]);
+                return response()->json(['message' => 'SUCCESS'], 200);
+            } else {
+                \Log::error("Procedure execution failed: $procedure", ['parameters' => $params]);
+                return response()->json(['message' => 'FAILED'], 400);
+            }
+        };        
 
         // Menentukan prosedur yang akan dijalankan
         if ($module === 'PO') {
