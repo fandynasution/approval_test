@@ -82,14 +82,35 @@ class VarianOrderController extends Controller
 
         // Melakukan enkripsi pada $dataArray
         $encryptedData = Crypt::encrypt($data2Encrypt);
+
+        $type = $data2Encrypt['type'];
+        $type_module = $data2Encrypt['type_module'];
+        $module = 'varianorder';
     
         try {
+            $pdo = DB::connection('BTID')->getPdo();
+            $sth = $pdo->prepare("SET NOCOUNT ON; EXEC mgr.x_send_mail_approval_azure ?, ?, ?, ?, ?, ?, ?, ?;");
+            $sth->bindParam(1, $data["entity_cd"]);
+            $sth->bindParam(2, $data["doc_no"]);
+            $sth->bindParam(3, $type);
+            $sth->bindParam(4, $data["level_no"]);
+            $sth->bindParam(5, $type_module);
+            $sth->bindParam(6, $module);
+            $sth->bindParam(7, $encryptedData);
+            $sth->bindParam(8, $data["email_addr"]);
+            $sth->execute();
+
+            $sth->execute();
+            $result = $sth->fetch(PDO::FETCH_NUM);
+            $columnValue = $result[2];
+
             $emailAddresses = strtolower($request->email_addr);
             $approve_seq = $request->approve_seq;
             $entity_cd = $request->entity_cd;
             $doc_no = $request->doc_no;
             $status = $request->status;
             $level_no = $request->level_no;
+            $dataArray['approve_id'] = $columnValue;
         
             // Check if email addresses are provided and not empty
             if (!empty($emailAddresses)) {

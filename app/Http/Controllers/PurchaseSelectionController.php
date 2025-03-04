@@ -90,13 +90,34 @@ class PurchaseSelectionController extends Controller
 
         $encryptedData = Crypt::encrypt($data2Encrypt);
 
+        $type = $data2Encrypt['type'];
+        $type_module = $data2Encrypt['type_module'];
+        $module = 'purchaseselection';
+    
         try {
+            $pdo = DB::connection('BTID')->getPdo();
+            $sth = $pdo->prepare("SET NOCOUNT ON; EXEC mgr.x_send_mail_approval_azure ?, ?, ?, ?, ?, ?, ?, ?;");
+            $sth->bindParam(1, $request->entity_cd);
+            $sth->bindParam(2, $request->doc_no);
+            $sth->bindParam(3, $type);
+            $sth->bindParam(4, $request->level_no);
+            $sth->bindParam(5, $type_module);
+            $sth->bindParam(6, $module);
+            $sth->bindParam(7, $encryptedData);
+            $sth->bindParam(8, $request->email_addr);
+            $sth->execute();
+
+            $sth->execute();
+            $result = $sth->fetch(PDO::FETCH_NUM);
+            $columnValue = $result[2];
+
             $emailAddress = strtolower($request->email_addr);
             $approveSeq = $request->approve_seq;
             $entityCd = $request->entity_cd;
             $docNo = $request->doc_no;
             $levelNo = $request->level_no;
             $entity_name = $request->entity_name;
+            $dataArray['approve_id'] = $columnValue;
 
             // Check if email address is provided and not empty
             if (!empty($emailAddress)) {

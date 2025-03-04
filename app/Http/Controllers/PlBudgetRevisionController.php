@@ -55,35 +55,59 @@ class PlBudgetRevisionController extends Controller
 
         // Melakukan enkripsi pada $dataArray
         $encryptedData = Crypt::encrypt($data2Encrypt);
+
+        $type = $data2Encrypt['type'];
+        $type_module = $data2Encrypt['type_module'];
+        $module = 'plbudgetrevision';
     
         try {
             $emailAddresses = strtolower($data["email_addr"]);
             $doc_no = $data["doc_no"];
             $entity_cd = $data["entity_cd"];
+            $dataArray['approve_id'] = $columnValue;
         
             // Check if email addresses are provided and not empty
             if (!empty($emailAddresses)) {
-                $emails = is_array($emailAddresses) ? $emailAddresses : [$emailAddresses];
-                
-                foreach ($emails as $email) {
-                    // Check if the email has been sent before for this document
-                    $cacheKey = 'email_sent_' . md5($doc_no . '_' . $entity_cd . '_' . $email);
-                    if (!Cache::has($cacheKey)) {
-                        // Send email
-                        Mail::to($email)->send(new SendPLRevisionMail($encryptedData, $dataArray));
-        
-                        // Mark email as sent
-                        Cache::store('mail_app')->put($cacheKey, true, now()->addHours(24));
-                    }
+                $email = $emailAddresses; // Since $emailAddresses is always a single email address (string)
+
+                // Check if the email has been sent before for this document
+                $cacheFile = 'email_sent_' . $approve_seq . '_' . $entity_cd . '_' . $ref_no . '_' . $level_no . '.txt';
+                $cacheFilePath = storage_path('app/mail_cache/send_PlBudgetRevision/' . date('Ymd') . '/' . $cacheFile);
+                $cacheDirectory = dirname($cacheFilePath);
+
+                // Ensure the directory exists
+                if (!file_exists($cacheDirectory)) {
+                    mkdir($cacheDirectory, 0755, true);
                 }
-                
-                $sentTo = is_array($emailAddresses) ? implode(', ', $emailAddresses) : $emailAddresses;
-                Log::channel('sendmailapproval')->info('Email doc_no ' . $doc_no . ' Entity ' . $entity_cd . ' berhasil dikirim ke: ' . $sentTo);
-                return "Email berhasil dikirim ke: " . $sentTo;
+
+                // Acquire an exclusive lock
+                $lockFile = $cacheFilePath . '.lock';
+                $lockHandle = fopen($lockFile, 'w');
+                if (!flock($lockHandle, LOCK_EX)) {
+                    // Failed to acquire lock, handle appropriately
+                    fclose($lockHandle);
+                    throw new Exception('Failed to acquire lock');
+                }
+
+                if (!file_exists($cacheFilePath)) {
+                    // Send email
+                    Mail::to($email)->send(new SendPLRevisionMail($encryptedData, $dataArray));
+        
+                    // Mark email as sent
+                    file_put_contents($cacheFilePath, 'sent');
+        
+                    // Log the success
+                    Log::channel('sendmailapproval')->info('Email PL Budget Revision doc_no '.$doc_no.' Entity ' . $entity_cd.' berhasil dikirim ke: ' . $email);
+                    return 'Email berhasil dikirim';
+                } else {
+                    // Email was already sent
+                    Log::channel('sendmailapproval')->info('Email PL Budget Revision doc_no '.$doc_no.' Entity ' . $entity_cd.' already sent to: ' . $email);
+                    return 'Email has already been sent to: ' . $email;
+                }
             } else {
-                Log::channel('sendmail')->warning("Tidak ada alamat email yang diberikan");
-                Log::channel('sendmail')->info($doc_no);
-                return "Tidak ada alamat email yang diberikan";
+                // No email address provided
+                Log::channel('sendmail')->warning("No email address provided for document " . $doc_no);
+                return "No email address provided";
             }
         } catch (\Exception $e) {
             Log::channel('sendmail')->error('Gagal mengirim email: ' . $e->getMessage());

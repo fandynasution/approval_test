@@ -81,8 +81,8 @@ class CbFupdController extends Controller
         // Melakukan enkripsi pada $dataArray
         $encryptedData = Crypt::encrypt($data2Encrypt);
 
-        $type = $data2Encrypt['type']; // 'E'
-        $type_module = $data2Encrypt['type_module']; // 'CB'
+        $type = $data2Encrypt['type'];
+        $type_module = $data2Encrypt['type_module'];
         $module = $dataArray['module'];
     
         try {
