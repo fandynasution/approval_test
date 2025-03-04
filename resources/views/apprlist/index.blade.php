@@ -42,6 +42,7 @@
                                             <th>Level No</th>
                                             <th>Status</th>
                                             <th>Sent Mail Date</th>
+                                            <th>Module</th>
                                             <th>Action</th>
                                         </tr>
                                     </thead>
@@ -65,6 +66,47 @@
                         { data: 'level_no', name: 'level_no' },
                         { data: 'status', name: 'status' },
                         { data: 'sent_mail_date', name: 'sent_mail_date' },
+                        {
+                            data: null,
+                            name: 'cetak_option',
+                            orderable: false,
+                            searchable: false,
+                            render: function(data, type, row) {
+                                if (row.module === 'PO' && row.TYPE === 'S') {
+                                    return 'Quotation';
+                                } else if (row.module === 'PO' && row.TYPE === 'Q') {
+                                    return 'Purchase Requisition';
+                                } else if (row.module === 'PO' && row.TYPE === 'A') {
+                                    return 'Purchase Order';
+                                } else if (row.module === 'CB' && row.TYPE === 'D') {
+                                    return 'Recapitulation Bank';
+                                } else if (row.module === 'CB' && row.TYPE === 'E') {
+                                    return 'Propose Transfer';
+                                } else if (row.module === 'CB' && row.TYPE === 'G') {
+                                    return 'Cash Advance Settlement';
+                                } else if (row.module === 'CB' && row.TYPE === 'U') {
+                                    return 'Payment Request';
+                                } else if (row.module === 'CB' && row.TYPE === 'V') {
+                                    return 'Payment Request VVIP';
+                                } else if (row.module === 'CM' && row.TYPE === 'A') {
+                                    return 'Contract Progress';
+                                } else if (row.module === 'CM' && row.TYPE === 'B') {
+                                    return 'Contract Complete';
+                                } else if (row.module === 'CM' && row.TYPE === 'C') {
+                                    return 'Warranty Complete';
+                                } else if (row.module === 'CM' && row.TYPE === 'D') {
+                                    return 'Varian Order';
+                                } else if (row.module === 'CM' && row.TYPE === 'E') {
+                                    return 'Contract Entry';
+                                } else if (row.module === 'PL' && row.TYPE === 'Y') {
+                                    return 'PL Budget';
+                                } else if (row.module === 'TM' && row.TYPE === 'R') {
+                                    return 'Contract Renew';
+                                } else {
+                                    return ''; // Bisa dikosongkan atau diisi dengan teks lain
+                                }
+                            }
+                        },
                         {
                             data: null,
                             name: 'action',
@@ -97,7 +139,9 @@
                             user_id: user_id
                         },
                         success: function(response) {
-                            alert("Data berhasil dikirim!");
+                            console.log(response); // Debugging di console browser
+                            // alert("Hasil Query:\n" + JSON.stringify(response, null, 2)); // Tampilkan hasil query dalam alert
+                            alert("OK");
                         },
                         error: function(xhr, status, error) {
                             alert("Terjadi kesalahan: " + xhr.responseText);
