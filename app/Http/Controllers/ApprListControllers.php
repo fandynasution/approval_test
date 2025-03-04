@@ -63,6 +63,13 @@ class ApprListControllers extends Controller
         $module = optional($query)->module;
         $status = optional($query)->status;
         $level_no = optional($query)->level_no;
+        if ($level_no == 1) {
+            $statussend = 'P';
+            $downLevel = '0';
+        } elseif ($level_no > 1) {
+            $downLevel  = $level_no - 1;
+            $statussend = 'A';
+        }
         $user_group = optional($queryGroup)->group_name;
         $spv = optional($queryUser)->supervisor;
         $ref_no = optional($query)->ref_no;
@@ -110,69 +117,69 @@ class ApprListControllers extends Controller
         if ($module === 'PO') {
             if ($type === 'Q') {
                 return $executeProcedure('mgr.x_send_mail_approval_po_request', [
-                    $entity_cd, $project_no, $doc_no, $status, $level_no, $user_group, $user_id, $spv, $reason
+                    $entity_cd, $project_no, $doc_no, $statussend, $downLevel, $user_group, $user_id, $spv, $reason
                 ]);
             } elseif ($type === 'S') {
                 return $executeProcedure('mgr.x_send_mail_approval_po_selection', [
-                    $entity_cd, $project_no, $doc_no, $ref_no, $trx_date, $status, $level_no, $user_group, $user_id, $spv, $reason
+                    $entity_cd, $project_no, $doc_no, $ref_no, $trx_date, $statussend, $downLevel, $user_group, $user_id, $spv, $reason
                 ]);
             } elseif ($type === 'A') {
                 return $executeProcedure('mgr.x_send_mail_approval_po_order', [
-                    $entity_cd, $project_no, $doc_no, $trx_type, $status, $level_no, $user_group, $user_id, $spv, $reason
+                    $entity_cd, $project_no, $doc_no, $trx_type, $statussend, $downLevel, $user_group, $user_id, $spv, $reason
                 ]);
             }
         } elseif ($module === 'CB') {
             if ($type === 'D') {
                 return $executeProcedure('mgr.x_send_mail_approval_cb_rpb', [
-                    $entity_cd, $project_no, $doc_no, $trx_type, $status, $level_no, $user_group, $user_id, $spv, $reason
+                    $entity_cd, $project_no, $doc_no, $trx_type, $statussend, $downLevel, $user_group, $user_id, $spv, $reason
                 ]);
             } elseif ($type === 'E') {
                 return $executeProcedure('mgr.x_send_mail_approval_cb_fupd', [
-                    $entity_cd, $project_no, $doc_no, $trx_type, $status, $level_no, $user_group, $user_id, $spv, $reason
+                    $entity_cd, $project_no, $doc_no, $trx_type, $statussend, $downLevel, $user_group, $user_id, $spv, $reason
                 ]);
             } elseif ($type === 'G') {
                 return $executeProcedure('mgr.x_send_mail_approval_cb_rum', [
-                    $entity_cd, $project_no, $doc_no, $trx_type, $status, $level_no, $user_group, $user_id, $spv, $reason
+                    $entity_cd, $project_no, $doc_no, $trx_type, $statussend, $downLevel, $user_group, $user_id, $spv, $reason
                 ]);
             } elseif ($type === 'U') {
                 return $executeProcedure('mgr.x_send_mail_approval_cb_ppu', [
-                    $entity_cd, $project_no, $doc_no, $trx_type, $status, $level_no, $user_group, $user_id, $spv, $reason
+                    $entity_cd, $project_no, $doc_no, $trx_type, $statussend, $downLevel, $user_group, $user_id, $spv, $reason
                 ]);
             } elseif ($type === 'V') {
                 return $executeProcedure('mgr.x_send_mail_approval_cb_ppu_vvip', [
-                    $entity_cd, $project_no, $doc_no, $trx_type, $status, $level_no, $user_group, $user_id, $spv, $reason
+                    $entity_cd, $project_no, $doc_no, $trx_type, $statussend, $downLevel, $user_group, $user_id, $spv, $reason
                 ]);
             }
         } elseif ($module === 'CM') {
             if ($type === 'A') {
                 return $executeProcedure('mgr.xrl_send_mail_approval_cm_progress', [
-                    $entity_cd, $project_no, $doc_no, $ref_no, $status, $level_no, $user_group, $user_id, $spv, $reason
+                    $entity_cd, $project_no, $doc_no, $ref_no, $statussend, $downLevel, $user_group, $user_id, $spv, $reason
                 ]);
             } elseif ($type === 'B') {
                 return $executeProcedure('mgr.xrl_send_mail_approval_cm_contractdone', [
-                    $entity_cd, $project_no, $doc_no, $ref_no, $status, $level_no, $user_group, $user_id, $spv, $reason
+                    $entity_cd, $project_no, $doc_no, $ref_no, $statussend, $downLevel, $user_group, $user_id, $spv, $reason
                 ]);
             } elseif ($type === 'C') {
                 return $executeProcedure('mgr.xrl_send_mail_approval_cm_contractclose', [
-                    $entity_cd, $project_no, $doc_no, $ref_no, $status, $level_no, $user_group, $user_id, $spv, $reason
+                    $entity_cd, $project_no, $doc_no, $ref_no, $statussend, $downLevel, $user_group, $user_id, $spv, $reason
                 ]);
             } elseif ($type === 'D') {
                 return $executeProcedure('mgr.xrl_send_mail_approval_cm_varianorder', [
-                    $entity_cd, $project_no, $doc_no, $ref_no, $status, $level_no, $user_group, $user_id, $spv, $reason
+                    $entity_cd, $project_no, $doc_no, $ref_no, $statussend, $downLevel, $user_group, $user_id, $spv, $reason
                 ]);
             } elseif ($type === 'E') {
                 return $executeProcedure('mgr.xrl_send_mail_approval_cm_contract_entry', [
-                    $entity_cd, $project_no, $doc_no, $ref_no, $status, $level_no, $user_group, $user_id, $spv, $reason
+                    $entity_cd, $project_no, $doc_no, $ref_no, $statussend, $downLevel, $user_group, $user_id, $spv, $reason
                 ]);
             }
         } elseif ($module === 'PL') {
             if ($type === 'Y' && $trx_type === 'RB') {
                 return $executeProcedure('mgr.xrl_send_mail_approval_pl_budget_revision', [
-                    $entity_cd, $project_no, $doc_no, $trx_type, $status, $level_no, $user_id
+                    $entity_cd, $project_no, $doc_no, $trx_type, $statussend, $downLevel, $user_id
                 ]);
             } elseif ($type === 'Y') {
                 return $executeProcedure('mgr.xrl_send_mail_approval_pl_budget_lyman', [
-                    $entity_cd, $project_no, $doc_no, $status, $level_no, $user_id
+                    $entity_cd, $project_no, $doc_no, $statussend, $downLevel, $user_id
                 ]);
             }
         } elseif ($module === 'TM') {
@@ -184,11 +191,10 @@ class ApprListControllers extends Controller
                 ->first(['renew_no']);
                 $renew_no = optional($queryrenewno)->renew_no;
                 return $executeProcedure('mgr.xrl_send_mail_approval_tm_contractrenew', [
-                    $entity_cd, $project_no, $doc_no, $ref_no, $renew_no, $status, $level_no, $user_group, $user_id, $spv, $reason
+                    $entity_cd, $project_no, $doc_no, $ref_no, $renew_no, $statussend, $downLevel, $user_group, $user_id, $spv, $reason
                 ]);
             }
         }
         return response()->json(['message' => 'INVALID REQUEST'], 400);
     }
-
 }
