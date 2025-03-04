@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use App\Mail\SendMail;
 use App\Mail\SendPoRMail;
+use PDO;
 
 class PoRequestController extends Controller
 {
