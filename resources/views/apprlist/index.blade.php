@@ -56,6 +56,23 @@
         <div id="loading-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); z-index: 9999; display: flex; justify-content: center; align-items: center; color: white; font-size: 20px;">
             <span>Processing...</span>
         </div>
+        <!-- Modal -->
+        <div class="modal fade" id="responseModal" tabindex="-1" aria-labelledby="responseModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="responseModalLabel">Response</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="responseMessage">
+                    <!-- Pesan akan ditampilkan di sini -->
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
+                </div>
+                </div>
+            </div>
+        </div>
         <script>
             $(document).ready(function() {
                 $('#loading-overlay').hide();
@@ -131,15 +148,19 @@
                             user_id: user_id
                         },
                         success: function(response) {
-                            console.log(response); // Debugging di console browser
-                            // alert("Hasil Query:\n" + JSON.stringify(response, null, 2)); // Tampilkan hasil query dalam alert
-                            alert("OK");
+                            console.log(response);
+                            
+                            // Ubah teks dalam modal
+                            $("#responseMessage").html("<strong>Success!</strong> Data berhasil dikirim.");
+                            
+                            // Tampilkan modal
+                            $("#responseModal").modal("show");
                         },
                         error: function(xhr, status, error) {
-                            alert("Terjadi kesalahan: " + xhr.responseText);
+                            $("#responseMessage").html("<strong>Error!</strong> " + xhr.responseText);
+                            $("#responseModal").modal("show");
                         },
                         complete: function() {
-                            // Sembunyikan overlay loading setelah request selesai
                             $('#loading-overlay').fadeOut();
                             table.ajax.reload(null, false);
                         }
