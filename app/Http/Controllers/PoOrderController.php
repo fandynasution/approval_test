@@ -139,55 +139,54 @@ class PoOrderController extends Controller
             $sth->execute();
             $result = $sth->fetch(PDO::FETCH_NUM);
             $columnValue = $result[0];
-            dd($columnValue);
 
-            // $emailAddress = strtolower($data["email_addr"]);
-            // $approveSeq = $data["approve_seq"];
-            // $entityCd = $data["entity_cd"];
-            // $docNo = $data["doc_no"];
-            // $levelNo = $data["level_no"];
-            // $dataArray['approve_id'] = $columnValue;
+            $emailAddress = strtolower($data["email_addr"]);
+            $approveSeq = $data["approve_seq"];
+            $entityCd = $data["entity_cd"];
+            $docNo = $data["doc_no"];
+            $levelNo = $data["level_no"];
+            $dataArray['approve_id'] = $columnValue;
         
-            // if (!empty($emailAddress)) {
-            //     // Check if the email has been sent before for this document
-            //     $cacheFile = 'email_sent_' . $approveSeq . '_' . $entityCd . '_' . $docNo . '_' . $levelNo . '.txt';
-            //     $cacheFilePath = storage_path('app/mail_cache/send_porder/' . date('Ymd') . '/' . $cacheFile);
-            //     $cacheDirectory = dirname($cacheFilePath);
+            if (!empty($emailAddress)) {
+                // Check if the email has been sent before for this document
+                $cacheFile = 'email_sent_' . $approveSeq . '_' . $entityCd . '_' . $docNo . '_' . $levelNo . '.txt';
+                $cacheFilePath = storage_path('app/mail_cache/send_porder/' . date('Ymd') . '/' . $cacheFile);
+                $cacheDirectory = dirname($cacheFilePath);
         
-            //     // Ensure the directory exists
-            //     if (!file_exists($cacheDirectory)) {
-            //         mkdir($cacheDirectory, 0755, true);
-            //     }
+                // Ensure the directory exists
+                if (!file_exists($cacheDirectory)) {
+                    mkdir($cacheDirectory, 0755, true);
+                }
         
-            //     // Acquire an exclusive lock
-            //     $lockFile = $cacheFilePath . '.lock';
-            //     $lockHandle = fopen($lockFile, 'w');
-            //     if (!flock($lockHandle, LOCK_EX)) {
-            //         // Failed to acquire lock, handle appropriately
-            //         fclose($lockHandle);
-            //         throw new Exception('Failed to acquire lock');
-            //     }
+                // Acquire an exclusive lock
+                $lockFile = $cacheFilePath . '.lock';
+                $lockHandle = fopen($lockFile, 'w');
+                if (!flock($lockHandle, LOCK_EX)) {
+                    // Failed to acquire lock, handle appropriately
+                    fclose($lockHandle);
+                    throw new Exception('Failed to acquire lock');
+                }
         
-            //     if (!file_exists($cacheFilePath)) {
-            //         // Send email
-            //         Mail::to($emailAddress)->send(new SendPoMail($encryptedData, $dataArray));
+                if (!file_exists($cacheFilePath)) {
+                    // Send email
+                    Mail::to($emailAddress)->send(new SendPoMail($encryptedData, $dataArray));
         
-            //         // Mark email as sent
-            //         file_put_contents($cacheFilePath, 'sent');
+                    // Mark email as sent
+                    file_put_contents($cacheFilePath, 'sent');
         
-            //         // Log the success
-            //         Log::channel('sendmailapproval')->info('Email Purchase Order doc_no '.$docNo.' Entity ' . $entityCd.' berhasil dikirim ke: ' . $emailAddress);
-            //         return 'Email berhasil dikirim ke: ' . $emailAddress;
-            //     } else {
-            //         // Email was already sent
-            //         Log::channel('sendmailapproval')->info('Email Purchase Order doc_no '.$docNo.' Entity ' . $entityCd.' already sent to: ' . $emailAddress);
-            //         return 'Email has already been sent to: ' . $emailAddress;
-            //     }
-            // } else {
-            //     // No email address provided
-            //     Log::channel('sendmail')->warning("No email address provided for document " . $docNo);
-            //     return "No email address provided";
-            // }
+                    // Log the success
+                    Log::channel('sendmailapproval')->info('Email Purchase Order doc_no '.$docNo.' Entity ' . $entityCd.' berhasil dikirim ke: ' . $emailAddress);
+                    return 'Email berhasil dikirim ke: ' . $emailAddress;
+                } else {
+                    // Email was already sent
+                    Log::channel('sendmailapproval')->info('Email Purchase Order doc_no '.$docNo.' Entity ' . $entityCd.' already sent to: ' . $emailAddress);
+                    return 'Email has already been sent to: ' . $emailAddress;
+                }
+            } else {
+                // No email address provided
+                Log::channel('sendmail')->warning("No email address provided for document " . $docNo);
+                return "No email address provided";
+            }
         } catch (\Exception $e) {
             // Error occurred
             Log::channel('sendmail')->error('Failed to send email: ' . $e->getMessage());

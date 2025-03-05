@@ -114,7 +114,7 @@ class CmProgressController extends Controller
 
             $sth->execute();
             $result = $sth->fetch(PDO::FETCH_NUM);
-            $columnValue = $result[2];
+            $columnValue = $result[0];
 
             $emailAddresses = strtolower($request->email_addr);
             $approve_seq = $request->approve_seq;

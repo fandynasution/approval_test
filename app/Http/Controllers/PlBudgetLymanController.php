@@ -74,7 +74,7 @@ class PlBudgetLymanController extends Controller
 
             $sth->execute();
             $result = $sth->fetch(PDO::FETCH_NUM);
-            $columnValue = $result[2];
+            $columnValue = $result[0];
 
             $emailAddresses = strtolower($data["email_addr"]);
             $doc_no = $data["doc_no"];

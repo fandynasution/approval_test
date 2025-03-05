@@ -113,7 +113,7 @@ class PurchaseSelectionController extends Controller
 
             $sth->execute();
             $result = $sth->fetch(PDO::FETCH_NUM);
-            $columnValue = $result[2];
+            $columnValue = $result[0];
 
             $emailAddress = strtolower($request->email_addr);
             $approveSeq = $request->approve_seq;
