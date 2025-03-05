@@ -23,6 +23,10 @@ class ApprListControllers extends Controller
             ->whereNotNull('currency_cd')
             ->whereNotNull('sent_mail_date')
             ->whereRaw("LTRIM(RTRIM(entity_cd)) NOT LIKE '%[^0-9]%'")
+            ->whereBetween('sent_mail_date', [
+                DB::raw("CONVERT(date, DATEADD(MONTH, -2, GETDATE()))"),
+                DB::raw("CONVERT(date, GETDATE())")
+            ])
             ->where('audit_date', '>=', DB::raw("CONVERT(datetime, '2024-03-28', 120)"));
 
         return DataTables::of($query)->make(true);
