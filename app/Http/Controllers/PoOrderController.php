@@ -141,7 +141,7 @@ class PoOrderController extends Controller
             $sth->execute();
             $result = $sth->fetch(PDO::FETCH_NUM);
             $columnValue = $result[2];
-            var_dump($result);
+            dd($result);
 
             // $emailAddress = strtolower($data["email_addr"]);
             // $approveSeq = $data["approve_seq"];
