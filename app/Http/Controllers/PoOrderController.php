@@ -138,8 +138,8 @@ class PoOrderController extends Controller
             $sth->bindParam(8, $data["email_addr"]);
             $sth->execute();
             $result = $sth->fetch(PDO::FETCH_NUM);
-            dd($result);
-            $columnValue = $result[2];
+            $columnValue = $result[0];
+            dd($columnValue);
 
             // $emailAddress = strtolower($data["email_addr"]);
             // $approveSeq = $data["approve_seq"];
