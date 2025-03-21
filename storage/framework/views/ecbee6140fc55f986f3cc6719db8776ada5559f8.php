@@ -120,9 +120,9 @@
                                         </p>
                                     <?php endif; ?>
                     
-                                    <a href="<?php echo e(url('api')); ?>/processdata/<?php echo e($dataArray['module']); ?>/A/<?php echo e($encryptedData); ?>" style="display: inline-block; font-size: 13px; font-weight: 600; line-height: 20px; text-align: center; text-decoration: none; text-transform: uppercase; padding: 10px 40px; background-color: #1ee0ac; border-radius: 4px; color: #ffffff;">Approve</a>
-                                    <a href="<?php echo e(url('api')); ?>/processdata/<?php echo e($dataArray['module']); ?>/R/<?php echo e($encryptedData); ?>" style="display: inline-block; font-size: 13px; font-weight: 600; line-height: 20px; text-align: center; text-decoration: none; text-transform: uppercase; padding: 10px 40px; background-color: #f4bd0e; border-radius: 4px; color: #ffffff;">Revise</a>
-                                    <a href="<?php echo e(url('api')); ?>/processdata/<?php echo e($dataArray['module']); ?>/C/<?php echo e($encryptedData); ?>" style="display: inline-block; font-size: 13px; font-weight: 600; line-height: 20px; text-align: center; text-decoration: none; text-transform: uppercase; padding: 10px 40px; background-color: #e85347; border-radius: 4px; color: #ffffff;">Reject</a>
+                                    <a href="<?php echo e(url('api')); ?>/porequest/A/<?php echo e($encryptedData); ?>" style="display: inline-block; font-size: 13px; font-weight: 600; line-height: 20px; text-align: center; text-decoration: none; text-transform: uppercase; padding: 10px 40px; background-color: #1ee0ac; border-radius: 4px; color: #ffffff;">Approve</a>
+                                    <a href="<?php echo e(url('api')); ?>/porequest/R/<?php echo e($encryptedData); ?>" style="display: inline-block; font-size: 13px; font-weight: 600; line-height: 20px; text-align: center; text-decoration: none; text-transform: uppercase; padding: 10px 40px; background-color: #f4bd0e; border-radius: 4px; color: #ffffff;">Revise</a>
+                                    <a href="<?php echo e(url('api')); ?>/porequest/C/<?php echo e($encryptedData); ?>" style="display: inline-block; font-size: 13px; font-weight: 600; line-height: 20px; text-align: center; text-decoration: none; text-transform: uppercase; padding: 10px 40px; background-color: #e85347; border-radius: 4px; color: #ffffff;">Reject</a>
                                     <br>
                                     <p style="text-align:left;margin-bottom: 15px; color: #000000; font-size: 16px;">
                                         To check approval status, kindly click on the following link :<br>
@@ -191,4 +191,5 @@
         </table>
         </div>
 </body>
-</html><?php /**PATH /var/www/html/approval_live/resources/views/email/por/send.blade.php ENDPATH**/ ?>
+</html>
+<?php /**PATH /var/www/html/approval_live/resources/views/email/por/send.blade.php ENDPATH**/ ?>

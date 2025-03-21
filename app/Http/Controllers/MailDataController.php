@@ -29,7 +29,6 @@ class MailDataController extends Controller
         Artisan::call('cache:clear');
         Cache::flush();
         $cacheKey = 'processData_' . $encrypt;
-
         // Check if the data is already cached
         if (Cache::has($cacheKey)) {
             // If cached data exists, clear it
@@ -38,7 +37,6 @@ class MailDataController extends Controller
 
         Log::info('Starting database query execution for processData');
         $data = Crypt::decrypt($encrypt);
-
         $msg = " ";
         $msg1 = " ";
         $notif = " ";
@@ -74,7 +72,7 @@ class MailDataController extends Controller
                 "notif" => $notif,
                 "image" => $image
             );
-            return view("email.after", $msg1);
+            return response()->view("email.after", $msg1);
         } else {
             $where2 = array(
                 'doc_no'        => $data["doc_no"],
@@ -103,7 +101,7 @@ class MailDataController extends Controller
                     "notif" => $notif,
                     "image" => $image
                 );
-                return view("email.after", $msg1);
+                return response()->view("email.after", $msg1);
             } else {
                 $name   = " ";
                 $bgcolor = " ";
@@ -158,6 +156,12 @@ class MailDataController extends Controller
             $controllerName = 'App\\Http\\Controllers\\' . $module . 'Controller';
             $methodName = 'update';
             $arguments = [$status, $encrypt, $reason];
+
+            // Periksa apakah class dan method ada sebelum memanggilnya
+            if (!class_exists($controllerName) || !method_exists($controllerName, $methodName)) {
+                throw new \Exception("File is Not Exist");
+            }
+
             $controllerInstance = new $controllerName();
             $result = call_user_func_array([$controllerInstance, $methodName], $arguments);
             return $result;
@@ -168,7 +172,7 @@ class MailDataController extends Controller
                 "Pesan" => $e->getMessage(),
                 "image" => "reject.png"
             );
-            return view("email.after", $msg1);
+	    return response()->view("email.after", $msg1);
         }
     }
 }

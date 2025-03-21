@@ -76,6 +76,7 @@ class PoRequestController extends Controller
             'project_no'    => $data["project_no"],
             'email_address' => $data["email_addr"],
             'level_no'      => $data["level_no"],
+	    'approve_seq'   => $data["approve_seq"],
             'doc_no'        => $data["doc_no"],
             'usergroup'     => $data["usergroup"],
             'user_id'       => $data["user_id"],
@@ -143,9 +144,133 @@ class PoRequestController extends Controller
         
     }
 
-    public function update($status, $encrypt, $reason)
+    public function processData($status='', $encrypt='')
     {
+        Artisan::call('config:cache');
+        Artisan::call('cache:clear');
+        Cache::flush();
+
+        $cacheKey = 'processData_' . $encrypt;
+
+        // Check if the data is already cached
+        if (Cache::has($cacheKey)) {
+            // If cached data exists, clear it
+            Cache::forget($cacheKey);
+        }
+
+        $query = 0;
+        $query2 = 0;
+        
         $data = Crypt::decrypt($encrypt);
+
+        $msg = " ";
+        $msg1 = " ";
+        $notif = " ";
+        $st = " ";
+        $image = " ";
+
+        Log::info('Decrypted data: ' . json_encode($data));
+
+        $where = array(
+            'doc_no'        => $data["doc_no"],
+            'entity_cd'     => $data["entity_cd"],
+            'approve_seq'   => $data["approve_seq"],
+            'level_no'      => $data["level_no"],
+            'type'          => $data["type"],
+            'module'        => $data["type_module"],
+        );
+
+        $query = DB::connection('BTID')
+        ->table('mgr.cb_cash_request_appr')
+        ->where($where)
+        ->whereIn('status', ["A", "R", "C"])
+        ->get();
+
+        Log::info('First query result: ' . json_encode($query));
+
+        if (count($query)>0) {
+            $msg = 'You Have Already Made a Request to '.$data["text"].' No. '.$data["doc_no"] ;
+            $notif = 'Restricted !';
+            $st  = 'OK';
+            $image = "double_approve.png";
+            $msg1 = array(
+                "Pesan" => $msg,
+                "St" => $st,
+                "notif" => $notif,
+                "image" => $image
+            );
+            return view("email.after", $msg1);
+        } else {
+            $where2 = array(
+                'doc_no'        => $data["doc_no"],
+                'status'        => 'P',
+                'entity_cd'     => $data["entity_cd"],
+                'approve_seq'   => $data["approve_seq"],
+                'level_no'      => $data["level_no"],
+                'type'          => $data["type"],
+                'module'        => $data["type_module"],
+            );
+    
+            $query2 = DB::connection('BTID')
+            ->table('mgr.cb_cash_request_appr')
+            ->where($where2)
+            ->get();
+    
+            Log::info('Second query result: ' . json_encode($query2));
+
+            if (count($query2) == 0) {
+                $msg = 'There is no '.$data["text"].' with No. '.$data["doc_no"] ;
+                $notif = 'Restricted !';
+                $st  = 'OK';
+                $image = "double_approve.png";
+                $msg1 = array(
+                    "Pesan" => $msg,
+                    "St" => $st,
+                    "notif" => $notif,
+                    "image" => $image
+                );
+                return view("email.after", $msg1);
+            } else {
+                $name   = " ";
+                $bgcolor = " ";
+                $valuebt  = " ";
+                if ($status == 'A') {
+                    $name   = 'Approval';
+                    $bgcolor = '#40de1d';
+                    $valuebt  = 'Approve';
+                } else if ($status == 'R') {
+                    $name   = 'Revision';
+                    $bgcolor = '#f4bd0e';
+                    $valuebt  = 'Revise';
+                } else {
+                    $name   = 'Cancellation';
+                    $bgcolor = '#e85347';
+                    $valuebt  = 'Cancel';
+                }
+                $dataArray = Crypt::decrypt($encrypt);
+                $data = array(
+                    "status"    => $status,
+                    "doc_no"    => $dataArray["doc_no"],
+                    "email"     => $dataArray["email_address"],
+                    "encrypt"   => $encrypt,
+                    "name"      => $name,
+                    "bgcolor"   => $bgcolor,
+                    "valuebt"   => $valuebt
+                );
+                return view('email/por/passcheckwithremark', $data);
+                Artisan::call('config:cache');
+                Artisan::call('cache:clear');
+            }
+        }
+    }
+
+    public function getaccess(Request $request)
+    {
+        $data = Crypt::decrypt($request->encrypt);
+
+        $status = $request->status;
+
+        $reasonget = $request->reason;
 
         $descstatus = " ";
         $imagestatus = " ";
@@ -155,7 +280,13 @@ class PoRequestController extends Controller
         $notif = " ";
         $st = " ";
         $image = " ";
-        
+
+        if ($reasonget == '' || $reasonget == NULL) {
+            $reason = 'no reason';
+        } else {
+            $reason = $reasonget;
+        }
+
         if ($status == "A") {
             $descstatus = "Approved";
             $imagestatus = "approved.png";

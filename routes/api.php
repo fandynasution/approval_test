@@ -30,6 +30,10 @@ Route::GET('/poselection/{status}/{encrypt}', [Selection::class, 'processData'])
 Route::POST('/poselection/getaccess', [Selection::class, 'getaccess']);
 Route::POST('/pos/getaccess', [Selection::class, 'getaccess']);
 
+use App\Http\Controllers\PoRequestController as PoRequest;
+Route::GET('/porequest/{status}/{encrypt}', [PoRequest::class, 'processData']);
+Route::POST('/porequest/getaccess', [PoRequest::class, 'getaccess']);
+
 use App\Http\Controllers\CbPPuNewController as CbPPuNew;
 Route::POST('/cbppunew', [CbPPuNew::class, 'Mail']);
 Route::GET('/cbppu/{status}/{encrypt}', [CbPPuNew::class, 'processData']);
