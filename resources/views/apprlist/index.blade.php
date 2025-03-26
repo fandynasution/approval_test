@@ -38,6 +38,7 @@
                                         <tr role="row">
                                             <th>Entity Code</th>
                                             <th>Document No</th>
+                                            <th>Approved Sequence</th>
                                             <th>User ID</th>
                                             <th>Level No</th>
                                             <th>Status</th>
@@ -63,9 +64,11 @@
                     processing: true,
                     serverSide: true,
                     ajax: "{{ route('apprlist.getData') }}", // Pastikan route ini sesuai
+                    order: [[6, 'desc']],
                     columns: [
                         { data: 'entity_cd', name: 'entity_cd' },
                         { data: 'doc_no', name: 'doc_no' },
+                        { data: 'approve_seq', name: 'approve_seq', visible: false },
                         { data: 'user_id', name: 'user_id' },
                         { data: 'level_no', name: 'level_no' },
                         { data: 'status', name: 'status' },
@@ -105,7 +108,9 @@
                                 return `<button class="btn btn-primary send-data" 
                                             data-entity_cd="${row.entity_cd}" 
                                             data-doc_no="${row.doc_no}" 
-                                            data-user_id="${row.user_id}">
+                                            data-user_id="${row.user_id}" 
+                                            data-level_no="${row.level_no}" 
+                                            data-approve_seq="${row.approve_seq}">
                                             Re-Send Email
                                         </button>`;
                             }
@@ -117,6 +122,8 @@
                     let entity_cd = $(this).data('entity_cd');
                     let doc_no = $(this).data('doc_no');
                     let user_id = $(this).data('user_id');
+                    let level_no = $(this).data('level_no');
+                    let approve_seq = $(this).data('approve_seq');
 
                     // Tampilkan overlay loading sebelum request dikirim
                     $('#loading-overlay').fadeIn();
@@ -128,12 +135,14 @@
                             _token: "{{ csrf_token() }}", // Diperlukan untuk Laravel
                             entity_cd: entity_cd,
                             doc_no: doc_no,
-                            user_id: user_id
+                            user_id: user_id,
+                            level_no: level_no,
+                            approve_seq: approve_seq
                         },
                         success: function(response) {
                             console.log(response); // Debugging di console browser
                             // alert("Hasil Query:\n" + JSON.stringify(response, null, 2)); // Tampilkan hasil query dalam alert
-                            alert("OK");
+                            alert("EMAIL RESEND");
                         },
                         error: function(xhr, status, error) {
                             alert("Terjadi kesalahan: " + xhr.responseText);
