@@ -104,3 +104,9 @@ use App\Http\Controllers\ContractRenewController as ContractRenew;
 Route::POST('/contractrenew', [ContractRenew::class, 'Mail']);
 Route::GET('/contractrenew/{status}/{encrypt}', [ContractRenew::class, 'processData']);
 Route::POST('/contractrenew/getaccess', [ContractRenew::class, 'update']);
+
+use App\Http\Controllers\GetAutoSendController as GetAutoSendController;
+Route::get('/getautosend', [GetAutoSendController::class, 'index']);
+
+use App\Http\Controllers\ConvertController as Convert;
+Route::get('/export-budget/{bg}/{dept_cd}', [Convert::class, 'export']);

@@ -49,6 +49,7 @@ class AutoSendController extends Controller
             $ref_no = $data->ref_no;
             $doc_date = $data->doc_date;
             $dateTime = new DateTime($doc_date);
+            $formattedDate = $dateTime->format('d-m-Y');
             $supervisor = 'Y';
             $reason = '0';
 
@@ -56,8 +57,6 @@ class AutoSendController extends Controller
                 $exec = 'mgr.x_send_mail_approval_cb_ppu';
             } else if ($type == 'V' && $module == "CB") {
                 $exec = 'mgr.x_send_mail_approval_cb_ppu_vvip';
-            } else if ($type == 'Q' && $module == "PO") {
-                $exec = 'mgr.x_send_mail_approval_po_request';
             }
             $whereUg = array(
                 'user_name' => $user_id
@@ -100,6 +99,23 @@ class AutoSendController extends Controller
                 } else if (($type == 'D' && $module == "CB") || ($type == 'Y' && $module == "CM")) {
                     // Skip this condition, do nothing for type 'D' and module 'CB'
                     continue;  // This will skip the current iteration of the loop
+                } else if ($type == 'S' && $module == "PO") {
+                    $statussend = 'P';
+                    $downLevel = '0';
+                    $pdo = DB::connection('BTID')->getPdo();
+                    $sth = $pdo->prepare("SET NOCOUNT ON; EXEC mgr.x_send_mail_approval_po_selection ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?;");
+                    $sth->bindParam(1, $entity_cd);
+                    $sth->bindParam(2, $project_no);
+                    $sth->bindParam(3, $doc_no);
+                    $sth->bindParam(4, $ref_no);
+                    $sth->bindParam(5, $formattedDate);
+                    $sth->bindParam(6, $statussend);
+                    $sth->bindParam(7, $downLevel);
+                    $sth->bindParam(8, $user_group);
+                    $sth->bindParam(9, $user_id);
+                    $sth->bindParam(10, $supervisor);
+                    $sth->bindParam(11, $reason);
+                    $sth->execute();
                 } else {
 		    \Log::info($doc_no);
                     $statussend = 'P';
@@ -150,6 +166,21 @@ class AutoSendController extends Controller
                     } else if (($type == 'D' && $module == "CB") || ($type == 'Y' && $module == "CM")) {
                         // Skip this condition, do nothing for type 'D' and module 'CB'
                         continue;  // This will skip the current iteration of the loop
+                    } else if ($type == 'S' && $module == "PO") {
+                        $pdo = DB::connection('BTID')->getPdo();
+                        $sth = $pdo->prepare("SET NOCOUNT ON; EXEC mgr.x_send_mail_approval_po_selection ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?;");
+                        $sth->bindParam(1, $entity_cd);
+                        $sth->bindParam(2, $project_no);
+                        $sth->bindParam(3, $doc_no);
+                        $sth->bindParam(4, $ref_no);
+                        $sth->bindParam(5, $formattedDate);
+                        $sth->bindParam(6, $statussend);
+                        $sth->bindParam(7, $downLevel);
+                        $sth->bindParam(8, $user_group);
+                        $sth->bindParam(9, $user_id);
+                        $sth->bindParam(10, $supervisor);
+                        $sth->bindParam(11, $reason);
+                        $sth->execute();
                     } else {
                         $pdo = DB::connection('BTID')->getPdo();
                         $sth = $pdo->prepare("SET NOCOUNT ON; EXEC ".$exec." ?, ?, ?, ?, ?, ?, ?, ?, ?, ?;");
