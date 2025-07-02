@@ -73,9 +73,11 @@
                                     <p style="text-align:left;margin-bottom: 15px; color: #000000; font-size: 16px;">Below is a request to purchase that requires your approval :</p>
                     
                                     <p style="text-align:left; margin-bottom: 15px; margin-top: 0; color: #000000; font-size: 16px; list-style-type: circle;">
+                                        Reason :<br>
                                         <b><?php echo e($dataArray['req_hd_descs']); ?></b><br>
                                         With a total estimated amount of <?php echo e($dataArray['curr_cd']); ?> <?php echo e($dataArray['total_price']); ?><br>
                                         RF No.: <?php echo e($dataArray['req_hd_no']); ?><br>
+                                        Source: <?php echo e($dataArray['source']); ?><br>
                                     </p>
 
                                     <?php

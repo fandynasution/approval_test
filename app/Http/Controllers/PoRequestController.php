@@ -22,6 +22,12 @@ class PoRequestController extends Controller
             $req_hd_descs = $data["req_hd_descs"];
         }
 
+        if (strpos($data["source"], "\n") !== false) {
+            $source = str_replace("\n", ' (', $data["source"]) . ')';
+        } else {
+            $source = $data["source"];
+        }
+
         $list_of_urls = explode('; ', $data["url_file"]);
         $list_of_files = explode('; ', $data["file_name"]);
         $list_of_doc = explode('; ', $data["document_link"]);
@@ -60,6 +66,7 @@ class PoRequestController extends Controller
             'clarify_user'  => $data["clarify_user"],
             'clarify_email' => $data["clarify_email"],
             'req_hd_descs'  => $data["req_hd_descs"],
+            'source'	    => $data["source"],
             'req_hd_no'     => $data["req_hd_no"],
             'curr_cd'       => $data["curr_cd"],
             'total_price'   => $formattedNumber,
@@ -76,7 +83,7 @@ class PoRequestController extends Controller
             'project_no'    => $data["project_no"],
             'email_address' => $data["email_addr"],
             'level_no'      => $data["level_no"],
-	    'approve_seq'   => $data["approve_seq"],
+	        'approve_seq'   => $data["approve_seq"],
             'doc_no'        => $data["doc_no"],
             'usergroup'     => $data["usergroup"],
             'user_id'       => $data["user_id"],

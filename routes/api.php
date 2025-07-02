@@ -110,3 +110,6 @@ Route::get('/getautosend', [GetAutoSendController::class, 'index']);
 
 use App\Http\Controllers\ConvertController as Convert;
 Route::get('/export-budget/{bg}/{dept_cd}', [Convert::class, 'export']);
+
+use App\Http\Controllers\BlastFaController as BlastFa;
+Route::get('/blastfa/{dept_cd}', [BlastFa::class, 'blast']);

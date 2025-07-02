@@ -25,6 +25,8 @@ class ConvertController extends Controller
 
         $dept_descs = $results[0]->dept_descs ?? 'UNKNOWN';
 
+        $initial_company = $results[0]->initial_company ?? 'COMBINE';
+
         $grouped = collect($results)->groupBy('entity_cd');
 
         $spreadsheet = new Spreadsheet();
@@ -128,8 +130,8 @@ class ConvertController extends Controller
         }
 
         // Generate file name
-        $date = now()->format('dmY');
-        $filename = "BTID_{$bg}_{$dept_cd}_{$date}.xlsx";
+        // $date = now()->format('dmY');
+        $filename = "{$initial_company}_{$dept_cd}.xlsx";
         // $filename = "BTID_{$entityCd}_{$bg}-{$dept_cd}_{$date}.xlsx";
         $filepath = storage_path("app/{$filename}");
 
