@@ -18,10 +18,16 @@ class BlastFaController extends Controller
     public function blast($dept_cd = '')
     {
         $results = DB::connection('BTID')->select("
-            select*from mgr.v_fa_alert_asset_dept
-            where dept_cd = ? and status != 'Audit'
-            order by entity_cd, dept_cd
+            SELECT *
+            FROM mgr.v_fa_alert_asset_dept
+            WHERE dept_cd = ? AND status != 'Audit'
+            ORDER BY entity_cd, dept_cd
         ", [$dept_cd]);
+
+        if (empty($results)) {
+            \Log::warning("Tidak ada data ditemukan untuk dept_cd: {$dept_cd}");
+            return response()->json(['message' => 'Tidak ada data ditemukan'], 404);
+        }
 
         $entityCd = $results[0]->entity_cd ?? 'UNKNOWN';
 
@@ -32,6 +38,7 @@ class BlastFaController extends Controller
         $grouped = collect($results)->groupBy('entity_cd');
 
         $emailList = array_map('trim', explode(',', $results[0]->email_to ?? ''));
+        $emailCC = array_map('trim', explode(',', $results[0]->email_cc ?? ''));
 
         $spreadsheet = new Spreadsheet();
         $sheet = $spreadsheet->getActiveSheet(); // disini
@@ -113,7 +120,12 @@ class BlastFaController extends Controller
 
         // $to = 'user@example.com'; // Bisa juga ambil dari $item jika tersedia email per departemen
         // Mail::to($emailList)->send((new AssetBlastMail($dept_cd, $dept_descs))->attach($filepath));
-        Mail::to($emailList)->send(new AssetBlastMail($cleanDeptDescs, $staff_name, $filepath));
+        //Mail::to($emailList)->send(new AssetBlastMail($cleanDeptDescs, $staff_name, $filepath));
+	try {
+  		Mail::to($emailList)->cc($emailCC)->send(new AssetBlastMail($cleanDeptDescs, $staff_name, $filepath));
+	} catch (\Exception $e) {
+    		\Log::error("Email failed to send: " . $e->getMessage());
+	}
 
         // Hapus file setelah kirim (opsional)
         unlink($filepath);
