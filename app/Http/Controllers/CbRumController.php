@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use App\Mail\SendCbRumMail;
+use App\Jobs\RunApprovalStoredProcedureAzure;
 
 class CbRumController extends Controller
 {
@@ -56,6 +57,7 @@ class CbRumController extends Controller
             'remarks_hd'    => $remarks_hd,
             'currency_cd'   => $data['currency_cd'],
             'total_amt'     => $total_amt,
+            'level_no'   => $data['level_no'],
             'replenish_doc' => $data['replenish_doc'],
             'approve_list'  => $approve_data,
             'clarify_user'  => $data['clarify_user'],
@@ -63,6 +65,7 @@ class CbRumController extends Controller
             'sender_addr'   => $data['sender_addr'],
             'body'          => "Please approve Cash Advance Settlement No. ".$data['doc_no']." for ".$remarks_hd,
             'subject'       => "Need Approval for Cash Advance Settlement No.  ".$data['doc_no'],
+            'approve_seq'   => $data['approve_seq'],
         );
 
         $data2Encrypt = array(
@@ -89,6 +92,9 @@ class CbRumController extends Controller
             $entity_cd = $data["entity_cd"];
             $doc_no = $data["doc_no"];
             $level_no = $data["level_no"];
+            $app_url = 'processdata/CbRum';
+            $type = 'G';
+            $module = 'CB';
         
             // Check if email addresses are provided and not empty
             if (!empty($emailAddresses)) {
@@ -122,6 +128,19 @@ class CbRumController extends Controller
         
                     // Log the success
                     Log::channel('sendmailapproval')->info('Email CB RUM doc_no '.$doc_no.' Entity ' . $entity_cd.' berhasil dikirim ke: ' . $email);
+
+                    // Dispatch job setelah response
+                    RunApprovalStoredProcedureAzure::dispatchAfterResponse(
+                        $entity_cd,
+                        $doc_no,
+                        $type,
+                        $module,
+                        $level_no,
+                        $encryptedData,
+                        $app_url
+                    );
+
+
                     return 'Email berhasil dikirim ke: ' . $email;
                 } else {
                     // Email was already sent

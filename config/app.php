@@ -27,6 +27,7 @@ return [
     */
 
     'env' => env('APP_ENV', 'production'),
+    'sso_url' => env('APP_SSO', 'https://default-url.com'),
 
     /*
     |--------------------------------------------------------------------------

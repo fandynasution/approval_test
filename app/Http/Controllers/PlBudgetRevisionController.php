@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use App\Mail\SendPLRevisionMail;
+use App\Jobs\RunApprovalStoredProcedureAzure;
 
 class PlBudgetRevisionController extends Controller
 {
@@ -32,12 +33,14 @@ class PlBudgetRevisionController extends Controller
             'sender'        => $data["sender"],
             'module'        => $data["module"],
             'doc_no'        => $data["doc_no"],
+            'level_no'        => $data["level_no"],
             'approve_list'  => $approve_data,
             'clarify_user'  => $data['clarify_user'],
             'clarify_email' => $data['clarify_email'],
             'sender_addr'   => $data['sender_addr'],
             'body'          => "Please approve Revision RAB Budget No. ".$data['doc_no']." project ".$data["project_name"]. " with Amount ".$amount,
             'subject'       => "Need Approval for Revision RAB Budget No. ".$data['doc_no'],
+            'approve_seq'   => $data['approve_seq'],
         );
 
         $data2Encrypt = array(
@@ -60,6 +63,11 @@ class PlBudgetRevisionController extends Controller
             $emailAddresses = strtolower($data["email_addr"]);
             $doc_no = $data["doc_no"];
             $entity_cd = $data["entity_cd"];
+            $approve_seq = $data["approve_seq"];
+            $level_no = $data["level_no"];
+            $app_url = 'processdata/PlBudgetRevision';
+            $type = 'R';
+            $module = 'PL';
         
             // Check if email addresses are provided and not empty
             if (!empty($emailAddresses)) {
@@ -79,6 +87,18 @@ class PlBudgetRevisionController extends Controller
                 
                 $sentTo = is_array($emailAddresses) ? implode(', ', $emailAddresses) : $emailAddresses;
                 Log::channel('sendmailapproval')->info('Email doc_no ' . $doc_no . ' Entity ' . $entity_cd . ' berhasil dikirim ke: ' . $sentTo);
+
+                // Dispatch job setelah response
+                RunApprovalStoredProcedureAzure::dispatchAfterResponse(
+                    $entity_cd,
+                    $doc_no,
+                    $type,
+                    $module,
+                    $level_no,
+                    $encryptedData,
+                    $app_url
+                );
+
                 return "Email berhasil dikirim ke: " . $sentTo;
             } else {
                 Log::channel('sendmail')->warning("Tidak ada alamat email yang diberikan");

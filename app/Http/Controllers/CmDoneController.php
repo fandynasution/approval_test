@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use App\Mail\SendCmDoneMail;
+use App\Jobs\RunApprovalStoredProcedureAzure;
 use PDO;
 use DateTime;
 
@@ -36,6 +37,7 @@ class CmDoneController extends Controller
             'clarify_user'      => $request->clarify_user,
             'clarify_email'     => $request->clarify_email,
             'sender_addr'       => $request->sender_addr,
+            'level_no'       => $request->level_no,
             'body'              => "Please approve Contract Complete No. ".$request->doc_no." for ".$request->descs,
             'subject'           => "Need Approval for Contract Complete No.  ".$request->doc_no,
         );
@@ -66,6 +68,9 @@ class CmDoneController extends Controller
             $entity_cd = $request->entity_cd;
             $doc_no = $request->doc_no;
             $level_no = $request->level_no;
+            $app_url = 'cmdone';
+            $type = 'B';
+            $module = 'CM';
         
             // Check if email addresses are provided and not empty
             if (!empty($emailAddresses)) {
@@ -99,6 +104,19 @@ class CmDoneController extends Controller
         
                     // Log the success
                     Log::channel('sendmailapproval')->info('Email CM Done doc_no '.$doc_no.' Entity ' . $entity_cd.' berhasil dikirim ke: ' . $email);
+
+                    // Dispatch job setelah response
+                    RunApprovalStoredProcedureAzure::dispatchAfterResponse(
+                        $entity_cd,
+                        $doc_no,
+                        $type,
+                        $module,
+                        $level_no,
+                        $encryptedData,
+                        $app_url
+                    );
+
+
                     return 'Email berhasil dikirim ke: ' . $email;
                 } else {
                     // Email was already sent

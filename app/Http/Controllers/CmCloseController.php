@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use App\Mail\SendCmCloseMail;
+use App\Jobs\RunApprovalStoredProcedureAzure;
 use PDO;
 use DateTime;
 
@@ -30,12 +31,13 @@ class CmCloseController extends Controller
             'descs'             => $request->descs,
             'user_name'         => $request->user_name,
             'entity_name'       => $request->entity_name,
-            'approve_seq'   => $request->approve_seq,
+            'approve_seq'       => $request->approve_seq,
             'module'            => $request->module,
             'approve_list'      => $approve_data,
             'clarify_user'      => $request->clarify_user,
             'clarify_email'     => $request->clarify_email,
             'sender_addr'       => $request->sender_addr,
+            'level_no'       => $request->level_no,
             'body'              => "Please approve Warranty Complete No. ".$request->doc_no." for ".$request->descs,
             'subject'           => "Need Approval for Warranty Complete No.  ".$request->doc_no,
         );
@@ -66,6 +68,9 @@ class CmCloseController extends Controller
             $entity_cd = $request->entity_cd;
             $doc_no = $request->doc_no;
             $level_no = $request->level_no;
+            $app_url = 'cmclose';
+            $type = 'C';
+            $module = 'CM';
         
             // Check if email addresses are provided and not empty
             if (!empty($emailAddresses)) {
@@ -99,6 +104,18 @@ class CmCloseController extends Controller
         
                     // Log the success
                     Log::channel('sendmailapproval')->info('Email CM Close doc_no '.$doc_no.' Entity ' . $entity_cd.' berhasil dikirim ke: ' . $email);
+
+                    // Dispatch job setelah response
+                    RunApprovalStoredProcedureAzure::dispatchAfterResponse(
+                        $entity_cd,
+                        $doc_no,
+                        $type,
+                        $module,
+                        $level_no,
+                        $encryptedData,
+                        $app_url
+                    );
+                    
                     return 'Email berhasil dikirim ke: ' . $email;
                 } else {
                     // Email was already sent

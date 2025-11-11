@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use App\Mail\SendMail;
 use App\Mail\SendPoRMail;
+use App\Jobs\RunApprovalStoredProcedureAzure;
 
 class PoRequestController extends Controller
 {
@@ -69,6 +70,7 @@ class PoRequestController extends Controller
             'source'	    => $data["source"],
             'req_hd_no'     => $data["req_hd_no"],
             'curr_cd'       => $data["curr_cd"],
+            'level_no'        => $data["level_no"],
             'total_price'   => $formattedNumber,
             'url_file'      => $url_data,
             'file_name'     => $file_data,
@@ -76,6 +78,7 @@ class PoRequestController extends Controller
             'approve_list'  => $approve_data,
             'module'        => "PoRequest",
             'subject'       => "Need Approval for Purchase Requisition No.  ".$data['req_hd_no'],
+            'approve_seq'   => $data["approve_seq"],
         );
 
         $data2Encrypt = array(
@@ -102,6 +105,9 @@ class PoRequestController extends Controller
             $entityCd = $data["entity_cd"];
             $docNo = $data["doc_no"];
             $levelNo = $data["level_no"];
+            $app_url = 'porequest';
+            $type = 'Q';
+            $module = 'PO';
         
             if (!empty($emailAddress)) {
                 // Check if the email has been sent before for this document
@@ -132,6 +138,18 @@ class PoRequestController extends Controller
         
                     // Log the success
                     Log::channel('sendmailapproval')->info('Email Purchase Requisition doc_no '.$docNo.' Entity ' . $entityCd.' berhasil dikirim ke: ' . $emailAddress);
+
+                    // Dispatch job setelah response
+                    RunApprovalStoredProcedureAzure::dispatchAfterResponse(
+                        $entityCd,
+                        $docNo,
+                        $type,
+                        $module,
+                        $levelNo,
+                        $encryptedData,
+                        $app_url
+                    );
+
                     return 'Email berhasil dikirim ke: ' . $emailAddress;
                 } else {
                     // Email was already sent

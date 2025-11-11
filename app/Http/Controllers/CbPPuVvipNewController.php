@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\DB;
 use App\Mail\SendCbPpuNewMail;
 use App\Mail\SendCbPpuMail;
 use App\Mail\SendCbPpuVvipMail;
+use App\Jobs\RunApprovalStoredProcedureAzure;
 use PDO;
 use DateTime;
 
@@ -60,6 +61,7 @@ class CbPPuVvipNewController extends Controller
             'user_name'     => $request->user_name,
             'reason'        => $request->reason,
             "doc_link"      => $request->document_link,
+            'level_no'        => $request->level_no,
             'pay_to'        => $request->pay_to,
             'forex'         => $request->forex,
             'ppu_amt'       => $ppu_amt,
@@ -68,6 +70,7 @@ class CbPPuVvipNewController extends Controller
             'clarify_email' => $request->clarify_email,
             'body'          => "Please approve Payment Request No. ".$request->ppu_no." for ".$ppu_descs,
             'subject'       => "Need Approval for Payment Request No.  ".$request->ppu_no,
+            'approve_seq'   => $request->approve_seq,
         );
 
         $data2Encrypt = array(
@@ -96,6 +99,9 @@ class CbPPuVvipNewController extends Controller
             $entity_cd = $request->entity_cd;
             $doc_no = $request->doc_no;
             $level_no = $request->level_no;
+            $app_url = 'cbppunewvvip';
+            $type = 'V';
+            $module = 'CB';
         
             // Check if email addresses are provided and not empty
             if (!empty($emailAddresses)) {
@@ -129,6 +135,18 @@ class CbPPuVvipNewController extends Controller
         
                     // Log the success
                     Log::channel('sendmailapproval')->info('Email CB PPU VVIP doc_no '.$doc_no.' Entity ' . $entity_cd.' berhasil dikirim ke: ' . $email);
+
+                    // Dispatch job setelah response
+                    RunApprovalStoredProcedureAzure::dispatchAfterResponse(
+                        $entity_cd,
+                        $doc_no,
+                        $type,
+                        $module,
+                        $level_no,
+                        $encryptedData,
+                        $app_url
+                    );
+
                     return 'Email berhasil dikirim ke: ' . $email;
                 } else {
                     // Email was already sent

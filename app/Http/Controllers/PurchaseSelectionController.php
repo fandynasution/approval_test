@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use App\Mail\SendPoSMail;
+use App\Jobs\RunApprovalStoredProcedureAzure;
 use PDO;
 use DateTime;
 
@@ -66,11 +67,13 @@ class PurchaseSelectionController extends Controller
 	        'doc_link'	    => $doc_data,
             'approve_list'  => $approve_data,
             'curr_cd'       => $request->curr_cd,
+            'level_no'       => $request->level_no,
             'total_amt'     => $total_amt,
             'clarify_user'  => $request->clarify_user,
             'clarify_email' => $request->clarify_email,
             'body'          => "Please approve Quotation No. ".$request->po_doc_no." for ".$po_descs,
             'subject'       => "Need Approval for Quotation No.  ".$request->po_doc_no,
+            'approve_seq'   => $request->approve_seq,
         );
 
         $data2Encrypt = array(
@@ -97,6 +100,9 @@ class PurchaseSelectionController extends Controller
             $docNo = $request->doc_no;
             $levelNo = $request->level_no;
             $entity_name = $request->entity_name;
+            $app_url = 'poselection';
+            $type = 'S';
+            $module = 'PO';
 
             // Check if email address is provided and not empty
             if (!empty($emailAddress)) {
@@ -128,6 +134,18 @@ class PurchaseSelectionController extends Controller
 
                     // Log the success
                     Log::channel('sendmailapproval')->info('Email Purchase Selection doc_no '.$docNo.' Entity ' . $entityCd.' berhasil dikirim ke: ' . $emailAddress);
+
+                    // Dispatch job setelah response
+                    RunApprovalStoredProcedureAzure::dispatchAfterResponse(
+                        $entityCd,
+                        $docNo,
+                        $type,
+                        $module,
+                        $levelNo,
+                        $encryptedData,
+                        $app_url
+                    );
+
                     return 'Email berhasil dikirim ke: ' . $emailAddress;
                 } else {
                     // Email was already sent

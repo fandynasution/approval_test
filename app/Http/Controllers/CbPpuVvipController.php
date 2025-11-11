@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use App\Mail\SendCbPpuMail;
+use App\Jobs\RunApprovalStoredProcedureAzure;
 
 class CbPpuVvipController extends Controller
 {
@@ -58,12 +59,14 @@ class CbPpuVvipController extends Controller
             'reason'        => $data['reason'],
             'pay_to'        => $data['pay_to'],
             'forex'         => $data['forex'],
+            'level_no'         => $data['level_no'],
             'ppu_amt'       => $ppu_amt,
             'approve_list'  => $approve_data,
             'clarify_user'  => $data['clarify_user'],
             'clarify_email' => $data['clarify_email'],
             'body'          => "Please approve Payment Request No. ".$data['ppu_no']." for ".$ppu_descs,
             'subject'       => "Need Approval for Payment Request No.  ".$data['ppu_no'],
+            'approve_seq'   => $data['approve_seq'],
         );
 
         $data2Encrypt = array(
@@ -92,6 +95,9 @@ class CbPpuVvipController extends Controller
             $entity_cd = $data["entity_cd"];
             $doc_no = $data["doc_no"];
             $level_no = $data["level_no"];
+            $app_url = 'cbppunewvvip';
+            $type = 'V';
+            $module = 'CB';
         
             // Check if email addresses are provided and not empty
             if (!empty($emailAddresses)) {
@@ -125,6 +131,19 @@ class CbPpuVvipController extends Controller
         
                     // Log the success
                     Log::channel('sendmailapproval')->info('Email CB PPU VVIP doc_no '.$doc_no.' Entity ' . $entity_cd.' berhasil dikirim ke: ' . $email);
+
+                    // Dispatch job setelah response
+                    RunApprovalStoredProcedureAzure::dispatchAfterResponse(
+                        $entity_cd,
+                        $doc_no,
+                        $type,
+                        $module,
+                        $level_no,
+                        $encryptedData,
+                        $app_url
+                    );
+
+                    
                     return 'Email berhasil dikirim ke: ' . $email;
                 } else {
                     // Email was already sent

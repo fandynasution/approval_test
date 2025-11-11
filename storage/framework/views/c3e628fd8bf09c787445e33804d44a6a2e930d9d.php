@@ -105,25 +105,23 @@
                                     ?>
                     
                                         <?php if($dataArray['doc_link'] !== '' && $dataArray['doc_link'] !== 'EMPTY'): ?>
-                                            <?php if(strpos($dataArray['doc_link'], 'http://') === 0 || strpos($dataArray['doc_link'], 'https://') === 0): ?>
-                                                <?php if(!$hasAttachment): ?>
-                                                    <?php
-                                                        $hasAttachment = true;
-                                                    ?>
-                                                    <p style="text-align:left; margin-bottom: 15px; color: #000000; font-size: 16px;">
-                                                        <span>This request to purchase comes with additional supporting documents, such as detailed specifications, that you can access from the link below :</span><br>
-                                                <?php endif; ?>
-                                                <a href="<?php echo e($dataArray['doc_link']); ?>" target="_blank">Additional Document Link</a><br>
+                                            <?php if(!$hasAttachment): ?>
+                                                <?php
+                                                    $hasAttachment = true;
+                                                ?>
+                                                <p style="text-align:left; margin-bottom: 15px; color: #000000; font-size: 16px;">
+                                                    <span>This request to purchase comes with additional supporting documents, such as detailed specifications, that you can access from the link below :</span><br>
                                             <?php endif; ?>
+                                            <a href="<?php echo e($dataArray['doc_link']); ?>" target="_blank">Additional Document Link</a><br>
                                         <?php endif; ?>
                     
                                     <?php if($hasAttachment): ?>
                                         </p>
                                     <?php endif; ?>
                     
-                                    <a href="<?php echo e(url('api')); ?>/cbppu/A/<?php echo e($encryptedData); ?>" style="display: inline-block; font-size: 13px; font-weight: 600; line-height: 20px; text-align: center; text-decoration: none; text-transform: uppercase; padding: 10px 40px; background-color: #1ee0ac; border-radius: 4px; color: #ffffff;">Approve</a>
-                                    <a href="<?php echo e(url('api')); ?>/cbppu/R/<?php echo e($encryptedData); ?>" style="display: inline-block; font-size: 13px; font-weight: 600; line-height: 20px; text-align: center; text-decoration: none; text-transform: uppercase; padding: 10px 40px; background-color: #f4bd0e; border-radius: 4px; color: #ffffff;">Revise</a>
-                                    <a href="<?php echo e(url('api')); ?>/cbppu/C/<?php echo e($encryptedData); ?>" style="display: inline-block; font-size: 13px; font-weight: 600; line-height: 20px; text-align: center; text-decoration: none; text-transform: uppercase; padding: 10px 40px; background-color: #e85347; border-radius: 4px; color: #ffffff;">Reject</a>
+                                    <a href="<?php echo e(config('app.sso_url')); ?>/approval/<?php echo e($dataArray['approve_seq']); ?>/<?php echo e($dataArray['level_no']); ?>" style="display: inline-block; font-size: 13px; font-weight: 600; line-height: 20px; text-align: center; text-decoration: none; text-transform: uppercase; padding: 10px 40px; background-color: #1ee0ac; border-radius: 4px; color: #ffffff;">Approve</a>
+                                    <a href="<?php echo e(config('app.sso_url')); ?>/revise/<?php echo e($dataArray['approve_seq']); ?>/<?php echo e($dataArray['level_no']); ?>" style="display: inline-block; font-size: 13px; font-weight: 600; line-height: 20px; text-align: center; text-decoration: none; text-transform: uppercase; padding: 10px 40px; background-color: #f4bd0e; border-radius: 4px; color: #ffffff;">Revise</a>
+                                    <a href="<?php echo e(config('app.sso_url')); ?>/reject/<?php echo e($dataArray['approve_seq']); ?>/<?php echo e($dataArray['level_no']); ?>" style="display: inline-block; font-size: 13px; font-weight: 600; line-height: 20px; text-align: center; text-decoration: none; text-transform: uppercase; padding: 10px 40px; background-color: #e85347; border-radius: 4px; color: #ffffff;">Reject</a>
                                     <br>
                                     <p style="text-align:left;margin-bottom: 15px; color: #000000; font-size: 16px;">
                                         To check approval status, kindly click on the following link : <br>

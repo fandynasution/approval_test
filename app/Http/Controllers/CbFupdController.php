@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use App\Mail\SendCbFupdMail;
+use App\Jobs\RunApprovalStoredProcedureAzure;
 
 class CbFupdController extends Controller
 {
@@ -56,10 +57,12 @@ class CbFupdController extends Controller
             'user_name'     => $data["user_name"],
             'reason'        => $data["reason"],
             'approve_list'  => $approve_data,
+            'level_no'      => $data["level_no"],
             'clarify_user'  => $data['clarify_user'],
             'clarify_email' => $data['clarify_email'],
             'body'          => "Please approve Propose Transfer to Bank No. ".$data['band_hd_no']." for ".$band_hd_descs,
             'subject'       => "Need Approval for Propose Transfer to Bank No. ".$data['band_hd_no'],
+            'approve_seq'   => $data['approve_seq'],
         );
 
         $data2Encrypt = array(
@@ -88,6 +91,9 @@ class CbFupdController extends Controller
             $entity_cd = $data["entity_cd"];
             $doc_no = $data["doc_no"];
             $level_no = $data["level_no"];
+            $app_url = 'processdata/CbFupd';
+            $type = 'E';
+            $module = 'CB';
         
             // Check if email addresses are provided and not empty
             if (!empty($emailAddresses)) {
@@ -121,6 +127,19 @@ class CbFupdController extends Controller
         
                     // Log the success
                     Log::channel('sendmailapproval')->info('Email CB FUPD doc_no '.$doc_no.' Entity ' . $entity_cd.' berhasil dikirim ke: ' . $email);
+
+                    // Dispatch job setelah response
+                    RunApprovalStoredProcedureAzure::dispatchAfterResponse(
+                        $entity_cd,
+                        $doc_no,
+                        $type,
+                        $module,
+                        $level_no,
+                        $encryptedData,
+                        $app_url
+                    );
+
+
                     return 'Email berhasil dikirim ke: ' . $email;
                 } else {
                     // Email was already sent

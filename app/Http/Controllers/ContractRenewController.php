@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use App\Mail\SendContractRenewMail;
+use App\Jobs\RunApprovalStoredProcedureAzure;
 use PDO;
 use DateTime;
 
@@ -36,11 +37,13 @@ class ContractRenewController extends Controller
             'entity_name'       => $request->entity_name,
             'approve_seq'       => $request->approve_seq,
             'approve_list'      => $approve_data,
+            'level_no'       => $request->level_no,
             'clarify_user'      => $request->clarify_user,
             'clarify_email'     => $request->clarify_email,
             'sender_addr'       => $request->sender_addr,
             'body'              => "Please approve Contract Renew No. ".$request->doc_no." for ".$request->descs,
             'subject'           => "Need Approval for Contract Renew No.  ".$request->doc_no,
+            'approve_seq'       => $request->approve_seq,
         );
 
         $data2Encrypt = array(
@@ -71,6 +74,9 @@ class ContractRenewController extends Controller
             $ref_no = $request->ref_no;
             $level_no = $request->level_no;
             $doc_no = $request->doc_no;
+            $app_url = 'contractrenew';
+            $type = 'R';
+            $module = 'TM';
         
             // Check if email addresses are provided and not empty
             if (!empty($emailAddresses)) {
@@ -104,6 +110,18 @@ class ContractRenewController extends Controller
         
                     // Log the success
                     Log::channel('sendmailapproval')->info('Email Contract Renew doc_no '.$doc_no.' Entity ' . $entity_cd.' berhasil dikirim ke: ' . $email);
+
+                    // Dispatch job setelah response
+                    RunApprovalStoredProcedureAzure::dispatchAfterResponse(
+                        $entity_cd,
+                        $doc_no,
+                        $type,
+                        $module,
+                        $level_no,
+                        $encryptedData,
+                        $app_url
+                    );
+
                     return 'Email berhasil dikirim';
                 } else {
                     // Email was already sent

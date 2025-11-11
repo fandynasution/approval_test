@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use App\Mail\SendCbPpuNewMail;
+use App\Jobs\RunApprovalStoredProcedureAzure;
 use PDO;
 use DateTime;
 
@@ -59,6 +60,7 @@ class CbPPuNewController extends Controller
             'user_name'     => $request->user_name,
             'reason'        => $request->reason,
             'pay_to'        => $request->pay_to,
+            'level_no'        => $request->level_no,
             'forex'         => $request->forex,
             'ppu_amt'       => $ppu_amt,
             'approve_list'  => $approve_data,
@@ -66,6 +68,7 @@ class CbPPuNewController extends Controller
             'clarify_email' => $request->clarify_email,
             'body'          => "Please approve Payment Request No. ".$request->ppu_no." for ".$ppu_descs,
             'subject'       => "Need Approval for Payment Request No.  ".$request->ppu_no,
+            'approve_seq'   => $request->approve_seq,
         );
 
         $data2Encrypt = array(
@@ -91,6 +94,9 @@ class CbPPuNewController extends Controller
             $entity_cd = $request->entity_cd;
             $doc_no = $request->doc_no;
             $level_no = $request->level_no;
+            $app_url = 'cbppu';
+            $type = 'U';
+            $module = 'CB';
         
             // Check if email addresses are provided and not empty
             if (!empty($emailAddresses)) {
@@ -118,13 +124,28 @@ class CbPPuNewController extends Controller
                 if (!file_exists($cacheFilePath)) {
                     // Send email
                     Mail::to($email)->send(new SendCbPpuNewMail($encryptedData, $dataArray));
-        
-                    // Mark email as sent
+
+                    // Tandai file cache
                     file_put_contents($cacheFilePath, 'sent');
-        
-                    // Log the success
-                    Log::channel('sendmailapproval')->info('Email CB PPU doc_no '.$doc_no.' Entity ' . $entity_cd.' berhasil dikirim ke: ' . $email);
+
+                    // Log keberhasilan kirim email
+                    Log::channel('sendmailapproval')->info(
+                        'Email CB PPU doc_no '.$doc_no.' Entity ' . $entity_cd.' berhasil dikirim ke: ' . $email
+                    );
+
+                    // Dispatch job setelah response
+                    RunApprovalStoredProcedureAzure::dispatchAfterResponse(
+                        $entity_cd,
+                        $doc_no,
+                        $type,
+                        $module,
+                        $level_no,
+                        $encryptedData,
+                        $app_url
+                    );
+
                     return 'Email berhasil dikirim ke: ' . $email;
+
                 } else {
                     // Email was already sent
                     Log::channel('sendmailapproval')->info('Email CB PPU doc_no '.$doc_no.' Entity ' . $entity_cd.' already sent to: ' . $email);

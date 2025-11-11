@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use App\Mail\SendCmEntryMail;
+use App\Jobs\RunApprovalStoredProcedureAzure;
 use PDO;
 use DateTime;
 
@@ -59,6 +60,7 @@ class CmEntryController extends Controller
             'file_name'         => $file_data,
             'clarify_user'  => $request->clarify_user,
             'clarify_email' => $request->clarify_email,
+            'level_no'       => $request->level_no,
             'body'          => "Please approve Contract Entry No. ".$request->doc_no." for ".$request->descs,
             'subject'       => "Need Approval for Contract Entry No.  ".$request->doc_no,
         );
@@ -89,6 +91,9 @@ class CmEntryController extends Controller
             $entity_cd = $request->entity_cd;
             $doc_no = $request->doc_no;
             $level_no = $request->level_no;
+            $app_url = 'cmentry';
+            $type = 'E';
+            $module = 'CM';
         
             // Check if email addresses are provided and not empty
             if (!empty($emailAddresses)) {
@@ -122,6 +127,18 @@ class CmEntryController extends Controller
         
                     // Log the success
                     Log::channel('sendmailapproval')->info('Email CM Entry doc_no '.$doc_no.' Entity ' . $entity_cd.' berhasil dikirim ke: ' . $email);
+
+                    // Dispatch job setelah response
+                    RunApprovalStoredProcedureAzure::dispatchAfterResponse(
+                        $entity_cd,
+                        $doc_no,
+                        $type,
+                        $module,
+                        $level_no,
+                        $encryptedData,
+                        $app_url
+                    );
+
                     return 'Email berhasil dikirim ke: ' . $email;
                 } else {
                     // Email was already sent

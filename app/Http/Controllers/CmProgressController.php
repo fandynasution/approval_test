@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use App\Mail\SendCmProgressMail;
+use App\Jobs\RunApprovalStoredProcedureAzure;
 use PDO;
 use DateTime;
 
@@ -60,6 +61,7 @@ class CmProgressController extends Controller
             'curr_progress'     => $curr_progress,
             'approve_seq'       => $request->approve_seq,
             'amount'            => $amount,
+            'level_no'       => $request->level_no,
             'prev_progress'     => $prev_progress,
             'prev_progress_amt' => $prev_progress_amt,
             'contract_no'       => $request->contract_no,
@@ -101,6 +103,9 @@ class CmProgressController extends Controller
             $entity_cd = $request->entity_cd;
             $doc_no = $request->doc_no;
             $level_no = $request->level_no;
+            $app_url = 'cmprogress';
+            $type = 'A';
+            $module = 'CM';
         
             // Check if email addresses are provided and not empty
             if (!empty($emailAddresses)) {
@@ -134,6 +139,18 @@ class CmProgressController extends Controller
         
                     // Log the success
                     Log::channel('sendmailapproval')->info('Email CM Progress doc_no '.$doc_no.' Entity ' . $entity_cd.' berhasil dikirim ke: ' . $email);
+
+                    // Dispatch job setelah response
+                    RunApprovalStoredProcedureAzure::dispatchAfterResponse(
+                        $entity_cd,
+                        $doc_no,
+                        $type,
+                        $module,
+                        $level_no,
+                        $encryptedData,
+                        $app_url
+                    );
+
                     return 'Email berhasil dikirim ke: ' . $email;
                 } else {
                     // Email was already sent

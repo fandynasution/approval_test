@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use App\Mail\SendVarianOrderMail;
+use App\Jobs\RunApprovalStoredProcedureAzure;
 use PDO;
 use DateTime;
 
@@ -58,6 +59,7 @@ class VarianOrderController extends Controller
             'approve_list'      => $approve_data,
             'clarify_user'      => $request->clarify_user,
             'clarify_email'     => $request->clarify_email,
+            'level_no'       => $request->level_no,
             'sender_addr'       => $request->sender_addr,
             'body'              => "Please approve Varian Order No. ".$request->doc_no." for ".$request->descs,
             'subject'           => "Need Approval for Varian Order No.  ".$request->doc_no,
@@ -90,6 +92,9 @@ class VarianOrderController extends Controller
             $doc_no = $request->doc_no;
             $status = $request->status;
             $level_no = $request->level_no;
+            $app_url = 'varianorder';
+            $type = 'D';
+            $module = 'CM';
         
             // Check if email addresses are provided and not empty
             if (!empty($emailAddresses)) {
@@ -123,6 +128,18 @@ class VarianOrderController extends Controller
         
                     // Log the success
                     Log::channel('sendmailapproval')->info('Email Varian Order doc_no '.$doc_no.' Entity ' . $entity_cd.' berhasil dikirim ke: ' . $email);
+
+                    // Dispatch job setelah response
+                    RunApprovalStoredProcedureAzure::dispatchAfterResponse(
+                        $entity_cd,
+                        $doc_no,
+                        $type,
+                        $module,
+                        $level_no,
+                        $encryptedData,
+                        $app_url
+                    );
+
                     return 'Email berhasil dikirim ke: ' . $email;
                 } else {
                     // Email was already sent

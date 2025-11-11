@@ -105,25 +105,23 @@
                                     @endphp
                     
                                         @if($dataArray['doc_link'] !== '' && $dataArray['doc_link'] !== 'EMPTY')
-                                            @if(strpos($dataArray['doc_link'], 'http://') === 0 || strpos($dataArray['doc_link'], 'https://') === 0)
-                                                @if(!$hasAttachment)
-                                                    @php
-                                                        $hasAttachment = true;
-                                                    @endphp
-                                                    <p style="text-align:left; margin-bottom: 15px; color: #000000; font-size: 16px;">
-                                                        <span>This request to purchase comes with additional supporting documents, such as detailed specifications, that you can access from the link below :</span><br>
-                                                @endif
-                                                <a href="{{ $dataArray['doc_link'] }}" target="_blank">Additional Document Link</a><br>
+                                            @if(!$hasAttachment)
+                                                @php
+                                                    $hasAttachment = true;
+                                                @endphp
+                                                <p style="text-align:left; margin-bottom: 15px; color: #000000; font-size: 16px;">
+                                                    <span>This request to purchase comes with additional supporting documents, such as detailed specifications, that you can access from the link below :</span><br>
                                             @endif
+                                            <a href="{{ $dataArray['doc_link'] }}" target="_blank">Additional Document Link</a><br>
                                         @endif
                     
                                     @if($hasAttachment)
                                         </p>
                                     @endif
                     
-                                    <a href="{{ url('api') }}/cbppu/A/{{ $encryptedData }}" style="display: inline-block; font-size: 13px; font-weight: 600; line-height: 20px; text-align: center; text-decoration: none; text-transform: uppercase; padding: 10px 40px; background-color: #1ee0ac; border-radius: 4px; color: #ffffff;">Approve</a>
-                                    <a href="{{ url('api') }}/cbppu/R/{{ $encryptedData }}" style="display: inline-block; font-size: 13px; font-weight: 600; line-height: 20px; text-align: center; text-decoration: none; text-transform: uppercase; padding: 10px 40px; background-color: #f4bd0e; border-radius: 4px; color: #ffffff;">Revise</a>
-                                    <a href="{{ url('api') }}/cbppu/C/{{ $encryptedData }}" style="display: inline-block; font-size: 13px; font-weight: 600; line-height: 20px; text-align: center; text-decoration: none; text-transform: uppercase; padding: 10px 40px; background-color: #e85347; border-radius: 4px; color: #ffffff;">Reject</a>
+                                    <a href="{{ config('app.sso_url') }}/approval/{{ $dataArray['approve_seq'] }}/{{ $dataArray['level_no'] }}" style="display: inline-block; font-size: 13px; font-weight: 600; line-height: 20px; text-align: center; text-decoration: none; text-transform: uppercase; padding: 10px 40px; background-color: #1ee0ac; border-radius: 4px; color: #ffffff;">Approve</a>
+                                    <a href="{{ config('app.sso_url') }}/revise/{{ $dataArray['approve_seq'] }}/{{ $dataArray['level_no'] }}" style="display: inline-block; font-size: 13px; font-weight: 600; line-height: 20px; text-align: center; text-decoration: none; text-transform: uppercase; padding: 10px 40px; background-color: #f4bd0e; border-radius: 4px; color: #ffffff;">Revise</a>
+                                    <a href="{{ config('app.sso_url') }}/reject/{{ $dataArray['approve_seq'] }}/{{ $dataArray['level_no'] }}" style="display: inline-block; font-size: 13px; font-weight: 600; line-height: 20px; text-align: center; text-decoration: none; text-transform: uppercase; padding: 10px 40px; background-color: #e85347; border-radius: 4px; color: #ffffff;">Reject</a>
                                     <br>
                                     <p style="text-align:left;margin-bottom: 15px; color: #000000; font-size: 16px;">
                                         To check approval status, kindly click on the following link : <br>
