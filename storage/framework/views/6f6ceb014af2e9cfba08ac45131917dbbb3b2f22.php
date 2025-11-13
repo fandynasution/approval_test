@@ -12,6 +12,43 @@
         body {
             font-family: Arial;
         }
+
+        /* Spinner overlay */
+        .spinner-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(255, 255, 255, 0.5);
+            backdrop-filter: blur(6px);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            display: none;
+        }
+
+        .spinner {
+            width: 70px;
+            height: 70px;
+            border: 6px solid #ddd;
+            border-top: 6px solid #007bff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 20px;
+        }
+
+        .loading-text {
+            font-size: 16px;
+            color: #333;
+            font-weight: 500;
+        }
+
+        @keyframes  spin {
+            100% { transform: rotate(360deg); }
+        }
     </style>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
     <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
@@ -55,7 +92,7 @@
                                             <textarea class="form-control" id="reason" name="reason" rows="3"></textarea>
                                         </div>
                                     <?php endif; ?>
-                                    <input type="submit" class="btn" style="background-color:<?php echo $bgcolor?>;color:#ffffff;display:inline-block;font-size:13px;font-weight:600;line-height:44px;text-align:center;text-decoration:none;text-transform: uppercase; padding: 0px 40px;margin: 10px" value=<?php echo $valuebt?>>
+                                    <input type="submit" id="submitBtn" class="btn" style="background-color:<?php echo $bgcolor?>;color:#ffffff;display:inline-block;font-size:13px;font-weight:600;line-height:44px;text-align:center;text-decoration:none;text-transform: uppercase; padding: 0px 40px;margin: 10px" value=<?php echo $valuebt?>>
                                     </form>
                                 </td>
                             </tr>
@@ -74,5 +111,22 @@
             </tr>
         </table>
     </div>
+
+    <!-- Overlay Spinner -->
+    <div id="overlaySpinner" class="spinner-overlay">
+        <div class="spinner"></div>
+        <p class="loading-text">Processing, please wait a few minutes...</p>
+    </div>
+
+    <script>
+    document.getElementById('frmEditor').addEventListener('submit', function(e) {
+        const btn = document.getElementById('submitBtn');
+        const overlay = document.getElementById('overlaySpinner');
+
+        // Tampilkan overlay blur + spinner
+        btn.disabled = true;
+        overlay.style.display = 'flex';
+    });
+    </script>
 </body>
 </html><?php /**PATH /var/www/html/approval_live/resources/views/email/cmprogress/passcheckwithremark.blade.php ENDPATH**/ ?>

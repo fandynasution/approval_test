@@ -86,6 +86,7 @@ class PurchaseSelectionController extends Controller
             'usergroup'     => $request->usergroup,
             'user_id'       => $request->user_id,
             'supervisor'    => $request->supervisor,
+            'entity_name'   => $request->entity_name,
             'type'          => 'S',
             'type_module'   => 'PO',
             'text'          => 'Purchase Selection'
@@ -219,9 +220,11 @@ class PurchaseSelectionController extends Controller
                 "Pesan" => $msg,
                 "St" => $st,
                 "notif" => $notif,
-                "image" => $image
+                "image" => $image,
+                "entity_name" => $data["entity_name"] ?? "PT. BALI TURTLE ISLAND DEVELOPMENT",
+
             );
-            return view("email.after", $msg1);
+            return view("email.withentity.after", $msg1);
         } else {
             $where2 = array(
                 'doc_no'        => $data["doc_no"],
@@ -252,9 +255,10 @@ class PurchaseSelectionController extends Controller
                     "Pesan" => $msg,
                     "St" => $st,
                     "notif" => $notif,
-                    "image" => $image
+                    "image" => $image,
+                    "entity_name" => $data["entity_name"] ?? "PT. BALI TURTLE ISLAND DEVELOPMENT",
                 );
-                return view("email.after", $msg1);
+                return view("email.withentity.after", $msg1);
             } else {
                 $name   = " ";
                 $bgcolor = " ";
@@ -361,8 +365,9 @@ class PurchaseSelectionController extends Controller
             "Pesan" => $msg,
             "St" => $st,
             "notif" => $notif,
-            "image" => $image
+            "image" => $image,
+            "entity_name" => $data["entity_name"] ?? "PT. BALI TURTLE ISLAND DEVELOPMENT",
         );
-        return view("email.after", $msg1);
+        return view("email.withentity.after", $msg1);
     }
 }
