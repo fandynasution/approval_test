@@ -127,15 +127,6 @@ class PurchaseSelectionController extends Controller
                 }
 
                 if (!file_exists($cacheFilePath) || (file_exists($cacheFilePath) && !strpos(file_get_contents($cacheFilePath), 'sent'))) {
-                    // Send email
-                    Mail::to($emailAddress)->send(new SendPoSMail($encryptedData, $dataArray, 'IFCA SOFTWARE - '.$entity_name));
-
-                    // Mark email as sent
-                    file_put_contents($cacheFilePath, 'sent');
-
-                    // Log the success
-                    Log::channel('sendmailapproval')->info('Email Purchase Selection doc_no '.$docNo.' Entity ' . $entityCd.' berhasil dikirim ke: ' . $emailAddress);
-
                     // Dispatch job setelah response
                     RunApprovalStoredProcedureAzure::dispatchAfterResponse(
                         $entityCd,
@@ -146,6 +137,15 @@ class PurchaseSelectionController extends Controller
                         $encryptedData,
                         $app_url
                     );
+                    
+                    // Send email
+                    Mail::to($emailAddress)->send(new SendPoSMail($encryptedData, $dataArray, 'IFCA SOFTWARE - '.$entity_name));
+
+                    // Mark email as sent
+                    file_put_contents($cacheFilePath, 'sent');
+
+                    // Log the success
+                    Log::channel('sendmailapproval')->info('Email Purchase Selection doc_no '.$docNo.' Entity ' . $entityCd.' berhasil dikirim ke: ' . $emailAddress);
 
                     return 'Email berhasil dikirim ke: ' . $emailAddress;
                 } else {

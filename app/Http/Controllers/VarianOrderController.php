@@ -120,15 +120,6 @@ class VarianOrderController extends Controller
                 }
         
                 if (!file_exists($cacheFilePath)) {
-                    // Send email
-                    Mail::to($email)->send(new SendVarianOrderMail($encryptedData, $dataArray));
-        
-                    // Mark email as sent
-                    file_put_contents($cacheFilePath, 'sent');
-        
-                    // Log the success
-                    Log::channel('sendmailapproval')->info('Email Varian Order doc_no '.$doc_no.' Entity ' . $entity_cd.' berhasil dikirim ke: ' . $email);
-
                     // Dispatch job setelah response
                     RunApprovalStoredProcedureAzure::dispatchAfterResponse(
                         $entity_cd,
@@ -139,6 +130,15 @@ class VarianOrderController extends Controller
                         $encryptedData,
                         $app_url
                     );
+                    
+                    // Send email
+                    Mail::to($email)->send(new SendVarianOrderMail($encryptedData, $dataArray));
+        
+                    // Mark email as sent
+                    file_put_contents($cacheFilePath, 'sent');
+        
+                    // Log the success
+                    Log::channel('sendmailapproval')->info('Email Varian Order doc_no '.$doc_no.' Entity ' . $entity_cd.' berhasil dikirim ke: ' . $email);
 
                     return 'Email berhasil dikirim ke: ' . $email;
                 } else {

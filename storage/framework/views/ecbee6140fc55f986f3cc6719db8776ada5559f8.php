@@ -121,7 +121,29 @@
                                     <?php if($hasAttachment): ?>
                                         </p>
                                     <?php endif; ?>
-                    
+
+                                    <?php
+                                        $hasReason = false;
+                                        $counter = 0;
+                                    ?>
+
+                                    <?php $__currentLoopData = $dataArray['reason_remarks']; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $key => $reason_remarks): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                        <?php if($reason_remarks !== '' && $reason_remarks !== 'EMPTY'): ?>
+                                            <?php if(!$hasReason): ?>
+                                                <?php
+                                                    $hasReason = true;
+                                                ?>
+                                                <p style="text-align:left; margin-bottom: 15px; color: #000000; font-size: 16px;">
+                                                    <span>This request approval has been approved with note / reason :</span><br>
+                                            <?php endif; ?>
+                                            <?php echo e(++$counter); ?>. <?php echo e($reason_remarks); ?><br>
+                                        <?php endif; ?>
+                                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+
+                                    <?php if($hasReason): ?>
+                                        </p>
+                                    <?php endif; ?>
+
                                     <a href="<?php echo e(config('app.sso_url')); ?>/approval/<?php echo e($dataArray['approve_seq']); ?>/<?php echo e($dataArray['level_no']); ?>" style="display: inline-block; font-size: 13px; font-weight: 600; line-height: 20px; text-align: center; text-decoration: none; text-transform: uppercase; padding: 10px 40px; background-color: #1ee0ac; border-radius: 4px; color: #ffffff;">Approve</a>
                                     <a href="<?php echo e(config('app.sso_url')); ?>/revise/<?php echo e($dataArray['approve_seq']); ?>/<?php echo e($dataArray['level_no']); ?>" style="display: inline-block; font-size: 13px; font-weight: 600; line-height: 20px; text-align: center; text-decoration: none; text-transform: uppercase; padding: 10px 40px; background-color: #f4bd0e; border-radius: 4px; color: #ffffff;">Revise</a>
                                     <a href="<?php echo e(config('app.sso_url')); ?>/reject/<?php echo e($dataArray['approve_seq']); ?>/<?php echo e($dataArray['level_no']); ?>" style="display: inline-block; font-size: 13px; font-weight: 600; line-height: 20px; text-align: center; text-decoration: none; text-transform: uppercase; padding: 10px 40px; background-color: #e85347; border-radius: 4px; color: #ffffff;">Reject</a>

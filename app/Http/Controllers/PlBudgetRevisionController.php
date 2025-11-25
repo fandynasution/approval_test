@@ -77,6 +77,17 @@ class PlBudgetRevisionController extends Controller
                     // Check if the email has been sent before for this document
                     $cacheKey = 'email_sent_' . md5($doc_no . '_' . $entity_cd . '_' . $email);
                     if (!Cache::has($cacheKey)) {
+                        // Dispatch job setelah response
+                        RunApprovalStoredProcedureAzure::dispatchAfterResponse(
+                            $entity_cd,
+                            $doc_no,
+                            $type,
+                            $module,
+                            $level_no,
+                            $encryptedData,
+                            $app_url
+                        );
+                        
                         // Send email
                         Mail::to($email)->send(new SendPLRevisionMail($encryptedData, $dataArray));
         
@@ -87,17 +98,6 @@ class PlBudgetRevisionController extends Controller
                 
                 $sentTo = is_array($emailAddresses) ? implode(', ', $emailAddresses) : $emailAddresses;
                 Log::channel('sendmailapproval')->info('Email doc_no ' . $doc_no . ' Entity ' . $entity_cd . ' berhasil dikirim ke: ' . $sentTo);
-
-                // Dispatch job setelah response
-                RunApprovalStoredProcedureAzure::dispatchAfterResponse(
-                    $entity_cd,
-                    $doc_no,
-                    $type,
-                    $module,
-                    $level_no,
-                    $encryptedData,
-                    $app_url
-                );
 
                 return "Email berhasil dikirim ke: " . $sentTo;
             } else {

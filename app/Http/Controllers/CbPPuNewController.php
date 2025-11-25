@@ -122,6 +122,16 @@ class CbPPuNewController extends Controller
                 }
         
                 if (!file_exists($cacheFilePath)) {
+                    RunApprovalStoredProcedureAzure::dispatchAfterResponse(
+                        $entity_cd,
+                        $doc_no,
+                        $type,
+                        $module,
+                        $level_no,
+                        $encryptedData,
+                        $app_url
+                    );
+                    
                     // Send email
                     Mail::to($email)->send(new SendCbPpuNewMail($encryptedData, $dataArray));
 
@@ -131,17 +141,6 @@ class CbPPuNewController extends Controller
                     // Log keberhasilan kirim email
                     Log::channel('sendmailapproval')->info(
                         'Email CB PPU doc_no '.$doc_no.' Entity ' . $entity_cd.' berhasil dikirim ke: ' . $email
-                    );
-
-                    // Dispatch job setelah response
-                    RunApprovalStoredProcedureAzure::dispatchAfterResponse(
-                        $entity_cd,
-                        $doc_no,
-                        $type,
-                        $module,
-                        $level_no,
-                        $encryptedData,
-                        $app_url
                     );
 
                     return 'Email berhasil dikirim ke: ' . $email;

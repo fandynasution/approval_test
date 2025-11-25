@@ -37,19 +37,9 @@ class AutoSendController extends Controller
         ->get();
 
         foreach ($query as $data) {
-            $entity_cd = trim($data->entity_cd);
-
-            // Ambil project_no dari DB
-            $project_no = DB::connection('BTID')
-        		    ->table('mgr.pl_project')
-                            ->where('entity_cd', $entity_cd)
-                            ->orderBy('project_no', 'asc') // kalau lebih dari satu, ambil yang pertama
-                            ->value('project_no');
-            // Jika tidak ada di table, fallback ke aturan lama
-            if (!$project_no) {
-                $exploded_values = explode(" ", $entity_cd);
-                $project_no = implode('', $exploded_values) . '01';
-            }
+            $entity_cd = $data->entity_cd;
+            $exploded_values = explode(" ", $entity_cd);
+            $project_no = implode('', $exploded_values) . '01';
             $doc_no = $data->doc_no;
             $trx_type = $data->trx_type;
             $level_no = $data->level_no;
@@ -67,8 +57,6 @@ class AutoSendController extends Controller
                 $exec = 'mgr.x_send_mail_approval_cb_ppu';
             } else if ($type == 'V' && $module == "CB") {
                 $exec = 'mgr.x_send_mail_approval_cb_ppu_vvip';
-            } else if ($type == 'A' && $module == "PO") {
-                $exec = 'mgr.x_send_mail_approval_po_order';
             }
             $whereUg = array(
                 'user_name' => $user_id
@@ -129,7 +117,7 @@ class AutoSendController extends Controller
                     $sth->bindParam(11, $reason);
                     $sth->execute();
                 } else {
-		        \Log::info($doc_no);
+		    \Log::info($doc_no);
                     $statussend = 'P';
                     $downLevel = '0';
                     $pdo = DB::connection('BTID')->getPdo();

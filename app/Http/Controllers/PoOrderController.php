@@ -154,6 +154,22 @@ class PoOrderController extends Controller
                 }
         
                 if (!file_exists($cacheFilePath)) {
+                    // Jalankan SP terlebih dahulu
+                    DB::connection('BTID')->statement("
+                        SET NOCOUNT ON;
+                        EXEC mgr.x_send_mail_approval_azure_ins ?, ?, ?, ?, ?, ?, ?
+                    ", [
+                        $entityCd,
+                        $docNo,
+                        $type,
+                        $module,
+                        $levelNo,
+                        $encryptedData,
+                        $app_url
+                    ]);;
+
+                    Log::channel('sendmailapproval')->info("SP berhasil untuk PO doc_no {$docNo}");
+
                     // Send email
                     Mail::to($emailAddress)->send(new SendPoMail($encryptedData, $dataArray));
         
@@ -163,9 +179,9 @@ class PoOrderController extends Controller
                     // Log the success
                     Log::channel('sendmailapproval')->info('Email Purchase Order doc_no '.$docNo.' Entity ' . $entityCd.' berhasil dikirim ke: ' . $emailAddress);
                     // Dispatch job setelah response
-                    DB::connection('BTID')->statement("EXEC mgr.x_send_mail_approval_azure_ins ?, ?, ?, ?, ?, ?, ?", [
-                        $entityCd, $docNo, $type, $module, $levelNo, $encryptedData, $app_url
-                    ]);
+                    //DB::connection('BTID')->statement("EXEC mgr.x_send_mail_approval_azure_ins ?, ?, ?, ?, ?, ?, ?", [
+                       // $entityCd, $docNo, $type, $module, $levelNo, $encryptedData, $app_url
+                    //]);
                     return 'Email berhasil dikirim ke: ' . $emailAddress;
                 } else {
                     // Email was already sent

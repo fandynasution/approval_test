@@ -113,3 +113,6 @@ Route::get('/export-budget/{bg}/{dept_cd}', [Convert::class, 'export']);
 
 use App\Http\Controllers\BlastFaController as BlastFa;
 Route::get('/blastfa/{dept_cd}', [BlastFa::class, 'blast']);
+
+use App\Http\Controllers\GetEncryptController as GetEncrypt;
+Route::post('/getencrypt', [GetEncrypt::class, 'index']);

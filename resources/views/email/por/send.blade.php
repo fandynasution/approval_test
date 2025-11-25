@@ -121,7 +121,29 @@
                                     @if($hasAttachment)
                                         </p>
                                     @endif
-                    
+
+                                    @php
+                                        $hasReason = false;
+                                        $counter = 0;
+                                    @endphp
+
+                                    @foreach($dataArray['reason_remarks'] as $key => $reason_remarks)
+                                        @if($reason_remarks !== '' && $reason_remarks !== 'EMPTY')
+                                            @if(!$hasReason)
+                                                @php
+                                                    $hasReason = true;
+                                                @endphp
+                                                <p style="text-align:left; margin-bottom: 15px; color: #000000; font-size: 16px;">
+                                                    <span>This request approval has been approved with note / reason :</span><br>
+                                            @endif
+                                            {{ ++$counter }}. {{ $reason_remarks }}<br>
+                                        @endif
+                                    @endforeach
+
+                                    @if($hasReason)
+                                        </p>
+                                    @endif
+
                                     <a href="{{ config('app.sso_url') }}/approval/{{ $dataArray['approve_seq'] }}/{{ $dataArray['level_no'] }}" style="display: inline-block; font-size: 13px; font-weight: 600; line-height: 20px; text-align: center; text-decoration: none; text-transform: uppercase; padding: 10px 40px; background-color: #1ee0ac; border-radius: 4px; color: #ffffff;">Approve</a>
                                     <a href="{{ config('app.sso_url') }}/revise/{{ $dataArray['approve_seq'] }}/{{ $dataArray['level_no'] }}" style="display: inline-block; font-size: 13px; font-weight: 600; line-height: 20px; text-align: center; text-decoration: none; text-transform: uppercase; padding: 10px 40px; background-color: #f4bd0e; border-radius: 4px; color: #ffffff;">Revise</a>
                                     <a href="{{ config('app.sso_url') }}/reject/{{ $dataArray['approve_seq'] }}/{{ $dataArray['level_no'] }}" style="display: inline-block; font-size: 13px; font-weight: 600; line-height: 20px; text-align: center; text-decoration: none; text-transform: uppercase; padding: 10px 40px; background-color: #e85347; border-radius: 4px; color: #ffffff;">Reject</a>

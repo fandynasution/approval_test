@@ -127,18 +127,63 @@ class StaffActionController extends Controller
         $bodyEMail = '';
         
         if (strcasecmp($request->status, 'R') == 0) {
-        
+
             $action = 'Revision';
-            $bodyEMail = 'Please revise ' . $request->descs . ' No. ' . $request->doc_no . ' with the reason : ' . $request->reason;
-        
+
+            // Pisahkan reason berdasarkan ";"
+            $list_of_reason = array_filter(array_map('trim', explode(';', $request->reason)));
+
+            // Buat format bernomor (HTML)
+            $formatted_reason = '';
+            $counter = 1;
+            foreach ($list_of_reason as $reason) {
+                $formatted_reason .= $counter . '. ' . htmlspecialchars($reason) . '<br>';
+                $counter++;
+            }
+
+            // Gunakan <br> sebelum daftar agar tampil di baris baru
+            $bodyEMail = 'Please revise ' . htmlspecialchars($request->descs) . 
+                ' No. ' . htmlspecialchars($request->doc_no) . 
+                ' with the Reason / Note :<br>' . $formatted_reason;
+
         } else if (strcasecmp($request->status, 'C') == 0) {
-        
+
             $action = 'Cancellation';
-            $bodyEMail = $request->descs . ' No. ' . $request->doc_no . ' has been cancelled with the reason : ' . $request->reason;
-        
+
+            // Pisahkan reason berdasarkan ";"
+            $list_of_reason = array_filter(array_map('trim', explode(';', $request->reason)));
+
+            // Buat format bernomor (HTML)
+            $formatted_reason = '';
+            $counter = 1;
+            foreach ($list_of_reason as $reason) {
+                $formatted_reason .= $counter . '. ' . htmlspecialchars($reason) . '<br>';
+                $counter++;
+            }
+
+            // Gunakan <br> sebelum daftar agar tampil di baris baru
+            $bodyEMail = 'Your Request ' . htmlspecialchars($request->descs) . 
+                ' No. ' . htmlspecialchars($request->doc_no) . 
+                ' has been cancelled with the Reason / Note :<br>' . $formatted_reason;
+
         } else if (strcasecmp($request->status, 'A') == 0) {
             $action = 'Approval';
-            $bodyEMail = 'Your Request ' . $request->descs . ' No. ' . $request->doc_no . ' has been Approved with the Note : ' . $request->reason;
+
+            // Pisahkan reason berdasarkan ";"
+            $list_of_reason = array_filter(array_map('trim', explode(';', $request->reason)));
+
+            // Buat format bernomor (HTML)
+            $formatted_reason = '';
+            $counter = 1;
+            foreach ($list_of_reason as $reason) {
+                $formatted_reason .= $counter . '. ' . htmlspecialchars($reason) . '<br>';
+                $counter++;
+            }
+
+            // Gunakan <br> sebelum daftar agar tampil di baris baru
+            $bodyEMail = 'Your Request ' . htmlspecialchars($request->descs) . 
+                ' No. ' . htmlspecialchars($request->doc_no) . 
+                ' has been Approved with the Note :<br>' . $formatted_reason;
         }
         
         $list_of_urls = explode('; ', $request->url_file);

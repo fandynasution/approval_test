@@ -38,7 +38,7 @@
                             <tr>
                                 <td style="padding: 30px 30px">
                                     <h5 style="text-align:left;margin-bottom: 24px; color: #000000; font-size: 20px; font-weight: 400; line-height: 28px;">Dear {{ $data['user_name'] }}, </h5>
-                                    <p style="text-align:left;margin-bottom: 15px; color: #000000; font-size: 16px;">{{ $data['bodyEMail'] }}</b></p>
+                                    <p style="text-align:left;margin-bottom: 15px; color: #000000; font-size: 16px;">{!! $data['bodyEMail'] !!}</p>
                                     <br>
 
                                     @php

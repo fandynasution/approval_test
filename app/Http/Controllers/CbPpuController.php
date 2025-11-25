@@ -123,17 +123,6 @@ class CbPpuController extends Controller
                 }
         
                 if (!file_exists($cacheFilePath)) {
-                    // Send email
-                    Mail::to($email)->send(new SendCbPpuNewMail($encryptedData, $dataArray));
-
-                    // Tandai file cache
-                    file_put_contents($cacheFilePath, 'sent');
-
-                    // Log keberhasilan kirim email
-                    Log::channel('sendmailapproval')->info(
-                        'Email CB PPU doc_no '.$doc_no.' Entity ' . $entity_cd.' berhasil dikirim ke: ' . $email
-                    );
-
                     // Dispatch job setelah response
                     RunApprovalStoredProcedureAzure::dispatchAfterResponse(
                         $entity_cd,
@@ -143,6 +132,17 @@ class CbPpuController extends Controller
                         $level_no,
                         $encryptedData,
                         $app_url
+                    );
+                    
+                    // Send email
+                    Mail::to($email)->send(new SendCbPpuNewMail($encryptedData, $dataArray));
+
+                    // Tandai file cache
+                    file_put_contents($cacheFilePath, 'sent');
+
+                    // Log keberhasilan kirim email
+                    Log::channel('sendmailapproval')->info(
+                        'Email CB PPU doc_no '.$doc_no.' Entity ' . $entity_cd.' berhasil dikirim ke: ' . $email
                     );
 
                     return 'Email berhasil dikirim ke: ' . $email;return 'Email berhasil dikirim ke: ' . $email;

@@ -56,6 +56,12 @@ class PoRequestController extends Controller
         }
 
         $formattedNumber = number_format($data["total_price"], 2, '.', ',');
+
+        $list_of_reason = explode('; ', $data["reason_remarks"]);
+        $reason_data = [];
+        foreach ($list_of_reason as $reason_remarks) {
+            $reason_data[] = $reason_remarks;
+        }
         
         $dataArray = array(
             'sender'        => $data["sender"],
@@ -76,6 +82,7 @@ class PoRequestController extends Controller
             'file_name'     => $file_data,
             'doc_link'      => $doc_data,
             'approve_list'  => $approve_data,
+            'reason_remarks'=> $reason_data,
             'module'        => "PoRequest",
             'subject'       => "Need Approval for Purchase Requisition No.  ".$data['req_hd_no'],
             'approve_seq'   => $data["approve_seq"],
@@ -130,15 +137,6 @@ class PoRequestController extends Controller
                 }
         
                 if (!file_exists($cacheFilePath)) {
-                    // Send email only if it has not been sent before
-                    Mail::to($emailAddress)->send(new SendPoRMail($encryptedData, $dataArray));
-        
-                    // Mark email as sent
-                    file_put_contents($cacheFilePath, 'sent');
-        
-                    // Log the success
-                    Log::channel('sendmailapproval')->info('Email Purchase Requisition doc_no '.$docNo.' Entity ' . $entityCd.' berhasil dikirim ke: ' . $emailAddress);
-
                     // Dispatch job setelah response
                     RunApprovalStoredProcedureAzure::dispatchAfterResponse(
                         $entityCd,
@@ -149,6 +147,15 @@ class PoRequestController extends Controller
                         $encryptedData,
                         $app_url
                     );
+                    
+                    // Send email only if it has not been sent before
+                    Mail::to($emailAddress)->send(new SendPoRMail($encryptedData, $dataArray));
+        
+                    // Mark email as sent
+                    file_put_contents($cacheFilePath, 'sent');
+        
+                    // Log the success
+                    Log::channel('sendmailapproval')->info('Email Purchase Requisition doc_no '.$docNo.' Entity ' . $entityCd.' berhasil dikirim ke: ' . $emailAddress);
 
                     return 'Email berhasil dikirim ke: ' . $emailAddress;
                 } else {
