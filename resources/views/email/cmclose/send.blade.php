@@ -75,6 +75,48 @@
                                         <b>{{ $dataArray['descs'] }}</b><br>
                                         
                                     </p>
+                                    @php
+                                        $hasAttachment = false;
+                                    @endphp
+                    
+                                    @foreach($dataArray['url_file'] as $key => $url_file)
+                                        @if($url_file !== '' && $dataArray['file_name'][$key] !== '' && $url_file !== 'EMPTY' && $dataArray['file_name'][$key] !== 'EMPTY')
+                                            @if(!$hasAttachment)
+                                                @php
+                                                    $hasAttachment = true;
+                                                @endphp
+                                                <p style="text-align:left; margin-bottom: 15px; color: #000000; font-size: 16px;">
+                                                    <span>To view a detailed product list, description, and estimate price per item, please click on the link below :</span><br>
+                                            @endif
+                                            <a href="{{ $url_file }}" target="_blank">{{ $dataArray['file_name'][$key] }}</a><br>
+                                        @endif
+                                    @endforeach
+                    
+                                    @if($hasAttachment)
+                                        </p>
+                                    @endif
+
+                                    @php
+                                        $hasAttachment = false;
+                                    @endphp
+                    
+                                    @foreach($dataArray['doc_link'] as $key => $doc_link)
+                                        @if($doc_link !== '' && $doc_link !== 'EMPTY')
+                                            @if(!$hasAttachment)
+                                                @php
+                                                    $hasAttachment = true;
+                                                @endphp
+                                                <p style="text-align:left; margin-bottom: 15px; color: #000000; font-size: 16px;">
+                                                    <span>This request to purchase comes with additional supporting documents, such as detailed specifications, that you can access from the link below :</span><br>
+                                            @endif
+                                            <a href="{{ $doc_link }}" target="_blank">Additional Document Link</a><br>
+                                        @endif
+                                    @endforeach
+                    
+                                    @if($hasAttachment)
+                                        </p>
+                                    @endif
+
                                     <a href="{{ config('app.sso_url') }}/approval/{{ $dataArray['approve_seq'] }}/{{ $dataArray['level_no'] }}"  style="display: inline-block; font-size: 13px; font-weight: 600; line-height: 20px; text-align: center; text-decoration: none; text-transform: uppercase; padding: 10px 40px; background-color: #1ee0ac; border-radius: 4px; color: #ffffff;">Approve</a>
                                     <a href="{{ config('app.sso_url') }}/revise/{{ $dataArray['approve_seq'] }}/{{ $dataArray['level_no'] }}"  style="display: inline-block; font-size: 13px; font-weight: 600; line-height: 20px; text-align: center; text-decoration: none; text-transform: uppercase; padding: 10px 40px; background-color: #f4bd0e; border-radius: 4px; color: #ffffff;">Revise</a>
                                     <a href="{{ config('app.sso_url') }}/reject/{{ $dataArray['approve_seq'] }}/{{ $dataArray['level_no'] }}"  style="display: inline-block; font-size: 13px; font-weight: 600; line-height: 20px; text-align: center; text-decoration: none; text-transform: uppercase; padding: 10px 40px; background-color: #e85347; border-radius: 4px; color: #ffffff;">Reject</a>

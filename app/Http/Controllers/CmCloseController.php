@@ -25,6 +25,26 @@ class CmCloseController extends Controller
             $approve_data[] = $approve;
         }
 
+        $list_of_urls = explode('; ', $request->url_file);
+        $list_of_files = explode('; ', $request->file_name);
+        $list_of_doc = explode('; ', $request->document_link);
+
+        $url_data = [];
+        $file_data = [];
+        $doc_data = [];
+
+        foreach ($list_of_urls as $url) {
+            $url_data[] = $url;
+        }
+
+        foreach ($list_of_files as $file) {
+            $file_data[] = $file;
+        }
+
+        foreach ($list_of_doc as $doc) {
+            $doc_data[] = $doc;
+        }
+
         $dataArray = array(
             'sender'            => $request->sender,
             'entity_name'       => $request->entity_name,
@@ -37,7 +57,10 @@ class CmCloseController extends Controller
             'clarify_user'      => $request->clarify_user,
             'clarify_email'     => $request->clarify_email,
             'sender_addr'       => $request->sender_addr,
-            'level_no'       => $request->level_no,
+            'level_no'          => $request->level_no,
+            'url_file'          => $url_data,
+            'file_name'         => $file_data,
+            'doc_link'          => $doc_data,
             'body'              => "Please approve Warranty Complete No. ".$request->doc_no." for ".$request->descs,
             'subject'           => "Need Approval for Warranty Complete No.  ".$request->doc_no,
         );
