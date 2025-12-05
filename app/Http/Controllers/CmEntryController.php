@@ -34,7 +34,9 @@ class CmEntryController extends Controller
         $file_data = [];
 
         foreach ($list_of_urls as $url) {
-            $url_data[] = $url;
+            // $url_data[] = $url;
+            $separator = strpos($url, '?') === false ? '?' : '&';
+            $url_data[] = $url . $separator . 'v=' . uniqid();
         }
 
         foreach ($list_of_files as $file) {
@@ -61,6 +63,8 @@ class CmEntryController extends Controller
             'clarify_user'  => $request->clarify_user,
             'clarify_email' => $request->clarify_email,
             'level_no'       => $request->level_no,
+            'entity_cd' => trim($request->entity_cd),
+            'doc_no'        => $request->doc_no,
             'body'          => "Please approve Contract Entry No. ".$request->doc_no." for ".$request->descs,
             'subject'       => "Need Approval for Contract Entry No.  ".$request->doc_no,
         );

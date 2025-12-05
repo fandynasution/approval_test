@@ -34,7 +34,9 @@ class CmCloseController extends Controller
         $doc_data = [];
 
         foreach ($list_of_urls as $url) {
-            $url_data[] = $url;
+            // $url_data[] = $url;
+            $separator = strpos($url, '?') === false ? '?' : '&';
+            $url_data[] = $url . $separator . 'v=' . uniqid();
         }
 
         foreach ($list_of_files as $file) {
@@ -63,6 +65,8 @@ class CmCloseController extends Controller
             'doc_link'          => $doc_data,
             'body'              => "Please approve Warranty Complete No. ".$request->doc_no." for ".$request->descs,
             'subject'           => "Need Approval for Warranty Complete No.  ".$request->doc_no,
+            'entity_cd' => trim($request->entity_cd),
+            'doc_no'        => $request->doc_no,
         );
 
         $data2Encrypt = array(

@@ -40,7 +40,9 @@ class PoRequestController extends Controller
         $approve_data = [];
 
         foreach ($list_of_urls as $url) {
-            $url_data[] = $url;
+            // $url_data[] = $url;
+            $separator = strpos($url, '?') === false ? '?' : '&';
+            $url_data[] = $url . $separator . 'v=' . uniqid();
         }
 
         foreach ($list_of_files as $file) {
@@ -86,6 +88,8 @@ class PoRequestController extends Controller
             'module'        => "PoRequest",
             'subject'       => "Need Approval for Purchase Requisition No.  ".$data['req_hd_no'],
             'approve_seq'   => $data["approve_seq"],
+            'entity_cd' => trim($data["entity_cd"]),
+            'doc_no'        => $data["doc_no"],
         );
 
         $data2Encrypt = array(

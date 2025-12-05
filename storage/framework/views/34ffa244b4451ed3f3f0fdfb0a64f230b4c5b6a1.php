@@ -94,7 +94,7 @@
                                                 <p style="text-align:left; margin-bottom: 15px; color: #000000; font-size: 16px;">
                                                     <span>To view a detailed request for this progress, please click on the link below :</span><br>
                                             <?php endif; ?>
-                                            <a href="<?php echo e($url_file); ?>" target="_blank"><?php echo e($dataArray['file_name'][$key]); ?></a><br>
+                                            <a href="<?php echo $url_file; ?>" target="_blank"><?php echo e($dataArray['file_name'][$key]); ?></a><br>
                                         <?php endif; ?>
                                     <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                     
@@ -123,9 +123,9 @@
                                         </p>
                                     <?php endif; ?>
                                     
-                                    <a href="<?php echo e(config('app.sso_url')); ?>/approval/<?php echo e($dataArray['approve_seq']); ?>/<?php echo e($dataArray['level_no']); ?>" style="display: inline-block; font-size: 13px; font-weight: 600; line-height: 20px; text-align: center; text-decoration: none; text-transform: uppercase; padding: 10px 40px; background-color: #1ee0ac; border-radius: 4px; color: #ffffff;">Approve</a>
-                                    <a href="<?php echo e(config('app.sso_url')); ?>/revise/<?php echo e($dataArray['approve_seq']); ?>/<?php echo e($dataArray['level_no']); ?>" style="display: inline-block; font-size: 13px; font-weight: 600; line-height: 20px; text-align: center; text-decoration: none; text-transform: uppercase; padding: 10px 40px; background-color: #f4bd0e; border-radius: 4px; color: #ffffff;">Revise</a>
-                                    <a href="<?php echo e(config('app.sso_url')); ?>/reject/<?php echo e($dataArray['approve_seq']); ?>/<?php echo e($dataArray['level_no']); ?>" style="display: inline-block; font-size: 13px; font-weight: 600; line-height: 20px; text-align: center; text-decoration: none; text-transform: uppercase; padding: 10px 40px; background-color: #e85347; border-radius: 4px; color: #ffffff;">Reject</a>
+                                    <a href="<?php echo e(config('app.sso_url')); ?>/approval/<?php echo e($dataArray['entity_cd']); ?>/<?php echo e($dataArray['approve_seq']); ?>/<?php echo e($dataArray['doc_no']); ?>/<?php echo e($dataArray['level_no']); ?>" style="display: inline-block; font-size: 13px; font-weight: 600; line-height: 20px; text-align: center; text-decoration: none; text-transform: uppercase; padding: 10px 40px; background-color: #1ee0ac; border-radius: 4px; color: #ffffff;">Approve</a>
+                                    <a href="<?php echo e(config('app.sso_url')); ?>/revise/<?php echo e($dataArray['entity_cd']); ?>/<?php echo e($dataArray['approve_seq']); ?>/<?php echo e($dataArray['doc_no']); ?>/<?php echo e($dataArray['level_no']); ?>" style="display: inline-block; font-size: 13px; font-weight: 600; line-height: 20px; text-align: center; text-decoration: none; text-transform: uppercase; padding: 10px 40px; background-color: #f4bd0e; border-radius: 4px; color: #ffffff;">Revise</a>
+                                    <a href="<?php echo e(config('app.sso_url')); ?>/reject/<?php echo e($dataArray['entity_cd']); ?>/<?php echo e($dataArray['approve_seq']); ?>/<?php echo e($dataArray['doc_no']); ?>/<?php echo e($dataArray['level_no']); ?>" style="display: inline-block; font-size: 13px; font-weight: 600; line-height: 20px; text-align: center; text-decoration: none; text-transform: uppercase; padding: 10px 40px; background-color: #e85347; border-radius: 4px; color: #ffffff;">Reject</a>
                                     <br>
                                     <p style="text-align:left;margin-bottom: 15px; color: #000000; font-size: 16px;">
                                         To check approval status, kindly click on the following link :<br>

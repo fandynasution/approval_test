@@ -41,6 +41,7 @@ class PlBudgetLymanController extends Controller
             'body'          => "Please approve RAB Budget No. ".$data['doc_no']." project ".$data["project_name"]. " with Amount ".$amount,
             'subject'       => "Need Approval for RAB Budget No. ".$data['doc_no'],
             'approve_seq'   => $data['approve_seq'],
+            'entity_cd' => trim($data["entity_cd"]),
         );
 
         $data2Encrypt = array(

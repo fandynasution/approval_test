@@ -57,7 +57,7 @@
                                                 <p style="text-align:left; margin-bottom: 15px; color: #000000; font-size: 16px;">
                                                     <span>To view a detailed request for this progress, please click on the link below :</span><br>
                                             @endif
-                                            <a href="{{ $url_file }}" target="_blank">{{ $dataArray['file_name'][$key] }}</a><br>
+                                            <a href="{!! $url_file !!}" target="_blank">{{ $dataArray['file_name'][$key] }}</a><br>
                                         @endif
                                     @endforeach
                     
@@ -87,9 +87,9 @@
                                     @endif
 
 
-                                    <a href="{{ config('app.sso_url') }}/approval/{{ $dataArray['approve_seq'] }}/{{ $dataArray['level_no'] }}" style="display: inline-block; font-size: 13px; font-weight: 600; line-height: 20px; text-align: center; text-decoration: none; text-transform: uppercase; padding: 10px 40px; background-color: #1ee0ac; border-radius: 4px; color: #ffffff;">Approve</a>
-                                    <a href="{{ config('app.sso_url') }}/revise/{{ $dataArray['approve_seq'] }}/{{ $dataArray['level_no'] }}" style="display: inline-block; font-size: 13px; font-weight: 600; line-height: 20px; text-align: center; text-decoration: none; text-transform: uppercase; padding: 10px 40px; background-color: #f4bd0e; border-radius: 4px; color: #ffffff;">Revise</a>
-                                    <a href="{{ config('app.sso_url') }}/reject/{{ $dataArray['approve_seq'] }}/{{ $dataArray['level_no'] }}" style="display: inline-block; font-size: 13px; font-weight: 600; line-height: 20px; text-align: center; text-decoration: none; text-transform: uppercase; padding: 10px 40px; background-color: #e85347; border-radius: 4px; color: #ffffff;">Reject</a>
+                                    <a href="{{ config('app.sso_url') }}/approval/{{ $dataArray['entity_cd'] }}/{{ $dataArray['approve_seq'] }}/{{ $dataArray['doc_no'] }}/{{ $dataArray['level_no'] }}" style="display: inline-block; font-size: 13px; font-weight: 600; line-height: 20px; text-align: center; text-decoration: none; text-transform: uppercase; padding: 10px 40px; background-color: #1ee0ac; border-radius: 4px; color: #ffffff;">Approve</a>
+                                    <a href="{{ config('app.sso_url') }}/revise/{{ $dataArray['entity_cd'] }}/{{ $dataArray['approve_seq'] }}/{{ $dataArray['doc_no'] }}/{{ $dataArray['level_no'] }}" style="display: inline-block; font-size: 13px; font-weight: 600; line-height: 20px; text-align: center; text-decoration: none; text-transform: uppercase; padding: 10px 40px; background-color: #f4bd0e; border-radius: 4px; color: #ffffff;">Revise</a>
+                                    <a href="{{ config('app.sso_url') }}/reject/{{ $dataArray['entity_cd'] }}/{{ $dataArray['approve_seq'] }}/{{ $dataArray['doc_no'] }}/{{ $dataArray['level_no'] }}" style="display: inline-block; font-size: 13px; font-weight: 600; line-height: 20px; text-align: center; text-decoration: none; text-transform: uppercase; padding: 10px 40px; background-color: #e85347; border-radius: 4px; color: #ffffff;">Reject</a>
                                     <br>
                                     <p style="text-align:left;margin-bottom: 15px; color: #000000; font-size: 16px;">
                                         To check approval status, kindly click on the following link :<br>

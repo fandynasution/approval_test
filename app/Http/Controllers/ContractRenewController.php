@@ -44,6 +44,8 @@ class ContractRenewController extends Controller
             'body'              => "Please approve Contract Renew No. ".$request->doc_no." for ".$request->descs,
             'subject'           => "Need Approval for Contract Renew No.  ".$request->doc_no,
             'approve_seq'       => $request->approve_seq,
+            'entity_cd' => trim($request->entity_cd),
+            'doc_no'        => $request->doc_no,
         );
 
         $data2Encrypt = array(

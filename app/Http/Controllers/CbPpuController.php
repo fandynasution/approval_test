@@ -29,7 +29,9 @@ class CbPpuController extends Controller
         $file_data = [];
 
         foreach ($list_of_urls as $url) {
-            $url_data[] = $url;
+            // $url_data[] = $url;
+            $separator = strpos($url, '?') === false ? '?' : '&';
+            $url_data[] = $url . $separator . 'v=' . uniqid();
         }
 
         foreach ($list_of_files as $file) {
@@ -67,6 +69,8 @@ class CbPpuController extends Controller
             'body'          => "Please approve Payment Request No. ".$data['ppu_no']." for ".$ppu_descs,
             'subject'       => "Need Approval for Payment Request No.  ".$data['ppu_no'],
             'approve_seq'   => $data['approve_seq'],
+            'entity_cd' => trim($data["entity_cd"]),
+            'doc_no'        => $data["doc_no"],
         );
 
         $data2Encrypt = array(

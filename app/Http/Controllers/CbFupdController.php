@@ -31,7 +31,9 @@ class CbFupdController extends Controller
         $file_data = [];
 
         foreach ($list_of_urls as $url) {
-            $url_data[] = $url;
+            // $url_data[] = $url;
+            $separator = strpos($url, '?') === false ? '?' : '&';
+            $url_data[] = $url . $separator . 'v=' . uniqid();
         }
 
         foreach ($list_of_files as $file) {
@@ -60,9 +62,11 @@ class CbFupdController extends Controller
             'level_no'      => $data["level_no"],
             'clarify_user'  => $data['clarify_user'],
             'clarify_email' => $data['clarify_email'],
+            'entity_cd' => trim($data["entity_cd"]),
             'body'          => "Please approve Propose Transfer to Bank No. ".$data['band_hd_no']." for ".$band_hd_descs,
             'subject'       => "Need Approval for Propose Transfer to Bank No. ".$data['band_hd_no'],
             'approve_seq'   => $data['approve_seq'],
+            'doc_no'        => $data["doc_no"],
         );
 
         $data2Encrypt = array(

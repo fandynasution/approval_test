@@ -33,7 +33,9 @@ class PurchaseSelectionController extends Controller
 	    $doc_data = [];
 
         foreach ($list_of_urls as $url) {
-            $url_data[] = $url;
+            // $url_data[] = $url;
+            $separator = strpos($url, '?') === false ? '?' : '&';
+            $url_data[] = $url . $separator . 'v=' . uniqid();
         }
 
         foreach ($list_of_files as $file) {
@@ -74,6 +76,8 @@ class PurchaseSelectionController extends Controller
             'body'          => "Please approve Quotation No. ".$request->po_doc_no." for ".$po_descs,
             'subject'       => "Need Approval for Quotation No.  ".$request->po_doc_no,
             'approve_seq'   => $request->approve_seq,
+            'entity_cd' => trim($request->entity_cd),
+            'doc_no'        => $request->doc_no,
         );
 
         $data2Encrypt = array(
