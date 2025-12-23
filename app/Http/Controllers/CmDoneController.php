@@ -66,7 +66,7 @@ class CmDoneController extends Controller
             'body'              => "Please approve Contract Complete No. ".$request->doc_no." for ".$request->descs,
             'subject'           => "Need Approval for Contract Complete No.  ".$request->doc_no,
             'entity_cd' => trim($request->entity_cd),
-            'doc_no'        => $request->doc_no,
+            'doc_no' => str_replace('/', '_', $request->doc_no),
         );
 
         $data2Encrypt = array(

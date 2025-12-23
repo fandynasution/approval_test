@@ -64,7 +64,7 @@ class CmEntryController extends Controller
             'clarify_email' => $request->clarify_email,
             'level_no'       => $request->level_no,
             'entity_cd' => trim($request->entity_cd),
-            'doc_no'        => $request->doc_no,
+            'doc_no' => str_replace('/', '_', $request->doc_no),
             'body'          => "Please approve Contract Entry No. ".$request->doc_no." for ".$request->descs,
             'subject'       => "Need Approval for Contract Entry No.  ".$request->doc_no,
         );

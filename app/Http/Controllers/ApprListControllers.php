@@ -107,7 +107,7 @@ class ApprListControllers extends Controller
                 return response()->json(['message' => 'FAILED'], 400);
             }
         };
-        $firstdir = '/var/www/html/btid_trial/storage/app/mail_cache';
+        $firstdir = '/var/www/html/btid_live/storage/app/mail_cache';
         $date = date('Ymd'); // Mendapatkan tanggal hari ini dalam format yyyymmdd        
 
         // Menentukan prosedur yang akan dijalankan

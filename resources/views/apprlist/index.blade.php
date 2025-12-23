@@ -143,6 +143,7 @@
                             console.log(response); // Debugging di console browser
                             // alert("Hasil Query:\n" + JSON.stringify(response, null, 2)); // Tampilkan hasil query dalam alert
                             alert("EMAIL RESEND");
+			    location.reload(); // reload setelah user klik OK
                         },
                         error: function(xhr, status, error) {
                             alert("Terjadi kesalahan: " + xhr.responseText);

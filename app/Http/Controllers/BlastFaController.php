@@ -37,8 +37,8 @@ class BlastFaController extends Controller
 
         $grouped = collect($results)->groupBy('entity_cd');
 
-        $emailList = array_map('trim', explode(',', $results[0]->email_to ?? ''));
-        $emailCC = array_map('trim', explode(',', $results[0]->email_cc ?? ''));
+        $emailList = array_map('trim', explode(', ', $results[0]->email_to ?? ''));
+        $emailCC = array_map('trim', explode(', ', $results[0]->email_cc ?? ''));
 
         $spreadsheet = new Spreadsheet();
         $sheet = $spreadsheet->getActiveSheet(); // disini
