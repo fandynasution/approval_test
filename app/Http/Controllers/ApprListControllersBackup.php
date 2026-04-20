@@ -18,30 +18,14 @@ class ApprListControllers extends Controller
 
     public function getData()
     {
-	// 1. Subquery utama yang berisi ROW_NUMBER()
-        $sub = DB::connection('BTID')
+	$query = DB::connection('BTID')
             ->table('mgr.cb_cash_request_appr')
-            ->select(
-                '*',
-                DB::raw("
-                    ROW_NUMBER() OVER (
-                        PARTITION BY doc_no, entity_cd, approve_seq
-                        ORDER BY level_no ASC
-                    ) AS rn
-                ")
-            )
             ->where('status', 'P')
             ->whereNotNull('currency_cd')
-            ->whereRaw("LTRIM(RTRIM(entity_cd)) NOT LIKE '%[^0-9]%'");
-
-
-        // 2. Bungkus subquery agar bisa memakai WHERE rn = 1
-        $query = DB::connection('BTID')
-            ->table(DB::raw("({$sub->toSql()}) AS cte"))
-            ->mergeBindings($sub)
-            ->where('rn', 1)
-            ->orderBy('doc_no', 'desc')
-            ->get();
+	    ->whereNotNull('sent_mail_date')
+            ->whereRaw("LTRIM(RTRIM(entity_cd)) NOT LIKE '%[^0-9]%'")
+            ->where('sent_mail_date', '<=', DB::raw("DATEADD(DAY, 1, GETDATE())")) // Hingga akhir hari ini
+            ->where('audit_date', '>=', DB::raw("CONVERT(datetime, '2024-03-28', 120)"));
 
         return DataTables::of($query)->make(true);
     }
