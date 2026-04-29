@@ -108,8 +108,7 @@ class AutoSendController extends Controller
                     $sth->bindParam(8, $supervisor);
                     $sth->bindParam(9, $reason);
                     $sth->execute();
-                } else if (($type == 'D' && $module == "CB") 
-                    || ($type == 'Y' && $module == "CM") || ($type == 'D' && $module == "CM")) {
+                } else if (($type == 'D' && $module == "CB") || ($type == 'Y' && $module == "CM")) {
                     // Skip this condition, do nothing for type 'D' and module 'CB'
                     continue;  // This will skip the current iteration of the loop
                 } else if ($type == 'S' && $module == "PO") {
@@ -176,8 +175,7 @@ class AutoSendController extends Controller
                         $sth->bindParam(8, $supervisor);
                         $sth->bindParam(9, $reason);
                         $sth->execute();
-                    } else if (($type == 'D' && $module == "CB") 
-                        || ($type == 'Y' && $module == "CM") || ($type == 'D' && $module == "CM")) {
+                    } else if (($type == 'D' && $module == "CB") || ($type == 'Y' && $module == "CM")) {
                         // Skip this condition, do nothing for type 'D' and module 'CB'
                         continue;  // This will skip the current iteration of the loop
                     } else if ($type == 'S' && $module == "PO") {
