@@ -383,7 +383,7 @@ class IcStockController extends Controller
             } else {
                 // $pesan = "Terjadi kesalahan saat proses approval";
                 // $notif = "Check log untuk detail";
-                $pesan = "You failed to ".$descstatus." the IC Stock No.".$data["doc_no"];
+                $pesan = "You failed to ".$descstatus." the IC Stock ";
                 $notif = 'Fail to '.$descstatus.'!';
             }
 
