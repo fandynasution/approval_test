@@ -341,79 +341,25 @@ class IcStockController extends Controller
         $sth->bindParam(8, $data["user_id"]);
         $sth->bindParam(9, $data["supervisor"]);
         $sth->bindParam(10, $reason);
-
-        $start = microtime(true);
-        $success = false;
-
-        try {
-            $sth->execute();
-
-            do {
-                $sth->fetchAll();
-            } while ($sth->nextRowset());
-
-            $end = microtime(true);
-            $durationMs = round(($end - $start) * 1000, 2);
-
-            Log::channel('exec')->info('SP execution success', [
-                'entity_cd' => $data["entity_cd"],
-                'doc_no' => $data["doc_no"],
-                'duration_ms' => $durationMs
-            ]);
-
-            $success = true;
-
-        } catch (\Throwable $e) {
-
-            $end = microtime(true);
-            $durationMs = round(($end - $start) * 1000, 2);
-
-            $errorMsg = $e->getMessage();
-
-            Log::channel('exec')->error('SP execution failed', [
-                'entity_cd' => $data["entity_cd"],
-                'doc_no' => $data["doc_no"],
-                'duration_ms' => $durationMs,
-                'error' => $errorMsg
-            ]);
-
-            if (str_contains(strtolower($errorMsg), 'timeout')) {
-                $pesan = "Proses terlalu lama (timeout)";
-                $notif = "Silakan coba lagi atau hubungi IT";
-            } else {
-                // $pesan = "Terjadi kesalahan saat proses approval";
-                // $notif = "Check log untuk detail";
-                $pesan = "You failed to ".$descstatus." the IC Stock ";
-                $notif = 'Fail to '.$descstatus.'!';
-            }
-
-            return view("email.after", [
-                "Pesan" => $pesan . " (Doc: ".$data["doc_no"].")",
-                "St" => "FAILED",
-                "notif" => $notif,
-                "image" => "reject.png"
-            ]);
+        $sth->execute();
+        if ($sth == true) {
+            $msg = "You have successfully ".$descstatus." the IC Stock No. ".$data["doc_no"];
+            $notif = $descstatus."!";
+            $st = 'OK';
+            $image = $imagestatus;
+        } else {
+            $msg = "You failed to ".$descstatus." the IC Stock No.".$data["doc_no"];
+            $notif = 'Fail to '.$descstatus.'!';
+            $st = 'OK';
+            $image = "reject.png";
         }
-
-        // fallback (jarang terjadi)
-        if (!$success) {
-            Log::channel('exec')->warning('SP execution returned false without exception', [
-                'entity_cd' => $data["entity_cd"],
-                'doc_no' => $data["doc_no"]
-            ]);
-        }
-
-        $msg = "You have successfully ".$descstatus." the IC Stock No. ".$data["doc_no"];
-        $notif = $descstatus."!";
-        $st = 'OK';
-        $image = $imagestatus;
-
-        return view("email.after", [
+        $msg1 = array(
             "Pesan" => $msg,
             "St" => $st,
             "notif" => $notif,
             "image" => $image
-        ]);
+        );
+        return view("email.after", $msg1);
     }
 
     public function feedback_icstock(Request $request)
@@ -443,24 +389,24 @@ class IcStockController extends Controller
                 $bodyEMail = 'Your Request '.$request->descs.' No. '.$request->doc_no.' has been Approved';
             }
 
-            $list_of_urls = explode('; ', $request->url_file);
-            $list_of_files = explode('; ', $request->file_name);
-            $list_of_doc = explode('; ', $request->document_link);
+            // $list_of_urls = explode('; ', $request->url_file);
+            // $list_of_files = explode('; ', $request->file_name);
+            // $list_of_doc = explode('; ', $request->document_link);
 
-            $url_data = [];
-            $file_data = [];
-            $doc_data = [];
+            // $url_data = [];
+            // $file_data = [];
+            // $doc_data = [];
 
-            foreach ($list_of_urls as $url) {
-                $url_data[] = $url;
-            }
+            // foreach ($list_of_urls as $url) {
+            //     $url_data[] = $url;
+            // }
 
-            foreach ($list_of_files as $file) {
-                $file_data[] = $file;
-            }
-            foreach ($list_of_doc as $doc) {
-                $doc_data[] = $doc;
-            }
+            // foreach ($list_of_files as $file) {
+            //     $file_data[] = $file;
+            // }
+            // foreach ($list_of_doc as $doc) {
+            //     $doc_data[] = $doc;
+            // }
 
             $EmailBack = array(
                 'doc_no'            => $request->doc_no,
@@ -473,9 +419,9 @@ class IcStockController extends Controller
                 'staff_act_send'    => $request->staff_act_send,
                 'entity_name'       => $request->entity_name,
                 'entity_cd'         => $request->entity_cd,
-                'url_file'          => $url_data,
-                'file_name'         => $file_data,
-                'doc_link'          => $doc_data,
+                // 'url_file'          => $url_data,
+                // 'file_name'         => $file_data,
+                // 'doc_link'          => $doc_data,
                 'action_date'       => Carbon::now('Asia/Jakarta')->format('d-m-Y H:i')
             );
 
