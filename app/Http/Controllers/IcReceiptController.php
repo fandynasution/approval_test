@@ -340,25 +340,79 @@ class IcReceiptController extends Controller
         $sth->bindParam(8, $data["user_id"]);
         $sth->bindParam(9, $data["supervisor"]);
         $sth->bindParam(10, $reason);
-        $sth->execute();
-        if ($sth == true) {
-            $msg = "You have successfully ".$descstatus." the IC Receipt No. ".$data["doc_no"];
-            $notif = $descstatus."!";
-            $st = 'OK';
-            $image = $imagestatus;
-        } else {
-            $msg = "You failed to ".$descstatus." the IC Receipt No.".$data["doc_no"];
-            $notif = 'Fail to '.$descstatus.'!';
-            $st = 'OK';
-            $image = "reject.png";
+
+        $start = microtime(true);
+        $success = false;
+
+        try {
+            $sth->execute();
+
+            do {
+                $sth->fetchAll();
+            } while ($sth->nextRowset());
+
+            $end = microtime(true);
+            $durationMs = round(($end - $start) * 1000, 2);
+
+            Log::channel('exec')->info('SP execution success', [
+                'entity_cd' => $data["entity_cd"],
+                'doc_no' => $data["doc_no"],
+                'duration_ms' => $durationMs
+            ]);
+
+            $success = true;
+
+        } catch (\Throwable $e) {
+
+            $end = microtime(true);
+            $durationMs = round(($end - $start) * 1000, 2);
+
+            $errorMsg = $e->getMessage();
+
+            Log::channel('exec')->error('SP execution failed', [
+                'entity_cd' => $data["entity_cd"],
+                'doc_no' => $data["doc_no"],
+                'duration_ms' => $durationMs,
+                'error' => $errorMsg
+            ]);
+
+            if (str_contains(strtolower($errorMsg), 'timeout')) {
+                $pesan = "Proses terlalu lama (timeout)";
+                $notif = "Silakan coba lagi atau hubungi IT";
+            } else {
+                // $pesan = "Terjadi kesalahan saat proses approval";
+                // $notif = "Check log untuk detail";
+                $pesan = "You failed to ".$descstatus." the IC Receipt ";
+                $notif = 'Fail to '.$descstatus.'!';
+            }
+
+            return view("email.after", [
+                "Pesan" => $pesan . " (Doc: ".$data["doc_no"].")",
+                "St" => "FAILED",
+                "notif" => $notif,
+                "image" => "reject.png"
+            ]);
         }
-        $msg1 = array(
+
+        // fallback (jarang terjadi)
+        if (!$success) {
+            Log::channel('exec')->warning('SP execution returned false without exception', [
+                'entity_cd' => $data["entity_cd"],
+                'doc_no' => $data["doc_no"]
+            ]);
+        }
+
+        $msg = "You have successfully ".$descstatus." the IC Receipt No. ".$data["doc_no"];
+        $notif = $descstatus."!";
+        $st = 'OK';
+        $image = $imagestatus;
+
+        return view("email.after", [
             "Pesan" => $msg,
             "St" => $st,
             "notif" => $notif,
             "image" => $image
-        );
-        return view("email.after", $msg1);
+        ]);
     }
 
     public function feedback_icreceipt(Request $request)

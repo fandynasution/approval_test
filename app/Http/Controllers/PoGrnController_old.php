@@ -9,13 +9,14 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
-use App\Mail\SendIcCycleMail;
-use App\Mail\StaffActionIcCycleMail;
+use App\Mail\SendPoGrnMail;
+use App\Mail\StaffActionPoGRNMail;
+use App\Jobs\RunApprovalStoredProcedureAzure;
 use PDO;
 use DateTime;
 use Carbon\Carbon;
 
-class IcCycleController extends Controller
+class PoGrnController extends Controller
 {
     public function Mail(Request $request)
     {
@@ -28,10 +29,10 @@ class IcCycleController extends Controller
 
         try {
 
-            $list_of_approve = explode('; ',  $request->approve_exist);
-            $approve_data = [];
-            foreach ($list_of_approve as $approve) {
-                $approve_data[] = $approve;
+            if (strpos($request->grn_descs, "\n") !== false) {
+                $grn_descs = str_replace("\n", ' (', $request->grn_descs) . ')';
+            } else {
+                $grn_descs = $request->grn_descs;
             }
 
             $list_of_urls = explode(',', $request->url_file);
@@ -49,6 +50,14 @@ class IcCycleController extends Controller
             foreach ($list_of_files as $file) {
                 $file_data[] = $file;
             }
+
+            $list_of_approve = explode('; ',  $request->approve_exist);
+            $approve_data = [];
+            foreach ($list_of_approve as $approve) {
+                $approve_data[] = $approve;
+            }
+
+            $grn_amount = number_format($request->grn_amount, 2, '.', ',');
 
             $dataArray = array(
                 'entity_cd'         => $request->entity_cd,
@@ -73,7 +82,11 @@ class IcCycleController extends Controller
                 'reason'            => $request->reason,
                 'currency_cd'       => $request->currency_cd,
                 'supervisor'        => $request->supervisor,
-                'subject'          => "Need Approval for IC Cycle No.  ".$request->doc_no,
+                'supplier_cd'       => $request->supplier_cd,
+                'supplier_name'     => $request->supplier_name,
+                'grn_amount'        => $grn_amount,
+                'grn_descs'         => $request->grn_descs,
+                'subject'          => "Need Approval for PO GRN No.  ".$request->doc_no,
             );
 
             $data2Encrypt = array(
@@ -88,9 +101,9 @@ class IcCycleController extends Controller
                 'supervisor'    => $request->supervisor,
                 'email_address' => $request->email_addr,
                 'entity_name'   => $request->entity_name,
-                'type'          => 'C',
-                'type_module'   => 'IC',
-                'text'          => 'IC Cycle'
+                'type'          => 'G',
+                'type_module'   => 'PO',
+                'text'          => 'PO GRN'
             );
 
             $encryptedData = Crypt::encrypt($data2Encrypt);
@@ -106,9 +119,9 @@ class IcCycleController extends Controller
             $entity_cd = $request->entity_cd;
             $doc_no = $request->doc_no;
             $level_no = $request->level_no;
-            $app_url = 'IcCycle';
-            $type = 'C';
-            $module = 'IC';
+            $app_url = 'PoGrn';
+            $type = 'G';
+            $module = 'PO';
         
             // Check if email addresses are provided and not empty
             if (!empty($emailAddresses)) {
@@ -116,7 +129,7 @@ class IcCycleController extends Controller
                 
                 // Check if the email has been sent before for this document
                 $cacheFile = 'email_sent_' . $approve_seq . '_' . $entity_cd . '_' . $doc_no . '_' . $level_no . '.txt';
-                $cacheFilePath = storage_path('app/mail_cache/send_ic_cycle/' . date('Ymd') . '/' . $cacheFile);
+                $cacheFilePath = storage_path('app/mail_cache/send_po_grn/' . date('Ymd') . '/' . $cacheFile);
                 $cacheDirectory = dirname($cacheFilePath);
         
                 // Ensure the directory exists
@@ -135,14 +148,14 @@ class IcCycleController extends Controller
         
                 if (!file_exists($cacheFilePath)) {
                     // Send email
-                    Mail::to($email)->send(new SendIcCycleMail($encryptedData, $dataArray));
+                    Mail::to($email)->send(new SendPoGrnMail($encryptedData, $dataArray));
 
                     // Tandai file cache
                     file_put_contents($cacheFilePath, 'sent');
 
                     // Log keberhasilan kirim email
                     Log::channel('sendmailapproval')->info(
-                        'Email IC Cycle doc_no '.$doc_no.' Entity ' . $entity_cd.' berhasil dikirim ke: ' . $email
+                        'Email PO GRN doc_no '.$doc_no.' Entity ' . $entity_cd.' berhasil dikirim ke: ' . $email
                     );
 
                     $callback['Pesan'] = "Email berhasil dikirim ke: $email";
@@ -151,7 +164,7 @@ class IcCycleController extends Controller
 
                 } else {
                     // Email was already sent
-                    Log::channel('sendmailapproval')->info('Email IC Cycle doc_no '.$doc_no.' Entity ' . $entity_cd.' already sent to: ' . $email);
+                    Log::channel('sendmailapproval')->info('Email PO GRN doc_no '.$doc_no.' Entity ' . $entity_cd.' already sent to: ' . $email);
                     $callback['Pesan'] = "Email sudah pernah dikirim ke: $email";
                     $callback['Error'] = false;
                     $callback['Status']= 201;
@@ -288,11 +301,29 @@ class IcCycleController extends Controller
                     "bgcolor"       => $bgcolor,
                     "valuebt"       => $valuebt
                 );
-                return view('email/iccycle/passcheckwithremark', $data);
+                return view('email/pogrn/passcheckwithremark', $data);
                 Artisan::call('config:cache');
                 Artisan::call('cache:clear');
             }
         }
+    }
+
+    private function interpolateQuery($query, $params) {
+        foreach ($params as $param) {
+            if (is_null($param)) {
+                $value = "NULL";
+            } elseif (is_int($param) || is_float($param)) {
+                // hanya angka asli (bukan string)
+                $value = $param;
+            } else {
+                // treat sebagai string
+                $value = "'" . str_replace("'", "''", $param) . "'";
+            }
+
+            $query = preg_replace('/\?/', $value, $query, 1);
+        }
+
+        return $query;
     }
 
     public function getaccess(Request $request)
@@ -328,8 +359,11 @@ class IcCycleController extends Controller
             $descstatus = "Cancelled";
             $imagestatus = "reject.png";
         }
+        
         $pdo = DB::connection('BTID')->getPdo();
-        $sth = $pdo->prepare("SET NOCOUNT ON; EXEC mgr.x_send_mail_approval_ic_cycle ?, ?, ?, ?, ?, ?, ?, ?, ?, ?;");
+        $sth = $pdo->prepare("SET NOCOUNT ON; EXEC mgr.x_send_mail_approval_po_grn ?, ?, ?, ?, ?, ?, ?, ?, ?, ?;");
+
+        // binding
         $sth->bindParam(1, $data["entity_cd"]);
         $sth->bindParam(2, $data["project_no"]);
         $sth->bindParam(3, $data["doc_no"]);
@@ -341,81 +375,37 @@ class IcCycleController extends Controller
         $sth->bindParam(9, $data["supervisor"]);
         $sth->bindParam(10, $reason);
 
-        $start = microtime(true);
-        $success = false;
+        // EXECUTE (INI YANG PENTING)
+        $exec = $sth->execute();
 
-        try {
-            $sth->execute();
+        if ($exec) {
+            $msg = "You have successfully ".$descstatus." the PO GRN No. ".$data["doc_no"];
+            $notif = $descstatus."!";
+            $st = 'OK';
+            $image = $imagestatus;
+        } else {
+            $error = $sth->errorInfo();
 
-            do {
-                $sth->fetchAll();
-            } while ($sth->nextRowset());
-
-            $end = microtime(true);
-            $durationMs = round(($end - $start) * 1000, 2);
-
-            Log::channel('exec')->info('SP execution success', [
-                'entity_cd' => $data["entity_cd"],
-                'doc_no' => $data["doc_no"],
-                'duration_ms' => $durationMs
+            Log::error('SP EXEC FAILED', [
+                'errorInfo' => $error,
+                'full_query' => $this->interpolateQuery($query, $params)
             ]);
 
-            $success = true;
-
-        } catch (\Throwable $e) {
-
-            $end = microtime(true);
-            $durationMs = round(($end - $start) * 1000, 2);
-
-            $errorMsg = $e->getMessage();
-
-            Log::channel('exec')->error('SP execution failed', [
-                'entity_cd' => $data["entity_cd"],
-                'doc_no' => $data["doc_no"],
-                'duration_ms' => $durationMs,
-                'error' => $errorMsg
-            ]);
-
-            if (str_contains(strtolower($errorMsg), 'timeout')) {
-                $pesan = "Proses terlalu lama (timeout)";
-                $notif = "Silakan coba lagi atau hubungi IT";
-            } else {
-                // $pesan = "Terjadi kesalahan saat proses approval";
-                // $notif = "Check log untuk detail";
-                $pesan = "You failed to ".$descstatus." the IC Cycle ";
-                $notif = 'Fail to '.$descstatus.'!';
-            }
-
-            return view("email.after", [
-                "Pesan" => $pesan . " (Doc: ".$data["doc_no"].")",
-                "St" => "FAILED",
-                "notif" => $notif,
-                "image" => "reject.png"
-            ]);
+            $msg = "You failed to ".$descstatus." the PO GRN No. ".$data["doc_no"];
+            $notif = 'Fail to '.$descstatus.'!';
+            $st = 'FAIL'; // <- ini harus FAIL
+            $image = "reject.png";
         }
-
-        // fallback (jarang terjadi)
-        if (!$success) {
-            Log::channel('exec')->warning('SP execution returned false without exception', [
-                'entity_cd' => $data["entity_cd"],
-                'doc_no' => $data["doc_no"]
-            ]);
-        }
-
-        $msg = "You have successfully ".$descstatus." the IC Cycle No. ".$data["doc_no"];
-        $notif = $descstatus."!";
-        $st = 'OK';
-        $image = $imagestatus;
-
-        return view("email.after", [
+        $msg1 = array(
             "Pesan" => $msg,
             "St" => $st,
             "notif" => $notif,
             "image" => $image
-        ]);
+        );
+        return view("email.after", $msg1);
     }
 
-    public function feedback_iccycle(Request $request)
+    public function feedback_pogrn(Request $request)
     {
         $callback = array(
             'Error' => false,
@@ -442,21 +432,21 @@ class IcCycleController extends Controller
                 $bodyEMail = 'Your Request '.$request->descs.' No. '.$request->doc_no.' has been Approved';
             }
 
-            // $list_of_urls = explode('; ', $request->url_file);
-            // $list_of_files = explode('; ', $request->file_name);
+            $list_of_urls = explode('; ', $request->url_file);
+            $list_of_files = explode('; ', $request->file_name);
             // $list_of_doc = explode('; ', $request->document_link);
 
-            // $url_data = [];
-            // $file_data = [];
+            $url_data = [];
+            $file_data = [];
             // $doc_data = [];
 
-            // foreach ($list_of_urls as $url) {
-            //     $url_data[] = $url;
-            // }
+            foreach ($list_of_urls as $url) {
+                $url_data[] = $url;
+            }
 
-            // foreach ($list_of_files as $file) {
-            //     $file_data[] = $file;
-            // }
+            foreach ($list_of_files as $file) {
+                $file_data[] = $file;
+            }
             // foreach ($list_of_doc as $doc) {
             //     $doc_data[] = $doc;
             // }
@@ -472,11 +462,17 @@ class IcCycleController extends Controller
                 'staff_act_send'    => $request->staff_act_send,
                 'entity_name'       => $request->entity_name,
                 'entity_cd'         => $request->entity_cd,
-                // 'url_file'          => $url_data,
-                // 'file_name'         => $file_data,
+                'url_file'          => $url_data,
+                'file_name'         => $file_data,
                 // 'doc_link'          => $doc_data,
                 'action_date'       => Carbon::now('Asia/Jakarta')->format('d-m-Y H:i')
             );
+            $emailAddresses = strtolower($request->email_addr);
+            $doc_no = $request->doc_no;
+            $entity_name = $request->entity_name;
+            $entity_cd = $request->entity_cd;
+            $status = $request->status;
+            $approve_seq = $request->approve_seq;
 
             $emailAddresses = strtolower($request->email_addr);
             $doc_no = $request->doc_no;
@@ -490,7 +486,7 @@ class IcCycleController extends Controller
                 $emailSent = false;
                 // Check if the email has been sent before for this document
                 $cacheFile = 'email_feedback_sent_' . $approve_seq . '_' . $entity_cd . '_' . $doc_no . '_' . $status . '.txt';
-                $cacheFilePath = storage_path('app/mail_cache/feedback_Ic_Cycle/' . date('Ymd'). '/' . $cacheFile);
+                $cacheFilePath = storage_path('app/mail_cache/feedbackPoGRN/' . date('Ymd'). '/' . $cacheFile);
                 $cacheDirectory = dirname($cacheFilePath);
             
                 // Ensure the directory exists
@@ -509,12 +505,12 @@ class IcCycleController extends Controller
         
                 if (!file_exists($cacheFilePath)) {
                     // Send email
-                    Mail::to($emails)->send(new StaffActionIcCycleMail($EmailBack));
+                    Mail::to($emails)->send(new StaffActionPoGRNMail($EmailBack));
             
                     // Mark email as sent
                     file_put_contents($cacheFilePath, 'sent');
                     $sentTo = $emailAddresses;
-                    Log::channel('sendmailfeedback')->info('Email Feedback IC Cycle doc_no '.$doc_no.' Entity ' . $entity_cd.' berhasil dikirim ke: ' . $sentTo);
+                    Log::channel('sendmailfeedback')->info('Email Feedback PO GRN doc_no '.$doc_no.' Entity ' . $entity_cd.' berhasil dikirim ke: ' . $sentTo);
                     // return 'Email berhasil dikirim ke: ' . $sentTo;
                     // $emailSent = true;
                     $callback['Pesan'] = "Email feedback berhasil dikirim ke: $sentTo";

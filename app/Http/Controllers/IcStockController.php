@@ -355,7 +355,7 @@ class IcStockController extends Controller
             $end = microtime(true);
             $durationMs = round(($end - $start) * 1000, 2);
 
-            \Log::info('SP execution success', [
+            Log::channel('exec')->info('SP execution success', [
                 'entity_cd' => $data["entity_cd"],
                 'doc_no' => $data["doc_no"],
                 'duration_ms' => $durationMs
@@ -370,7 +370,7 @@ class IcStockController extends Controller
 
             $errorMsg = $e->getMessage();
 
-            \Log::error('SP execution failed', [
+            Log::channel('exec')->error('SP execution failed', [
                 'entity_cd' => $data["entity_cd"],
                 'doc_no' => $data["doc_no"],
                 'duration_ms' => $durationMs,
@@ -397,7 +397,7 @@ class IcStockController extends Controller
 
         // fallback (jarang terjadi)
         if (!$success) {
-            \Log::warning('SP execution returned false without exception', [
+            Log::channel('exec')->warning('SP execution returned false without exception', [
                 'entity_cd' => $data["entity_cd"],
                 'doc_no' => $data["doc_no"]
             ]);

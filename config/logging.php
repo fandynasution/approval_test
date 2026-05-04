@@ -134,6 +134,13 @@ return [
             'ignore_exceptions' => false,
             'level' => env('LOG_LEVEL', 'debug'),
         ],
+
+        'exec' => [
+            'driver' => 'daily', // You can choose the appropriate log driver (single, daily, syslog, etc.)
+            'path' => storage_path('logs/exec/exec.log'),
+            'ignore_exceptions' => false,
+            'level' => env('LOG_LEVEL', 'debug'),
+        ],
     ],
 
 ];
