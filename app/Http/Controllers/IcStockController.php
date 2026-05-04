@@ -381,8 +381,10 @@ class IcStockController extends Controller
                 $pesan = "Proses terlalu lama (timeout)";
                 $notif = "Silakan coba lagi atau hubungi IT";
             } else {
-                $pesan = "Terjadi kesalahan saat proses approval";
-                $notif = "Check log untuk detail";
+                // $pesan = "Terjadi kesalahan saat proses approval";
+                // $notif = "Check log untuk detail";
+                $pesan = "You failed to ".$descstatus." the IC Stock No.".$data["doc_no"];
+                $notif = 'Fail to '.$descstatus.'!';
             }
 
             return view("email.after", [
