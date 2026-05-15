@@ -12,7 +12,6 @@ use Illuminate\Support\Facades\DB;
 use App\Mail\SendMail;
 use App\Mail\SendPoRMail;
 use App\Jobs\RunApprovalStoredProcedureAzure;
-use App\Jobs\SendPoRequestMail;
 
 class PoRequestController extends Controller
 {
@@ -124,18 +123,11 @@ class PoRequestController extends Controller
             if (!empty($emailAddress)) {
                 // Check if the email has been sent before for this document
                 $cacheFile = 'email_sent_' . $approveSeq . '_' . $entityCd . '_' . $docNo . '_' . $levelNo . '.txt';
-
-                // ✅ FIX TYPO DIRECTORY
-                $cacheFilePath = storage_path( 'app/mail_cache/send_porequest/' . date('Ymd') . '/' . $cacheFile);
+                $cacheFilePath = storage_path('app/mail_cache/send_porequeset/' . date('Ymd') . '/' . $cacheFile);
                 $cacheDirectory = dirname($cacheFilePath);
         
                 // Ensure the directory exists
-                // if (!file_exists($cacheDirectory)) {
-                //     mkdir($cacheDirectory, 0755, true);
-                // }
-
-                // ✅ FIX DIRECTORY CHECK
-                if (!is_dir($cacheDirectory)) {
+                if (!file_exists($cacheDirectory)) {
                     mkdir($cacheDirectory, 0755, true);
                 }
         
@@ -161,19 +153,7 @@ class PoRequestController extends Controller
                     );
                     
                     // Send email only if it has not been sent before
-                    // Mail::to($emailAddress)->send(new SendPoRMail($encryptedData, $dataArray));
-                    // ✅ FIX IF CONDITION
-                    // Level 1 = sync mail
-                    // Level > 1 = async mail
-                    if ((string)$levelNo === '1') {
-                        Mail::to($emailAddress)->send(new SendPoRMail($encryptedData, $dataArray));
-                    } else {
-                        SendPoRequestMail::dispatchAfterResponse(
-                            $emailAddress,
-                            $encryptedData,
-                            $dataArray
-                        );
-                    }
+                    Mail::to($emailAddress)->send(new SendPoRMail($encryptedData, $dataArray));
         
                     // Mark email as sent
                     file_put_contents($cacheFilePath, 'sent');
@@ -196,13 +176,6 @@ class PoRequestController extends Controller
             // Error occurred
             Log::channel('sendmail')->error('Gagal mengirim email: ' . $e->getMessage());
             return "Gagal mengirim email: " . $e->getMessage();
-        } finally {
-
-            // ✅ FIX RELEASE LOCK
-            if (isset($lockHandle) && is_resource($lockHandle)) {
-                flock($lockHandle, LOCK_UN);
-                fclose($lockHandle);
-            }
         }
         
     }
