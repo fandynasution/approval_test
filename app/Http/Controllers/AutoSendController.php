@@ -48,7 +48,6 @@ class AutoSendController extends Controller
 
             // Jika tidak ada di table, fallback ke aturan lama
             if (!$project_no) {
-
                 // khusus entity 0101 => project_no 0102
                 if ($entity_cd === '0101') {
                     $project_no = '0102';
@@ -116,7 +115,7 @@ class AutoSendController extends Controller
                     $sth->bindParam(9, $reason);
                     $sth->execute();
                 } else if (($type == 'D' && $module == "CB") 
-                    || ($type == 'Y' && $module == "CM") || ($type == 'D' && $module == "CM")) {
+                    || ($type == 'Y' && $module == "CM") || ($type == 'D' && $module == "CM") || ($type == 'Q' && $module == "PO")) {
                     // Skip this condition, do nothing for type 'D' and module 'CB'
                     continue;  // This will skip the current iteration of the loop
                 } else if ($type == 'S' && $module == "PO") {
