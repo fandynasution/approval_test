@@ -122,7 +122,7 @@ class BlastFaController extends Controller
         // Mail::to($emailList)->send((new AssetBlastMail($dept_cd, $dept_descs))->attach($filepath));
         //Mail::to($emailList)->send(new AssetBlastMail($cleanDeptDescs, $staff_name, $filepath));
 	try {
-  		Mail::to($emailList)->cc($emailCC)->bcc('andromedha@ifca.co.id')->send(new AssetBlastMail($cleanDeptDescs, $staff_name, $filepath));
+  		Mail::to($emailList)->cc($emailCC)->send(new AssetBlastMail($cleanDeptDescs, $staff_name, $filepath));
 	} catch (\Exception $e) {
     		\Log::error("Email failed to send: " . $e->getMessage());
 	}
