@@ -83,6 +83,7 @@
                                     'PO-S': 'Quotation',
                                     'PO-Q': 'Purchase Requisition',
                                     'PO-A': 'Purchase Order',
+                                    'PO-G': 'PO GRN',
                                     'CB-D': 'Recapitulation Bank',
                                     'CB-E': 'Propose Transfer',
                                     'CB-G': 'Cash Advance Settlement',
@@ -94,7 +95,12 @@
                                     'CM-D': 'Varian Order',
                                     'CM-E': 'Contract Entry',
                                     'PL-Y': 'PL Budget',
-                                    'TM-R': 'Contract Renew'
+                                    'TM-R': 'Contract Renew',
+                                    'IC-A': 'IC Adjust',
+                                    'IC-C': 'IC Cycle',
+                                    'IC-I': 'IC Issue',
+                                    'IC-R': 'IC Receipt',
+                                    'IC-T': 'IC Transfer',
                                 };
                                 return options[`${row.module}-${row.TYPE}`] || '';
                             }
