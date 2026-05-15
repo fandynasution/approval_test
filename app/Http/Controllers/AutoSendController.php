@@ -41,14 +41,21 @@ class AutoSendController extends Controller
 
             // Ambil project_no dari DB
             $project_no = DB::connection('BTID')
-        		    ->table('mgr.pl_project')
-                            ->where('entity_cd', $entity_cd)
-                            ->orderBy('project_no', 'asc') // kalau lebih dari satu, ambil yang pertama
-                            ->value('project_no');
+                ->table('mgr.pl_project')
+                ->where('entity_cd', $entity_cd)
+                ->orderBy('project_no', 'asc') // kalau lebih dari satu, ambil yang pertama
+                ->value('project_no');
+
             // Jika tidak ada di table, fallback ke aturan lama
             if (!$project_no) {
-                $exploded_values = explode(" ", $entity_cd);
-                $project_no = implode('', $exploded_values) . '01';
+
+                // khusus entity 0101 => project_no 0102
+                if ($entity_cd === '0101') {
+                    $project_no = '0102';
+                } else {
+                    $exploded_values = explode(" ", $entity_cd);
+                    $project_no = implode('', $exploded_values) . '01';
+                }
             }
             $doc_no = $data->doc_no;
             $trx_type = $data->trx_type;

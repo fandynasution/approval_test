@@ -31,11 +31,11 @@ class SendPoRequestMail
                 new SendPoRMail($this->encryptedData, $this->dataArray)
             );
 
-            Log::info('Email success: '.$this->emailAddress);
+            Log::channel('sendmailapproval')->info('Email success: '.$this->emailAddress);
 
         } catch (\Exception $e) {
 
-            Log::error('Email failed: '.$e->getMessage());
+            Log::channel('sendmailapproval')->error('Email failed: '.$e->getMessage());
         }
     }
 }
