@@ -32,7 +32,6 @@ class ApprListControllers extends Controller
     
     public function sendData(Request $request)
     {
-        // Log::channel('resend')->info('Data dikirim: ' . json_encode($request->all()));
 
         // return response()->json(['message' => 'Data diterima']);
         $entity_cd = $request->input('entity_cd');
@@ -41,7 +40,7 @@ class ApprListControllers extends Controller
         $level_no = $request->input('level_no');
         $approve_seq = $request->input('approve_seq');
 
-        \Log::channel('resend')->info("Received Data: ", compact('entity_cd', 'doc_no', 'user_id'));
+        Log::channel('resend')->info("Received Data: ", compact('entity_cd', 'doc_no', 'user_id'));
 
         // Menggunakan satu koneksi untuk mengurangi overhead
         $db = DB::connection('BTID');
