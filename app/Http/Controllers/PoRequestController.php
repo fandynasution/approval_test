@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\DB;
 use App\Mail\SendMail;
 use App\Mail\SendPoRMail;
 use App\Jobs\RunApprovalStoredProcedureAzure;
+use App\Jobs\SendPoRequestMail;
 
 class PoRequestController extends Controller
 {
