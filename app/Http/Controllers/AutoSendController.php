@@ -115,7 +115,7 @@ class AutoSendController extends Controller
                     $sth->bindParam(9, $reason);
                     $sth->execute();
                 } else if (($type == 'D' && $module == "CB") 
-                    || ($type == 'Y' && $module == "CM") || ($type == 'D' && $module == "CM") || ($type == 'Q' && $module == "PO")) {
+                    || ($type == 'Y' && $module == "CM") || ($type == 'D' && $module == "CM")) {
                     // Skip this condition, do nothing for type 'D' and module 'CB'
                     continue;  // This will skip the current iteration of the loop
                 } else if ($type == 'S' && $module == "PO") {
@@ -154,6 +154,36 @@ class AutoSendController extends Controller
                     $sth->execute();
                 }
             } else if ($level_no > 1){
+                // daftar special case
+                $specialCases = [
+                    ['entity_cd' => '0101', 'doc_no' => 'RF26050001', 'level_no' => 2],
+                    ['entity_cd' => '0101', 'doc_no' => 'RF26050002', 'level_no' => 2],
+                    ['entity_cd' => '0101', 'doc_no' => 'RF26050003', 'level_no' => 2],
+
+                    ['entity_cd' => '01', 'doc_no' => 'RF26050044', 'level_no' => 4],
+                    ['entity_cd' => '01', 'doc_no' => 'RF26050047', 'level_no' => 5],
+                    ['entity_cd' => '01', 'doc_no' => 'RF26050051', 'level_no' => 4],
+                    ['entity_cd' => '01', 'doc_no' => 'RF26050060', 'level_no' => 4],
+                    ['entity_cd' => '01', 'doc_no' => 'RF26050061', 'level_no' => 4],
+                    ['entity_cd' => '01', 'doc_no' => 'RF26050076', 'level_no' => 3],
+                    ['entity_cd' => '01', 'doc_no' => 'RF26050077', 'level_no' => 2],
+                    ['entity_cd' => '01', 'doc_no' => 'RF26050078', 'level_no' => 2],
+                    ['entity_cd' => '01', 'doc_no' => 'RF26050079', 'level_no' => 2],
+                    ['entity_cd' => '01', 'doc_no' => 'RF26050080', 'level_no' => 2],
+                ];
+
+                // cek apakah data termasuk special case
+                $isSpecialCase = collect($specialCases)->contains(function ($item) use ($entity_cd, $doc_no, $level_no) {
+                    return trim($item['entity_cd']) == trim($entity_cd)
+                        && $item['doc_no'] == $doc_no
+                        && (int)$item['level_no'] == (int)$level_no;
+                });
+
+                // jika special case, skip process
+                if ($isSpecialCase) {
+                    \Log::info("Skip special case : {$entity_cd} - {$doc_no} - {$level_no}");
+                    continue;
+                }
                 $downLevel  = $level_no - 1;
                 $statussend = 'A';
                 $wherebefore = array(
@@ -183,7 +213,7 @@ class AutoSendController extends Controller
                         $sth->bindParam(9, $reason);
                         $sth->execute();
                     } else if (($type == 'D' && $module == "CB") 
-                        || ($type == 'Y' && $module == "CM") || ($type == 'D' && $module == "CM") || ($type == 'Q' && $module == "PO")) {
+                        || ($type == 'Y' && $module == "CM") || ($type == 'D' && $module == "CM")) {
                         // Skip this condition, do nothing for type 'D' and module 'CB'
                         continue;  // This will skip the current iteration of the loop
                     } else if ($type == 'S' && $module == "PO") {
