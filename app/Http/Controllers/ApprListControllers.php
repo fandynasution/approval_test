@@ -157,6 +157,16 @@ class ApprListControllers extends Controller
                 return $executeProcedure('mgr.x_send_mail_approval_po_order', [
                     $entity_cd, $project_no, $doc_no, $trx_type, $statussend, $downLevel, $user_group, $user_id, $spv, $reason
                 ]);
+            } elseif ($type === 'G') {
+                $directory = "send_po_grn/$date"; 
+                $pattern = sprintf("email_sent_%s_%s_%s_%s.txt", $approve_seq, $entity_cd, $doc_no, $level_no);
+                $filePath = "$firstdir/$directory/$pattern";
+                if (file_exists($filePath)) {
+                    @unlink($filePath);
+                }
+                return $executeProcedure('mgr.x_send_mail_approval_po_grn', [
+                    $entity_cd, $project_no, $doc_no, $trx_type, $statussend, $downLevel, $user_group, $user_id, $spv, $reason
+                ]);
             }
         } elseif ($module === 'CB') {
             if ($type === 'D') {
@@ -300,6 +310,58 @@ class ApprListControllers extends Controller
                 }
                 return $executeProcedure('mgr.xrl_send_mail_approval_tm_contractrenew', [
                     $entity_cd, $project_no, $doc_no, $ref_no, $renew_no, $statussend, $downLevel, $user_group, $user_id, $spv, $reason
+                ]);
+            }
+        } elseif ($module === 'IC') {
+            if ($type === 'A') {
+                $directory = "send_ic_adjust/$date"; 
+                $pattern = sprintf("email_sent_%s_%s_%s_%s.txt", $approve_seq, $entity_cd, $doc_no, $level_no);
+                $filePath = "$firstdir/$directory/$pattern";
+                if (file_exists($filePath)) {
+                    @unlink($filePath);
+                }
+                return $executeProcedure('mgr.x_send_mail_approval_ic_issue', [
+                    $entity_cd, $project_no, $doc_no, $trx_type, $statussend, $downLevel, $user_group, $user_id, $spv, $reason
+                ]);
+            } elseif ($type === 'C') {
+                $directory = "send_ic_cycle/$date"; 
+                $pattern = sprintf("email_sent_%s_%s_%s_%s.txt", $approve_seq, $entity_cd, $doc_no, $level_no);
+                $filePath = "$firstdir/$directory/$pattern";
+                if (file_exists($filePath)) {
+                    @unlink($filePath);
+                }
+                return $executeProcedure('mgr.x_send_mail_approval_ic_cycle', [
+                    $entity_cd, $project_no, $doc_no, $trx_type, $statussend, $downLevel, $user_group, $user_id, $spv, $reason
+                ]);
+            } elseif ($type === 'R') {
+                $directory = "send_ic_receipt/$date"; 
+                $pattern = sprintf("email_sent_%s_%s_%s_%s.txt", $approve_seq, $entity_cd, $doc_no, $level_no);
+                $filePath = "$firstdir/$directory/$pattern";
+                if (file_exists($filePath)) {
+                    @unlink($filePath);
+                }
+                return $executeProcedure('mgr.x_send_mail_approval_ic_receipt', [
+                    $entity_cd, $project_no, $doc_no, $trx_type, $statussend, $downLevel, $user_group, $user_id, $spv, $reason
+                ]);
+            } elseif ($type === 'I') {
+                $directory = "send_ic_stock/$date"; 
+                $pattern = sprintf("email_sent_%s_%s_%s_%s.txt", $approve_seq, $entity_cd, $doc_no, $level_no);
+                $filePath = "$firstdir/$directory/$pattern";
+                if (file_exists($filePath)) {
+                    @unlink($filePath);
+                }
+                return $executeProcedure('mgr.x_send_mail_approval_ic_issue', [
+                    $entity_cd, $project_no, $doc_no, $trx_type, $statussend, $downLevel, $user_group, $user_id, $spv, $reason
+                ]);
+            } elseif ($type === 'T') {
+                $directory = "send_ic_transfer/$date"; 
+                $pattern = sprintf("email_sent_%s_%s_%s_%s.txt", $approve_seq, $entity_cd, $doc_no, $level_no);
+                $filePath = "$firstdir/$directory/$pattern";
+                if (file_exists($filePath)) {
+                    @unlink($filePath);
+                }
+                return $executeProcedure('mgr.x_send_mail_approval_ic_transfer', [
+                    $entity_cd, $project_no, $doc_no, $trx_type, $statussend, $downLevel, $user_group, $user_id, $spv, $reason
                 ]);
             }
         }
