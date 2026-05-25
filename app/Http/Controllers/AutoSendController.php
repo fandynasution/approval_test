@@ -99,22 +99,7 @@ class AutoSendController extends Controller
             $supervisor = $querysupervisor[0]->supervisor;
 
             if ($level_no == 1) {
-                if ($type == 'Q' && $module == "PO") {
-                    $statussend = 'P';
-                    $downLevel = '0';
-                    $pdo = DB::connection('BTID')->getPdo();
-                    $sth = $pdo->prepare("SET NOCOUNT ON; EXEC mgr.x_send_mail_approval_po_request ?, ?, ?, ?, ?, ?, ?, ?, ?;");
-                    $sth->bindParam(1, $entity_cd);
-                    $sth->bindParam(2, $project_no);
-                    $sth->bindParam(3, $doc_no);
-                    $sth->bindParam(4, $statussend);
-                    $sth->bindParam(5, $downLevel);
-                    $sth->bindParam(6, $user_group);
-                    $sth->bindParam(7, $user_id);
-                    $sth->bindParam(8, $supervisor);
-                    $sth->bindParam(9, $reason);
-                    $sth->execute();
-                } else if (($type == 'D' && $module == "CB") 
+                if (($type == 'D' && $module == "CB") 
                     || ($type == 'Y' && $module == "CM") || ($type == 'D' && $module == "CM") || ($type == 'Q' && $module == "PO")) {
                     // Skip this condition, do nothing for type 'D' and module 'CB'
                     continue;  // This will skip the current iteration of the loop
@@ -199,20 +184,7 @@ class AutoSendController extends Controller
     
                 $level_data = $querybefore[0]->status;
                 if ($level_data == 'A'){
-                    if ($type == 'Q' && $module == "PO") {
-                        $pdo = DB::connection('BTID')->getPdo();
-                        $sth = $pdo->prepare("SET NOCOUNT ON; EXEC mgr.x_send_mail_approval_po_request ?, ?, ?, ?, ?, ?, ?, ?, ?;");
-                        $sth->bindParam(1, $entity_cd);
-                        $sth->bindParam(2, $project_no);
-                        $sth->bindParam(3, $doc_no);
-                        $sth->bindParam(4, $statussend);
-                        $sth->bindParam(5, $downLevel);
-                        $sth->bindParam(6, $user_group);
-                        $sth->bindParam(7, $user_id);
-                        $sth->bindParam(8, $supervisor);
-                        $sth->bindParam(9, $reason);
-                        $sth->execute();
-                    } else if (($type == 'D' && $module == "CB") 
+                    if (($type == 'D' && $module == "CB") 
                         || ($type == 'Y' && $module == "CM") || ($type == 'D' && $module == "CM") || ($type == 'Q' && $module == "PO")) {
                         // Skip this condition, do nothing for type 'D' and module 'CB'
                         continue;  // This will skip the current iteration of the loop
