@@ -161,7 +161,7 @@ class PoRequestController extends Controller
                     // Log the success
                     Log::channel('sendmailapproval')->info('Email Purchase Requisition doc_no '.$docNo.' Entity ' . $entityCd.' berhasil dikirim ke: ' . $emailAddress);
 
-                    return 'Email berhasil dikirim ke: ' . $emailAddress;
+                    return 'SUCCESS';
                 } else {
                     // Email was already sent
                     Log::channel('sendmailapproval')->info('Email Purchase Requisition doc_no '.$docNo.' Entity ' . $entityCd.' already sent to: ' . $emailAddress);
