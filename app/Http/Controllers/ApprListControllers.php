@@ -131,8 +131,11 @@ class ApprListControllers extends Controller
                 $directory = "send_porequeset/$date"; 
                 $pattern = sprintf("email_sent_%s_%s_%s_%s.txt", $approve_seq, $entity_cd, $doc_no, $level_no);
                 $filePath = "$firstdir/$directory/$pattern";
-                if (file_exists($filePath)) {
-                    unlink($filePath);
+                // hapus file utama + .lock
+                foreach (glob($filePath . '*') as $file) {
+                    if (file_exists($file)) {
+                        @unlink($file);
+                    }
                 }
                 return $executeProcedure('mgr.x_send_mail_approval_po_request', [
                     $entity_cd, $project_no, $doc_no, $statussend, $downLevel, $user_group, $user_id, $spv, $reason
@@ -141,8 +144,11 @@ class ApprListControllers extends Controller
                 $directory = "send_pos/$date"; 
                 $pattern = sprintf("email_sent_%s_%s_%s_%s.txt", $approve_seq, $entity_cd, $doc_no, $level_no);
                 $filePath = "$firstdir/$directory/$pattern";
-                if (file_exists($filePath)) {
-                    unlink($filePath);
+                // hapus file utama + .lock
+                foreach (glob($filePath . '*') as $file) {
+                    if (file_exists($file)) {
+                        @unlink($file);
+                    }
                 }
                 return $executeProcedure('mgr.x_send_mail_approval_po_selection', [
                     $entity_cd, $project_no, $doc_no, $ref_no, $trx_date, $statussend, $downLevel, $user_group, $user_id, $spv, $reason
@@ -151,8 +157,11 @@ class ApprListControllers extends Controller
                 $directory = "send_porder/$date"; 
                 $pattern = sprintf("email_sent_%s_%s_%s_%s.txt", $approve_seq, $entity_cd, $doc_no, $level_no);
                 $filePath = "$firstdir/$directory/$pattern";
-                if (file_exists($filePath)) {
-                    unlink($filePath);
+                // hapus file utama + .lock
+                foreach (glob($filePath . '*') as $file) {
+                    if (file_exists($file)) {
+                        @unlink($file);
+                    }
                 }
                 return $executeProcedure('mgr.x_send_mail_approval_po_order', [
                     $entity_cd, $project_no, $doc_no, $trx_type, $statussend, $downLevel, $user_group, $user_id, $spv, $reason
@@ -161,8 +170,11 @@ class ApprListControllers extends Controller
                 $directory = "send_po_grn/$date"; 
                 $pattern = sprintf("email_sent_%s_%s_%s_%s.txt", $approve_seq, $entity_cd, $doc_no, $level_no);
                 $filePath = "$firstdir/$directory/$pattern";
-                if (file_exists($filePath)) {
-                    @unlink($filePath);
+                // hapus file utama + .lock
+                foreach (glob($filePath . '*') as $file) {
+                    if (file_exists($file)) {
+                        @unlink($file);
+                    }
                 }
                 return $executeProcedure('mgr.x_send_mail_approval_po_grn', [
                     $entity_cd, $project_no, $doc_no, $trx_type, $statussend, $downLevel, $user_group, $user_id, $spv, $reason
@@ -173,8 +185,11 @@ class ApprListControllers extends Controller
                 $directory = "send_cbrpb/$date"; 
                 $pattern = sprintf("email_sent_%s_%s_%s_%s.txt", $approve_seq, $entity_cd, $doc_no, $level_no);
                 $filePath = "$firstdir/$directory/$pattern";
-                if (file_exists($filePath)) {
-                    unlink($filePath);
+                // hapus file utama + .lock
+                foreach (glob($filePath . '*') as $file) {
+                    if (file_exists($file)) {
+                        @unlink($file);
+                    }
                 }
                 return $executeProcedure('mgr.x_send_mail_approval_cb_rpb', [
                     $entity_cd, $project_no, $doc_no, $trx_type, $statussend, $downLevel, $user_group, $user_id, $spv, $reason
@@ -183,8 +198,11 @@ class ApprListControllers extends Controller
                 $directory = "send_cbfupd/$date"; 
                 $pattern = sprintf("email_sent_%s_%s_%s_%s.txt", $approve_seq, $entity_cd, $doc_no, $level_no);
                 $filePath = "$firstdir/$directory/$pattern";
-                if (file_exists($filePath)) {
-                    unlink($filePath);
+                // hapus file utama + .lock
+                foreach (glob($filePath . '*') as $file) {
+                    if (file_exists($file)) {
+                        @unlink($file);
+                    }
                 }
                 return $executeProcedure('mgr.x_send_mail_approval_cb_fupd', [
                     $entity_cd, $project_no, $doc_no, $trx_type, $statussend, $downLevel, $user_group, $user_id, $spv, $reason
@@ -193,8 +211,11 @@ class ApprListControllers extends Controller
                 $directory = "send_cbrum/$date"; 
                 $pattern = sprintf("email_sent_%s_%s_%s_%s.txt", $approve_seq, $entity_cd, $doc_no, $level_no);
                 $filePath = "$firstdir/$directory/$pattern";
-                if (file_exists($filePath)) {
-                    unlink($filePath);
+                // hapus file utama + .lock
+                foreach (glob($filePath . '*') as $file) {
+                    if (file_exists($file)) {
+                        @unlink($file);
+                    }
                 }
                 return $executeProcedure('mgr.x_send_mail_approval_cb_rum', [
                     $entity_cd, $project_no, $doc_no, $trx_type, $statussend, $downLevel, $user_group, $user_id, $spv, $reason
@@ -203,8 +224,11 @@ class ApprListControllers extends Controller
                 $directory = "send_cbppu/$date"; 
                 $pattern = sprintf("email_sent_%s_%s_%s_%s.txt", $approve_seq, $entity_cd, $doc_no, $level_no);
                 $filePath = "$firstdir/$directory/$pattern";
-                if (file_exists($filePath)) {
-                    unlink($filePath);
+                // hapus file utama + .lock
+                foreach (glob($filePath . '*') as $file) {
+                    if (file_exists($file)) {
+                        @unlink($file);
+                    }
                 }
                 return $executeProcedure('mgr.x_send_mail_approval_cb_ppu', [
                     $entity_cd, $project_no, $doc_no, $trx_type, $statussend, $downLevel, $user_group, $user_id, $spv, $reason
@@ -213,8 +237,11 @@ class ApprListControllers extends Controller
                 $directory = "send_cbppuvvip/$date"; 
                 $pattern = sprintf("email_sent_%s_%s_%s_%s.txt", $approve_seq, $entity_cd, $doc_no, $level_no);
                 $filePath = "$firstdir/$directory/$pattern";
-                if (file_exists($filePath)) {
-                    unlink($filePath);
+                // hapus file utama + .lock
+                foreach (glob($filePath . '*') as $file) {
+                    if (file_exists($file)) {
+                        @unlink($file);
+                    }
                 }
                 return $executeProcedure('mgr.x_send_mail_approval_cb_ppu_vvip', [
                     $entity_cd, $project_no, $doc_no, $trx_type, $statussend, $downLevel, $user_group, $user_id, $spv, $reason
@@ -225,8 +252,11 @@ class ApprListControllers extends Controller
                 $directory = "send_cmprogress/$date"; 
                 $pattern = sprintf("email_sent_%s_%s_%s_%s.txt", $approve_seq, $entity_cd, $doc_no, $level_no);
                 $filePath = "$firstdir/$directory/$pattern";
-                if (file_exists($filePath)) {
-                    unlink($filePath);
+                // hapus file utama + .lock
+                foreach (glob($filePath . '*') as $file) {
+                    if (file_exists($file)) {
+                        @unlink($file);
+                    }
                 }
                 return $executeProcedure('mgr.xrl_send_mail_approval_cm_progress', [
                     $entity_cd, $project_no, $doc_no, $ref_no, $statussend, $downLevel, $user_group, $user_id, $spv, $reason
@@ -235,8 +265,11 @@ class ApprListControllers extends Controller
                 $directory = "send_cmdone/$date"; 
                 $pattern = sprintf("email_sent_%s_%s_%s_%s.txt", $approve_seq, $entity_cd, $doc_no, $level_no);
                 $filePath = "$firstdir/$directory/$pattern";
-                if (file_exists($filePath)) {
-                    unlink($filePath);
+                // hapus file utama + .lock
+                foreach (glob($filePath . '*') as $file) {
+                    if (file_exists($file)) {
+                        @unlink($file);
+                    }
                 }
                 return $executeProcedure('mgr.xrl_send_mail_approval_cm_contractdone', [
                     $entity_cd, $project_no, $doc_no, $ref_no, $statussend, $downLevel, $user_group, $user_id, $spv, $reason
@@ -245,8 +278,11 @@ class ApprListControllers extends Controller
                 $directory = "send_cmclose/$date"; 
                 $pattern = sprintf("email_sent_%s_%s_%s_%s.txt", $approve_seq, $entity_cd, $doc_no, $level_no);
                 $filePath = "$firstdir/$directory/$pattern";
-                if (file_exists($filePath)) {
-                    unlink($filePath);
+                // hapus file utama + .lock
+                foreach (glob($filePath . '*') as $file) {
+                    if (file_exists($file)) {
+                        @unlink($file);
+                    }
                 }
                 return $executeProcedure('mgr.xrl_send_mail_approval_cm_contractclose', [
                     $entity_cd, $project_no, $doc_no, $ref_no, $statussend, $downLevel, $user_group, $user_id, $spv, $reason
@@ -255,8 +291,11 @@ class ApprListControllers extends Controller
                 $directory = "send_varianorder/$date"; 
                 $pattern = sprintf("email_sent_%s_%s_%s_%s.txt", $approve_seq, $entity_cd, $doc_no, $level_no);
                 $filePath = "$firstdir/$directory/$pattern";
-                if (file_exists($filePath)) {
-                    unlink($filePath);
+                // hapus file utama + .lock
+                foreach (glob($filePath . '*') as $file) {
+                    if (file_exists($file)) {
+                        @unlink($file);
+                    }
                 }
                 return $executeProcedure('mgr.xrl_send_mail_approval_cm_varianorder', [
                     $entity_cd, $project_no, $doc_no, $ref_no, $statussend, $downLevel, $user_group, $user_id, $spv, $reason
@@ -265,8 +304,11 @@ class ApprListControllers extends Controller
                 $directory = "send_cmentry/$date"; 
                 $pattern = sprintf("email_sent_%s_%s_%s_%s.txt", $approve_seq, $entity_cd, $doc_no, $level_no);
                 $filePath = "$firstdir/$directory/$pattern";
-                if (file_exists($filePath)) {
-                    unlink($filePath);
+                // hapus file utama + .lock
+                foreach (glob($filePath . '*') as $file) {
+                    if (file_exists($file)) {
+                        @unlink($file);
+                    }
                 }
                 return $executeProcedure('mgr.xrl_send_mail_approval_cm_contract_entry', [
                     $entity_cd, $project_no, $doc_no, $ref_no, $statussend, $downLevel, $user_group, $user_id, $spv, $reason
@@ -277,8 +319,11 @@ class ApprListControllers extends Controller
                 $directory = "send_PlBudgetRevision/$date"; 
                 $pattern = sprintf("email_sent_%s_%s_%s_%s.txt", $approve_seq, $entity_cd, $doc_no, $level_no);
                 $filePath = "$firstdir/$directory/$pattern";
-                if (file_exists($filePath)) {
-                    unlink($filePath);
+                // hapus file utama + .lock
+                foreach (glob($filePath . '*') as $file) {
+                    if (file_exists($file)) {
+                        @unlink($file);
+                    }
                 }
                 return $executeProcedure('mgr.xrl_send_mail_approval_pl_budget_revision', [
                     $entity_cd, $project_no, $doc_no, $trx_type, $statussend, $downLevel, $user_id
@@ -287,8 +332,11 @@ class ApprListControllers extends Controller
                 $directory = "send_PlBudget/$date"; 
                 $pattern = sprintf("email_sent_%s_%s_%s_%s.txt", $approve_seq, $entity_cd, $doc_no, $level_no);
                 $filePath = "$firstdir/$directory/$pattern";
-                if (file_exists($filePath)) {
-                    unlink($filePath);
+                // hapus file utama + .lock
+                foreach (glob($filePath . '*') as $file) {
+                    if (file_exists($file)) {
+                        @unlink($file);
+                    }
                 }
                 return $executeProcedure('mgr.xrl_send_mail_approval_pl_budget_lyman', [
                     $entity_cd, $project_no, $doc_no, $statussend, $downLevel, $user_id
@@ -305,8 +353,11 @@ class ApprListControllers extends Controller
                 $directory = "send_contract_renew/$date"; 
                 $pattern = sprintf("email_sent_%s_%s_%s_%s.txt", $approve_seq, $entity_cd, $doc_no, $level_no);
                 $filePath = "$firstdir/$directory/$pattern";
-                if (file_exists($filePath)) {
-                    unlink($filePath);
+                // hapus file utama + .lock
+                foreach (glob($filePath . '*') as $file) {
+                    if (file_exists($file)) {
+                        @unlink($file);
+                    }
                 }
                 return $executeProcedure('mgr.xrl_send_mail_approval_tm_contractrenew', [
                     $entity_cd, $project_no, $doc_no, $ref_no, $renew_no, $statussend, $downLevel, $user_group, $user_id, $spv, $reason
@@ -317,8 +368,10 @@ class ApprListControllers extends Controller
                 $directory = "send_ic_adjust/$date"; 
                 $pattern = sprintf("email_sent_%s_%s_%s_%s.txt", $approve_seq, $entity_cd, $doc_no, $level_no);
                 $filePath = "$firstdir/$directory/$pattern";
-                if (file_exists($filePath)) {
-                    @unlink($filePath);
+                foreach (glob($filePath . '*') as $file) {
+                    if (file_exists($file)) {
+                        @unlink($file);
+                    }
                 }
                 return $executeProcedure('mgr.x_send_mail_approval_ic_issue', [
                     $entity_cd, $project_no, $doc_no, $trx_type, $statussend, $downLevel, $user_group, $user_id, $spv, $reason
@@ -327,8 +380,10 @@ class ApprListControllers extends Controller
                 $directory = "send_ic_cycle/$date"; 
                 $pattern = sprintf("email_sent_%s_%s_%s_%s.txt", $approve_seq, $entity_cd, $doc_no, $level_no);
                 $filePath = "$firstdir/$directory/$pattern";
-                if (file_exists($filePath)) {
-                    @unlink($filePath);
+                foreach (glob($filePath . '*') as $file) {
+                    if (file_exists($file)) {
+                        @unlink($file);
+                    }
                 }
                 return $executeProcedure('mgr.x_send_mail_approval_ic_cycle', [
                     $entity_cd, $project_no, $doc_no, $trx_type, $statussend, $downLevel, $user_group, $user_id, $spv, $reason
@@ -337,8 +392,10 @@ class ApprListControllers extends Controller
                 $directory = "send_ic_receipt/$date"; 
                 $pattern = sprintf("email_sent_%s_%s_%s_%s.txt", $approve_seq, $entity_cd, $doc_no, $level_no);
                 $filePath = "$firstdir/$directory/$pattern";
-                if (file_exists($filePath)) {
-                    @unlink($filePath);
+                foreach (glob($filePath . '*') as $file) {
+                    if (file_exists($file)) {
+                        @unlink($file);
+                    }
                 }
                 return $executeProcedure('mgr.x_send_mail_approval_ic_receipt', [
                     $entity_cd, $project_no, $doc_no, $trx_type, $statussend, $downLevel, $user_group, $user_id, $spv, $reason
@@ -347,8 +404,10 @@ class ApprListControllers extends Controller
                 $directory = "send_ic_stock/$date"; 
                 $pattern = sprintf("email_sent_%s_%s_%s_%s.txt", $approve_seq, $entity_cd, $doc_no, $level_no);
                 $filePath = "$firstdir/$directory/$pattern";
-                if (file_exists($filePath)) {
-                    @unlink($filePath);
+                foreach (glob($filePath . '*') as $file) {
+                    if (file_exists($file)) {
+                        @unlink($file);
+                    }
                 }
                 return $executeProcedure('mgr.x_send_mail_approval_ic_issue', [
                     $entity_cd, $project_no, $doc_no, $trx_type, $statussend, $downLevel, $user_group, $user_id, $spv, $reason
@@ -357,8 +416,10 @@ class ApprListControllers extends Controller
                 $directory = "send_ic_transfer/$date"; 
                 $pattern = sprintf("email_sent_%s_%s_%s_%s.txt", $approve_seq, $entity_cd, $doc_no, $level_no);
                 $filePath = "$firstdir/$directory/$pattern";
-                if (file_exists($filePath)) {
-                    @unlink($filePath);
+                foreach (glob($filePath . '*') as $file) {
+                    if (file_exists($file)) {
+                        @unlink($file);
+                    }
                 }
                 return $executeProcedure('mgr.x_send_mail_approval_ic_transfer', [
                     $entity_cd, $project_no, $doc_no, $trx_type, $statussend, $downLevel, $user_group, $user_id, $spv, $reason
