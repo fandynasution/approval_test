@@ -110,7 +110,6 @@ class PoGrnController extends Controller
 
             // isi callback data secara konsisten
             $callback['data'] = [
-                'payload'   => $dataArray,
                 'encrypted' => $encryptedData
             ];
 
