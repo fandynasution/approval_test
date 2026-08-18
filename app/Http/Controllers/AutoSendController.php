@@ -69,12 +69,15 @@ class AutoSendController extends Controller
             $supervisor = 'Y';
             $reason = '0';
 
+            $exec = null;
             if ($type == 'U' && $module == "CB") {
                 $exec = 'mgr.x_send_mail_approval_cb_ppu';
             } else if ($type == 'V' && $module == "CB") {
                 $exec = 'mgr.x_send_mail_approval_cb_ppu_vvip';
             } else if ($type == 'A' && $module == "PO") {
                 $exec = 'mgr.x_send_mail_approval_po_order';
+            } else if ($type == 'G' && $module == "PO") {
+                $exec = 'mgr.x_send_mail_approval_po_grn';
             }
             $whereUg = array(
                 'user_name' => $user_id
@@ -85,27 +88,76 @@ class AutoSendController extends Controller
             ->where($whereUg)
             ->get();
 
-            $user_group = $queryUg[0]->group_name;
+            $user_group = $queryUg->first()->group_name ?? '';
 
             $wheresupervisor = array(
                 'name' => $user_id
             );
 
-            $querysupervisor = DB::connection('BTID')
-            ->table('mgr.security_users')
-            ->where($wheresupervisor)
-            ->get();
-
-            $supervisor = $querysupervisor[0]->supervisor;
+            $supervisor = optional(
+                DB::connection('BTID')
+                    ->table('mgr.security_users')
+                    ->where('name',$user_id)
+                    ->first()
+            )->supervisor ?? 'Y';
 
             if ($level_no == 1) {
-                if (($type == 'D' && $module == "CB") 
-                    || ($type == 'Y' && $module == "CM") || ($type == 'D' && $module == "CM") || ($type == 'Q' && $module == "PO")) {
+                if ($type == 'Q' && $module == "PO") {
+                    $statussend = 'P';
+                    $downLevel = '0';
+                    Log::info('Sending approval email', [
+                        'doc_no' => $doc_no,
+                        'entity_cd' => $entity_cd,
+                        'level_no' => $level_no,
+                        'type' => $type,
+                        'module' => $module,
+                        'status' => $statussend,
+                        'level' => $downLevel
+                    ]);
+                    $pdo = DB::connection('BTID')->getPdo();
+                    $sth = $pdo->prepare("SET NOCOUNT ON; EXEC mgr.x_send_mail_approval_po_request ?, ?, ?, ?, ?, ?, ?, ?, ?;");
+                    $sth->bindParam(1, $entity_cd);
+                    $sth->bindParam(2, $project_no);
+                    $sth->bindParam(3, $doc_no);
+                    $sth->bindParam(4, $statussend);
+                    $sth->bindParam(5, $downLevel);
+                    $sth->bindParam(6, $user_group);
+                    $sth->bindParam(7, $user_id);
+                    $sth->bindParam(8, $supervisor);
+                    $sth->bindParam(9, $reason);
+                    try {
+                        $sth->execute();
+
+                        Log::info('SP Success', [
+                            'doc_no' => $doc_no,
+                            'sp' => 'mgr.x_send_mail_approval_po_request'
+                        ]);
+
+                    } catch (\Throwable $e) {
+
+                        Log::error('SP Failed', [
+                            'doc_no' => $doc_no,
+                            'error' => $e->getMessage()
+                        ]);
+
+                        continue;
+                    }
+                } else if (($type == 'D' && $module == "CB") || ($type == 'E' && $module == "CB") || ($type == 'G' && $module == "CB")
+                    || ($module == "CM") || ($module == "IC") || ($module == "PL") || ($module == "TM")) {
                     // Skip this condition, do nothing for type 'D' and module 'CB'
                     continue;  // This will skip the current iteration of the loop
                 } else if ($type == 'S' && $module == "PO") {
                     $statussend = 'P';
                     $downLevel = '0';
+                    Log::info('Sending approval email', [
+                        'doc_no' => $doc_no,
+                        'entity_cd' => $entity_cd,
+                        'level_no' => $level_no,
+                        'type' => $type,
+                        'module' => $module,
+                        'status' => $statussend,
+                        'level' => $downLevel
+                    ]);
                     $pdo = DB::connection('BTID')->getPdo();
                     $sth = $pdo->prepare("SET NOCOUNT ON; EXEC mgr.x_send_mail_approval_po_selection ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?;");
                     $sth->bindParam(1, $entity_cd);
@@ -119,11 +171,44 @@ class AutoSendController extends Controller
                     $sth->bindParam(9, $user_id);
                     $sth->bindParam(10, $supervisor);
                     $sth->bindParam(11, $reason);
-                    $sth->execute();
+                    try {
+                        $sth->execute();
+
+                        Log::info('SP Success', [
+                            'doc_no' => $doc_no,
+                            'sp' => 'mgr.x_send_mail_approval_po_selection'
+                        ]);
+
+                    } catch (\Throwable $e) {
+
+                        Log::error('SP Failed', [
+                            'doc_no' => $doc_no,
+                            'error' => $e->getMessage()
+                        ]);
+
+                        continue;
+                    }
                 } else {
-		        \Log::info($doc_no);
                     $statussend = 'P';
                     $downLevel = '0';
+                    if (empty($exec)) {
+                        Log::warning('SP mapping not found', [
+                            'doc_no' => $doc_no,
+                            'type'   => $type,
+                            'module' => $module
+                        ]);
+
+                        continue;
+                    }
+                    Log::info('Sending approval email', [
+                        'doc_no' => $doc_no,
+                        'entity_cd' => $entity_cd,
+                        'level_no' => $level_no,
+                        'type' => $type,
+                        'module' => $module,
+                        'status' => $statussend,
+                        'level' => $downLevel
+                    ]);
                     $pdo = DB::connection('BTID')->getPdo();
                     $sth = $pdo->prepare("SET NOCOUNT ON; EXEC ".$exec." ?, ?, ?, ?, ?, ?, ?, ?, ?, ?;");
                     $sth->bindParam(1, $entity_cd);
@@ -136,7 +221,23 @@ class AutoSendController extends Controller
                     $sth->bindParam(8, $user_id);
                     $sth->bindParam(9, $supervisor);
                     $sth->bindParam(10, $reason);
-                    $sth->execute();
+                    try {
+                        $sth->execute();
+
+                        Log::info('SP Success', [
+                            'doc_no' => $doc_no,
+                            'sp' => $exec
+                        ]);
+
+                    } catch (\Throwable $e) {
+
+                        Log::error('SP Failed', [
+                            'doc_no' => $doc_no,
+                            'error' => $e->getMessage()
+                        ]);
+
+                        continue;
+                    }
                 }
             } else if ($level_no > 1){
                 // daftar special case
@@ -177,18 +278,74 @@ class AutoSendController extends Controller
                     'level_no'  => $downLevel
                 );
     
-                $querybefore = DB::connection('BTID')
-                ->table('mgr.cb_cash_request_appr')
-                ->where($wherebefore)
-                ->get();
-    
-                $level_data = $querybefore[0]->status;
+                $before = DB::connection('BTID')
+                    ->table('mgr.cb_cash_request_appr')
+                    ->where($wherebefore)
+                    ->first();
+
+                if (!$before) {
+                    Log::warning("Previous level not found", [
+                        'doc_no'=>$doc_no,
+                        'entity_cd'=>$entity_cd,
+                        'level_no'=>$downLevel
+                    ]);
+                    continue;
+                }
+
+                $level_data = $before->status;
                 if ($level_data == 'A'){
-                    if (($type == 'D' && $module == "CB") 
-                        || ($type == 'Y' && $module == "CM") || ($type == 'D' && $module == "CM") || ($type == 'Q' && $module == "PO")) {
+                    if ($type == 'Q' && $module == "PO") {
+                        Log::info('Sending approval email', [
+                            'doc_no' => $doc_no,
+                            'entity_cd' => $entity_cd,
+                            'level_no' => $level_no,
+                            'type' => $type,
+                            'module' => $module,
+                            'status' => $statussend,
+                            'level' => $downLevel
+                        ]);
+                        $pdo = DB::connection('BTID')->getPdo();
+                        $sth = $pdo->prepare("SET NOCOUNT ON; EXEC mgr.x_send_mail_approval_po_request ?, ?, ?, ?, ?, ?, ?, ?, ?;");
+                        $sth->bindParam(1, $entity_cd);
+                        $sth->bindParam(2, $project_no);
+                        $sth->bindParam(3, $doc_no);
+                        $sth->bindParam(4, $statussend);
+                        $sth->bindParam(5, $downLevel);
+                        $sth->bindParam(6, $user_group);
+                        $sth->bindParam(7, $user_id);
+                        $sth->bindParam(8, $supervisor);
+                        $sth->bindParam(9, $reason);
+                        try {
+                            $sth->execute();
+
+                            Log::info('SP Success', [
+                                'doc_no' => $doc_no,
+                                'sp' => 'mgr.x_send_mail_approval_po_request'
+                            ]);
+
+                        } catch (\Throwable $e) {
+
+                            Log::error('SP Failed', [
+                                'doc_no' => $doc_no,
+                                'error' => $e->getMessage()
+                            ]);
+
+                            continue;
+                        }
+                    } else if (($type == 'D' && $module == "CB") || ($type == 'E' && $module == "CB") || ($type == 'G' && $module == "CB")
+                        || ($module == "CM") || ($module == "IC") || ($module == "PL") || ($module == "TM")) {
                         // Skip this condition, do nothing for type 'D' and module 'CB'
                         continue;  // This will skip the current iteration of the loop
                     } else if ($type == 'S' && $module == "PO") {
+                        Log::info('Sending approval email', [
+                            'doc_no' => $doc_no,
+                            'entity_cd' => $entity_cd,
+                            'level_no' => $level_no,
+                            'type' => $type,
+                            'module' => $module,
+                            'status' => $statussend,
+                            'level' => $downLevel
+                        ]);
                         $pdo = DB::connection('BTID')->getPdo();
                         $sth = $pdo->prepare("SET NOCOUNT ON; EXEC mgr.x_send_mail_approval_po_selection ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?;");
                         $sth->bindParam(1, $entity_cd);
@@ -202,8 +359,42 @@ class AutoSendController extends Controller
                         $sth->bindParam(9, $user_id);
                         $sth->bindParam(10, $supervisor);
                         $sth->bindParam(11, $reason);
-                        $sth->execute();
+                        try {
+                            $sth->execute();
+
+                            Log::info('SP Success', [
+                                'doc_no' => $doc_no,
+                                'sp' => 'mgr.x_send_mail_approval_po_selection'
+                            ]);
+
+                        } catch (\Throwable $e) {
+
+                            Log::error('SP Failed', [
+                                'doc_no' => $doc_no,
+                                'error' => $e->getMessage()
+                            ]);
+
+                            continue;
+                        }
                     } else {
+                        if (empty($exec)) {
+                            Log::warning('SP mapping not found', [
+                                'doc_no' => $doc_no,
+                                'type'   => $type,
+                                'module' => $module
+                            ]);
+
+                            continue;
+                        }
+                        Log::info('Sending approval email', [
+                            'doc_no' => $doc_no,
+                            'entity_cd' => $entity_cd,
+                            'level_no' => $level_no,
+                            'type' => $type,
+                            'module' => $module,
+                            'status' => $statussend,
+                            'level' => $downLevel
+                        ]);
                         $pdo = DB::connection('BTID')->getPdo();
                         $sth = $pdo->prepare("SET NOCOUNT ON; EXEC ".$exec." ?, ?, ?, ?, ?, ?, ?, ?, ?, ?;");
                         $sth->bindParam(1, $entity_cd);
@@ -216,7 +407,23 @@ class AutoSendController extends Controller
                         $sth->bindParam(8, $user_id);
                         $sth->bindParam(9, $supervisor);
                         $sth->bindParam(10, $reason);
-                        $sth->execute();
+                        try {
+                            $sth->execute();
+
+                            Log::info('SP Success', [
+                                'doc_no' => $doc_no,
+                                'sp' => $exec
+                            ]);
+
+                        } catch (\Throwable $e) {
+
+                            Log::error('SP Failed', [
+                                'doc_no' => $doc_no,
+                                'error' => $e->getMessage()
+                            ]);
+
+                            continue;
+                        }
                     }
                 }
             }

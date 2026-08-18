@@ -142,6 +142,7 @@ class PoOrderController extends Controller
             ];
 
             $emailAddress = strtolower($data["email_addr"]);
+            // $emailAddress = strtolower('dicky@ifca.co.id');
             $approveSeq = $data["approve_seq"];
             $entityCd = $data["entity_cd"];
             $docNo = $data["doc_no"];
@@ -171,6 +172,7 @@ class PoOrderController extends Controller
                 }
         
                 if (!file_exists($cacheFilePath)) {
+                    
                     Log::channel('sendmailapproval')->info("SP berhasil untuk PO doc_no {$docNo}");
 
                     Mail::to($emailAddress)->send(new SendPoMail($encryptedData, $dataArray));
@@ -182,17 +184,21 @@ class PoOrderController extends Controller
                     $callback['Pesan'] = "Email berhasil dikirim ke: $emailAddress";
                     $callback['Error'] = false;
                     $callback['Status']= 200;
+
+                    // return 'Email berhasil dikirim';
                 } else {
                     Log::channel('sendmailapproval')->info('Email Purchase Order doc_no '.$docNo.' Entity ' . $entityCd.' already sent to: ' . $emailAddress);
                     $callback['Pesan'] = 'Email has already been sent';
                     $callback['Error'] = true;
                     $callback['Status']= 400;
+                    // return 'Email has already been sent';
                 }
             } else {
                 Log::channel('sendmail')->warning("No email address provided for document " . $docNo);
                 $callback['Pesan'] = 'No email address provided for document';
                 $callback['Error'] = true;
                 $callback['Status']= 400;
+                // return "No email address provided for document " . $docNo;
             }
         } catch (\Exception $e) {
             Log::channel('sendmail')->error("Gagal mengirim email: " . $e->getMessage());
@@ -200,6 +206,7 @@ class PoOrderController extends Controller
             $callback['Pesan'] = "Gagal mengirim email: " . $e->getMessage();
             $callback['Error'] = true;
             $callback['Status']= 500;
+            // return "Gagal mengirim email: " . $e->getMessage();
         }
 
         return response()->json($callback, $callback['Status']);

@@ -20,6 +20,10 @@ class PoGrnController extends Controller
 {
     public function Mail(Request $request)
     {
+	 Log::info('Request Mail', [
+        	'request' => $request->all()
+	 ]);
+
         $callback = [
             'data'  => null,
             'Error' => false,
@@ -187,125 +191,237 @@ class PoGrnController extends Controller
         return response()->json($callback, $callback['Status']);
     }
 
-    public function processData($status='', $encrypt='')
+    public function processData($status = '', $encrypt = '')
     {
         Artisan::call('config:cache');
         Artisan::call('cache:clear');
         Cache::flush();
 
         $cacheKey = 'processData_' . $encrypt;
+        Cache::forget($cacheKey);
 
-        // Check if the data is already cached
-        if (Cache::has($cacheKey)) {
-            // If cached data exists, clear it
-            Cache::forget($cacheKey);
-        }
-
-        $query = 0;
-        $query2 = 0;
-        
         $data = Crypt::decrypt($encrypt);
-
-        $msg = " ";
-        $msg1 = " ";
-        $notif = " ";
-        $st = " ";
-        $image = " ";
 
         Log::info('Decrypted data: ' . json_encode($data));
 
+        /*
+        * Check whether the approval request has already been processed
+        */
         $where = array(
-            'doc_no'        => $data["doc_no"],
-            'entity_cd'     => $data["entity_cd"],
-            'level_no'      => $data["level_no"],
-            'type'          => $data["type"],
-            'module'        => $data["type_module"],
-            'approve_seq'   => $data["approve_seq"],
+            'doc_no'      => $data["doc_no"],
+            'entity_cd'   => $data["entity_cd"],
+            'level_no'    => $data["level_no"],
+            'type'        => $data["type"],
+            'module'      => $data["type_module"],
+            'approve_seq' => $data["approve_seq"],
         );
 
         $query = DB::connection('BTID')
-        ->table('mgr.cb_cash_request_appr')
-        ->where($where)
-        ->whereIn('status', ["A", "R", "C"])
-        ->get();
+            ->table('mgr.cb_cash_request_appr')
+            ->where($where)
+            ->whereIn('status', array('A', 'R', 'C'))
+            ->exists();
 
         Log::info('First query result: ' . json_encode($query));
 
-        if (count($query)>0) {
-            $msg = 'You Have Already Made a Request to '.$data["text"].' No. '.$data["doc_no"] ;
-            $notif = 'Restricted !';
-            $st  = 'OK';
-            $image = "double_approve.png";
+        if ($query) {
+            $msg = 'You Have Already Made a Request to '
+                . $data["text"]
+                . ' No. '
+                . $data["doc_no"];
+
             $msg1 = array(
                 "Pesan" => $msg,
-                "St" => $st,
-                "notif" => $notif,
-                "image" => $image
+                "St"    => "OK",
+                "notif" => "Restricted !",
+                "image" => "double_approve.png"
             );
+
             return view("email.after", $msg1);
-        } else {
-            $where2 = array(
-                'doc_no'        => $data["doc_no"],
-                'status'        => 'P',
-                'entity_cd'     => $data["entity_cd"],
-                'level_no'      => $data["level_no"],
-                'type'          => $data["type"],
-                'module'        => $data["type_module"],
-                'approve_seq'   => $data["approve_seq"],
-            );
-    
-            $query2 = DB::connection('BTID')
+        }
+
+        /*
+        * Check whether the approval request is still pending
+        */
+        $where2 = array(
+            'doc_no'      => $data["doc_no"],
+            'status'      => 'P',
+            'entity_cd'   => $data["entity_cd"],
+            'level_no'    => $data["level_no"],
+            'type'        => $data["type"],
+            'module'      => $data["type_module"],
+            'approve_seq' => $data["approve_seq"],
+        );
+
+        $query2 = DB::connection('BTID')
             ->table('mgr.cb_cash_request_appr')
             ->where($where2)
-            ->get();
-    
-            Log::info('Second query result: ' . json_encode($query2));
+            ->exists();
 
-            if (count($query2) == 0) {
-                $msg = 'There is no '.$data["text"].' with No. '.$data["doc_no"] ;
-                $notif = 'Restricted !';
-                $st  = 'OK';
-                $image = "double_approve.png";
-                $msg1 = array(
-                    "Pesan" => $msg,
-                    "St" => $st,
-                    "notif" => $notif,
-                    "image" => $image
-                );
-                return view("email.after", $msg1);
-            } else {
-                $name   = " ";
-                $bgcolor = " ";
-                $valuebt  = " ";
-                if ($status == 'A') {
-                    $name   = 'Approval';
-                    $bgcolor = '#40de1d';
-                    $valuebt  = 'Approve';
-                } else if ($status == 'R') {
-                    $name   = 'Revision';
-                    $bgcolor = '#f4bd0e';
-                    $valuebt  = 'Revise';
-                } else {
-                    $name   = 'Cancellation';
-                    $bgcolor = '#e85347';
-                    $valuebt  = 'Cancel';
+        Log::info('Second query result: ' . json_encode($query2));
+
+        if (!$query2) {
+            $msg = 'There is no '
+                . $data["text"]
+                . ' with No. '
+                . $data["doc_no"];
+
+            $msg1 = array(
+                "Pesan" => $msg,
+                "St"    => "OK",
+                "notif" => "Restricted !",
+                "image" => "double_approve.png"
+            );
+
+            return view("email.after", $msg1);
+        }
+
+        /*
+        * Get doc_date from approval request
+        *
+        * Same condition as $where2, but without status
+        */
+        $whereDocDate = array(
+            'doc_no'      => $data["doc_no"],
+            'entity_cd'   => $data["entity_cd"],
+            'level_no'    => $data["level_no"],
+            'type'        => $data["type"],
+            'module'      => $data["type_module"],
+            'approve_seq' => $data["approve_seq"],
+        );
+
+        $docDate = DB::connection('BTID')
+            ->table('mgr.cb_cash_request_appr')
+            ->where($whereDocDate)
+            ->value('doc_date');
+
+        Log::info('Document date: ' . $docDate);
+        if ($status == 'A') {
+            /*
+            * Check Account Period
+            */
+            if (!empty($docDate)) {
+
+                $fyear   = date('Y', strtotime($docDate));
+                $aperiod = (int) date('m', strtotime($docDate));
+
+                $glclosed = DB::connection('BTID')
+                    ->table('mgr.cf_acctperiod')
+                    ->where('entity_cd', $data["entity_cd"])
+                    ->where('fyear', $fyear)
+                    ->where('aperiod', $aperiod)
+                    ->value('glclosed');
+
+                Log::info('Account Period Check: ' . json_encode(array(
+                    'entity_cd' => $data["entity_cd"],
+                    'fyear'     => $fyear,
+                    'aperiod'   => $aperiod,
+                    'glclosed'    => $glclosed
+                )));
+
+                if ($glclosed == 'Y') {
+
+                    $msg = 'Account Period already closed. Please Revise or Cancel this request.';
+
+                    $msg1 = array(
+                        "Pesan" => $msg,
+                        "St"    => "OK",
+                        "notif" => "Restricted !",
+                        "image" => "double_approve.png"
+                    );
+
+                    return view("email.after", $msg1);
                 }
-                $dataArray = Crypt::decrypt($encrypt);
-                $data = array(
-                    "status"        => $status,
-                    "doc_no"        => $dataArray["doc_no"],
-                    "email"         => $dataArray["email_address"],
-                    "entity_name"   => $dataArray["entity_name"],
-                    "encrypt"       => $encrypt,
-                    "name"          => $name,
-                    "bgcolor"       => $bgcolor,
-                    "valuebt"       => $valuebt
-                );
-                return view('email/pogrn/passcheckwithremark', $data);
-                Artisan::call('config:cache');
-                Artisan::call('cache:clear');
+            }
+
+            /*
+            * Check GRN Lock Day
+            */
+            $lockDay = DB::connection('BTID')
+                ->table('mgr.po_spec')
+                ->value('grn_lock_day');
+
+            Log::info('GRN Lock Day: ' . $lockDay);
+
+            if (!empty($docDate) && $lockDay !== null) {
+
+                $docDateOnly = date('Y-m-d', strtotime($docDate));
+                $today       = date('Y-m-d');
+
+                $docDateTime = new DateTime($docDateOnly);
+                $todayTime   = new DateTime($today);
+
+                $interval = $docDateTime->diff($todayTime);
+                $diffDays = (int) $interval->days;
+
+                Log::info('GRN Lock Day Check: ' . json_encode(array(
+                    'doc_date' => $docDateOnly,
+                    'today'    => $today,
+                    'diff_days' => $diffDays,
+                    'lock_day' => $lockDay
+                )));
+
+                /*
+                * Example:
+                * doc_date   = 2026-08-01
+                * lock_day   = 3
+                *
+                * 2026-08-04 = 3 days -> Still allowed
+                * 2026-08-05 = 4 days -> Blocked
+                */
+                if ($diffDays > (int) $lockDay) {
+
+                    $msg = 'Transaction Date Is Affected By Lock Day ('
+                        . $lockDay
+                        . ' Days). Please Revise or Cancel this request.';
+
+                    $msg1 = array(
+                        "Pesan" => $msg,
+                        "St"    => "OK",
+                        "notif" => "Restricted !",
+                        "image" => "double_approve.png"
+                    );
+
+                    return view("email.after", $msg1);
+                }
             }
         }
+        /*
+        * Set approval action information
+        */
+        $name    = '';
+        $bgcolor = '';
+        $valuebt = '';
+
+        if ($status == 'A') {
+            $name    = 'Approval';
+            $bgcolor = '#40de1d';
+            $valuebt = 'Approve';
+        } elseif ($status == 'R') {
+            $name    = 'Revision';
+            $bgcolor = '#f4bd0e';
+            $valuebt = 'Revise';
+        } else {
+            $name    = 'Cancellation';
+            $bgcolor = '#e85347';
+            $valuebt = 'Cancel';
+        }
+
+        /*
+        * Prepare data for approval page
+        */
+        $data = array(
+            "status"      => $status,
+            "doc_no"      => $data["doc_no"],
+            "email"       => $data["email_address"],
+            "entity_name" => $data["entity_name"],
+            "encrypt"     => $encrypt,
+            "name"        => $name,
+            "bgcolor"     => $bgcolor,
+            "valuebt"     => $valuebt
+        );
+
+        return view('email/pogrn/passcheckwithremark', $data);
     }
 
     private function interpolateQuery($query, $params) {

@@ -1,0 +1,225 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Crypt;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Notification;
+use Illuminate\Support\Facades\Storage;
+use App\Mail\SendPoSMail;
+use App\Mail\FeedbackMail;
+use App\Mail\StaffActionMail;
+use App\Mail\StaffActionPoRMail;
+use App\Mail\StaffActionPoSMail;
+use Carbon\Carbon;
+use PDO;
+use DateTime;
+
+
+class AutoSendController extends Controller
+{
+    public function index()
+    {
+        $query = DB::connection('BTID')
+        ->table('mgr.cb_cash_request_appr')
+        ->whereNull('sent_mail_date')
+        ->where('status', 'P')
+        ->whereNotNull('currency_cd')
+        ->whereNotIn('entity_cd', ['DKY', 'DAN'])
+        ->where('audit_date', '>=', DB::raw("CONVERT(datetime, '2024-03-28', 120)"))
+        ->orderBy('doc_no', 'desc')
+        ->get();
+
+        foreach ($query as $data) {
+            $entity_cd = trim($data->entity_cd);
+
+            // Ambil project_no dari DB
+            $project_no = DB::connection('BTID')
+                ->table('mgr.pl_project')
+                ->where('entity_cd', $entity_cd)
+                ->orderBy('project_no', 'asc') // kalau lebih dari satu, ambil yang pertama
+                ->value('project_no');
+
+            // Jika tidak ada di table, fallback ke aturan lama
+            if (!$project_no) {
+                // khusus entity 0101 => project_no 0102
+                if ($entity_cd === '0101') {
+                    $project_no = '0102';
+                } else {
+                    $exploded_values = explode(" ", $entity_cd);
+                    $project_no = implode('', $exploded_values) . '01';
+                }
+            }
+            $doc_no = $data->doc_no;
+            $trx_type = $data->trx_type;
+            $level_no = $data->level_no;
+            $user_id = $data->user_id;
+            $type = $data->TYPE;
+            $module = $data->module;
+            $ref_no = $data->ref_no;
+            $doc_date = $data->doc_date;
+            $dateTime = new DateTime($doc_date);
+            $formattedDate = $dateTime->format('d-m-Y');
+            $supervisor = 'Y';
+            $reason = '0';
+
+            if ($type == 'U' && $module == "CB") {
+                $exec = 'mgr.x_send_mail_approval_cb_ppu';
+            } else if ($type == 'V' && $module == "CB") {
+                $exec = 'mgr.x_send_mail_approval_cb_ppu_vvip';
+            } else if ($type == 'A' && $module == "PO") {
+                $exec = 'mgr.x_send_mail_approval_po_order';
+            }
+            $whereUg = array(
+                'user_name' => $user_id
+            );
+
+            $queryUg = DB::connection('BTID')
+            ->table('mgr.security_groupings')
+            ->where($whereUg)
+            ->get();
+
+            $user_group = $queryUg[0]->group_name;
+
+            $wheresupervisor = array(
+                'name' => $user_id
+            );
+
+            $querysupervisor = DB::connection('BTID')
+            ->table('mgr.security_users')
+            ->where($wheresupervisor)
+            ->get();
+
+            $supervisor = $querysupervisor[0]->supervisor;
+
+            if ($level_no == 1) {
+                if (($type == 'D' && $module == "CB") 
+                    || ($type == 'Y' && $module == "CM") || ($type == 'D' && $module == "CM") || ($type == 'Q' && $module == "PO")) {
+                    // Skip this condition, do nothing for type 'D' and module 'CB'
+                    continue;  // This will skip the current iteration of the loop
+                } else if ($type == 'S' && $module == "PO") {
+                    $statussend = 'P';
+                    $downLevel = '0';
+                    $pdo = DB::connection('BTID')->getPdo();
+                    $sth = $pdo->prepare("SET NOCOUNT ON; EXEC mgr.x_send_mail_approval_po_selection ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?;");
+                    $sth->bindParam(1, $entity_cd);
+                    $sth->bindParam(2, $project_no);
+                    $sth->bindParam(3, $doc_no);
+                    $sth->bindParam(4, $ref_no);
+                    $sth->bindParam(5, $formattedDate);
+                    $sth->bindParam(6, $statussend);
+                    $sth->bindParam(7, $downLevel);
+                    $sth->bindParam(8, $user_group);
+                    $sth->bindParam(9, $user_id);
+                    $sth->bindParam(10, $supervisor);
+                    $sth->bindParam(11, $reason);
+                    $sth->execute();
+                } else {
+		        \Log::info($doc_no);
+                    $statussend = 'P';
+                    $downLevel = '0';
+                    $pdo = DB::connection('BTID')->getPdo();
+                    $sth = $pdo->prepare("SET NOCOUNT ON; EXEC ".$exec." ?, ?, ?, ?, ?, ?, ?, ?, ?, ?;");
+                    $sth->bindParam(1, $entity_cd);
+                    $sth->bindParam(2, $project_no);
+                    $sth->bindParam(3, $doc_no);
+                    $sth->bindParam(4, $trx_type);
+                    $sth->bindParam(5, $statussend);
+                    $sth->bindParam(6, $downLevel);
+                    $sth->bindParam(7, $user_group);
+                    $sth->bindParam(8, $user_id);
+                    $sth->bindParam(9, $supervisor);
+                    $sth->bindParam(10, $reason);
+                    $sth->execute();
+                }
+            } else if ($level_no > 1){
+                // daftar special case
+                $specialCases = [
+                    ['entity_cd' => '0101', 'doc_no' => 'RF26050001', 'level_no' => 2],
+                    ['entity_cd' => '0101', 'doc_no' => 'RF26050002', 'level_no' => 2],
+                    ['entity_cd' => '0101', 'doc_no' => 'RF26050003', 'level_no' => 2],
+
+                    ['entity_cd' => '01', 'doc_no' => 'RF26050044', 'level_no' => 4],
+                    ['entity_cd' => '01', 'doc_no' => 'RF26050047', 'level_no' => 5],
+                    ['entity_cd' => '01', 'doc_no' => 'RF26050051', 'level_no' => 4],
+                    ['entity_cd' => '01', 'doc_no' => 'RF26050060', 'level_no' => 4],
+                    ['entity_cd' => '01', 'doc_no' => 'RF26050061', 'level_no' => 4],
+                    ['entity_cd' => '01', 'doc_no' => 'RF26050076', 'level_no' => 3],
+                    ['entity_cd' => '01', 'doc_no' => 'RF26050077', 'level_no' => 2],
+                    ['entity_cd' => '01', 'doc_no' => 'RF26050078', 'level_no' => 2],
+                    ['entity_cd' => '01', 'doc_no' => 'RF26050079', 'level_no' => 2],
+                    ['entity_cd' => '01', 'doc_no' => 'RF26050080', 'level_no' => 2],
+                ];
+
+                // cek apakah data termasuk special case
+                $isSpecialCase = collect($specialCases)->contains(function ($item) use ($entity_cd, $doc_no, $level_no) {
+                    return trim($item['entity_cd']) == trim($entity_cd)
+                        && $item['doc_no'] == $doc_no
+                        && (int)$item['level_no'] == (int)$level_no;
+                });
+
+                // jika special case, skip process
+                if ($isSpecialCase) {
+                    \Log::info("Skip special case : {$entity_cd} - {$doc_no} - {$level_no}");
+                    continue;
+                }
+                $downLevel  = $level_no - 1;
+                $statussend = 'A';
+                $wherebefore = array(
+                    'doc_no' => $doc_no,
+                    'entity_cd' => $entity_cd,
+                    'level_no'  => $downLevel
+                );
+    
+                $querybefore = DB::connection('BTID')
+                ->table('mgr.cb_cash_request_appr')
+                ->where($wherebefore)
+                ->get();
+    
+                $level_data = $querybefore[0]->status;
+                if ($level_data == 'A'){
+                    if (($type == 'D' && $module == "CB") 
+                        || ($type == 'Y' && $module == "CM") || ($type == 'D' && $module == "CM") || ($type == 'Q' && $module == "PO")) {
+                        // Skip this condition, do nothing for type 'D' and module 'CB'
+                        continue;  // This will skip the current iteration of the loop
+                    } else if ($type == 'S' && $module == "PO") {
+                        $pdo = DB::connection('BTID')->getPdo();
+                        $sth = $pdo->prepare("SET NOCOUNT ON; EXEC mgr.x_send_mail_approval_po_selection ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?;");
+                        $sth->bindParam(1, $entity_cd);
+                        $sth->bindParam(2, $project_no);
+                        $sth->bindParam(3, $doc_no);
+                        $sth->bindParam(4, $ref_no);
+                        $sth->bindParam(5, $formattedDate);
+                        $sth->bindParam(6, $statussend);
+                        $sth->bindParam(7, $downLevel);
+                        $sth->bindParam(8, $user_group);
+                        $sth->bindParam(9, $user_id);
+                        $sth->bindParam(10, $supervisor);
+                        $sth->bindParam(11, $reason);
+                        $sth->execute();
+                    } else {
+                        $pdo = DB::connection('BTID')->getPdo();
+                        $sth = $pdo->prepare("SET NOCOUNT ON; EXEC ".$exec." ?, ?, ?, ?, ?, ?, ?, ?, ?, ?;");
+                        $sth->bindParam(1, $entity_cd);
+                        $sth->bindParam(2, $project_no);
+                        $sth->bindParam(3, $doc_no);
+                        $sth->bindParam(4, $trx_type);
+                        $sth->bindParam(5, $statussend);
+                        $sth->bindParam(6, $downLevel);
+                        $sth->bindParam(7, $user_group);
+                        $sth->bindParam(8, $user_id);
+                        $sth->bindParam(9, $supervisor);
+                        $sth->bindParam(10, $reason);
+                        $sth->execute();
+                    }
+                }
+            }
+        }
+    }
+}

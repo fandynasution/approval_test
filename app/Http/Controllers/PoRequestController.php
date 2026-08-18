@@ -361,6 +361,25 @@ class PoRequestController extends Controller
                 );
                 return view("email.after", $msg1);
             } else {
+                $params = [
+                    $data["entity_cd"],
+                    $data["project_no"],
+                    $data["doc_no"],
+                    $status,
+                    $data["level_no"],
+                    $data["usergroup"],
+                    $data["user_id"],
+                    $data["supervisor"],
+                    $reason,
+		        ];
+
+		        $query = "EXEC mgr.x_send_mail_approval_po_request";
+
+                Log::info("Executing Procedure: $query", [
+                    'doc_no' => $data["doc_no"],
+                    'status' => $status,
+                    'parameters' => $params
+                ]);
                 $pdo = DB::connection('BTID')->getPdo();
                 $sth = $pdo->prepare("SET NOCOUNT ON; EXEC mgr.x_send_mail_approval_po_request ?, ?, ?, ?, ?, ?, ?, ?, ?;");
                 $sth->bindParam(1, $data["entity_cd"]);
@@ -372,17 +391,49 @@ class PoRequestController extends Controller
                 $sth->bindParam(7, $data["user_id"]);
                 $sth->bindParam(8, $data["supervisor"]);
                 $sth->bindParam(9, $reason);
-                $sth->execute();
-                if ($sth == true) {
-                    $msg = "You Have Successfully ".$descstatus." the Purchase Requisition No. ".$data["doc_no"];
-                    $notif = $descstatus." !";
-                    $st = 'OK';
-                    $image = $imagestatus;
-                } else {
-                    $msg = "You Failed to ".$descstatus." the Purchase Requisition No.".$data["doc_no"];
-                    $notif = 'Fail to '.$descstatus.' !';
-                    $st = 'OK';
-                    $image = "reject.png";
+            	try {
+                    $start = microtime(true);
+                    $result = $sth->execute();
+                    Log::info('SP Execution Time', [
+                        'doc_no' => $data['doc_no'],
+                        'seconds' => round(microtime(true) - $start, 2)
+                    ]);
+                    //$sth->execute();
+                    //if ($sth == true) {
+                    if ($result) {
+                        Log::info('Stored Procedure Success', [
+                            'doc_no' => $data['doc_no'],
+                            'status' => $status,
+                            'result' => $result
+                        ]);
+                        $msg = "You Have Successfully ".$descstatus." the Purchase Requisition No. ".$data["doc_no"];
+                        $notif = $descstatus." !";
+                        $st = 'OK';
+                        $image = $imagestatus;
+                    } else {
+                        Log::error($sth->errorInfo());
+                        $msg = "You Failed to ".$descstatus." the Purchase Requisition No.".$data["doc_no"];
+                        $notif = 'Fail to '.$descstatus.' !';
+                        $st = 'OK';
+                        $image = "reject.png";
+                    }
+                } catch (\PDOException $e) {
+
+                    Log::error('SQL Server Error', [
+                        'message' => $e->getMessage(),
+                        'code' => $e->getCode(),
+                        'errorInfo' => $e->errorInfo ?? null,
+                        'doc_no' => $data["doc_no"]
+                    ]);
+
+                    $msg1 = [
+                        "Pesan" => "System Error : ".$e->getMessage(),
+                        "St" => "Fail",
+                        "notif" => "Database Error",
+                        "image" => "reject.png"
+                    ];
+
+                    return view("email.after", $msg1);
                 }
                 $msg1 = array(
                     "Pesan" => $msg,
@@ -393,6 +444,25 @@ class PoRequestController extends Controller
                 return view("email.after", $msg1);
             }
         } else {
+	        $params = [
+                $data["entity_cd"],
+                $data["project_no"],
+                $data["doc_no"],
+                $status,
+                $data["level_no"],
+                $data["usergroup"],
+                $data["user_id"],
+                $data["supervisor"],
+                $reason,
+            ];
+
+		    $query = "EXEC mgr.x_send_mail_approval_po_request";
+
+            Log::info("Executing Procedure: $query", [
+                'doc_no' => $data["doc_no"],
+                'status' => $status,
+                'parameters' => $params
+            ]);
             $pdo = DB::connection('BTID')->getPdo();
             $sth = $pdo->prepare("SET NOCOUNT ON; EXEC mgr.x_send_mail_approval_po_request ?, ?, ?, ?, ?, ?, ?, ?, ?;");
             $sth->bindParam(1, $data["entity_cd"]);
@@ -404,17 +474,49 @@ class PoRequestController extends Controller
             $sth->bindParam(7, $data["user_id"]);
             $sth->bindParam(8, $data["supervisor"]);
             $sth->bindParam(9, $reason);
-            $sth->execute();
-            if ($sth == true) {
-                $msg = "You Have Successfully ".$descstatus." the Purchase Requisition No. ".$data["doc_no"];
-                $notif = $descstatus." !";
-                $st = 'OK';
-                $image = $imagestatus;
-            } else {
-                $msg = "You Failed to ".$descstatus." the Purchase Requisition No.".$data["doc_no"];
-                $notif = 'Fail to '.$descstatus.' !';
-                $st = 'OK';
-                $image = "reject.png";
+            try {
+                $start = microtime(true);
+                $result = $sth->execute();
+                Log::info('SP Execution Time', [
+                    'doc_no' => $data['doc_no'],
+                    'seconds' => round(microtime(true) - $start, 2)
+                ]);
+                //$sth->execute();
+                //if ($sth == true) {
+                if ($result) {
+                    Log::info('Stored Procedure Success', [
+                        'doc_no' => $data['doc_no'],
+                        'status' => $status,
+                        'result' => $result
+                    ]);
+                    $msg = "You Have Successfully ".$descstatus." the Purchase Requisition No. ".$data["doc_no"];
+                    $notif = $descstatus." !";
+                    $st = 'OK';
+                    $image = $imagestatus;
+                } else {
+                    Log::error($sth->errorInfo());
+                    $msg = "You Failed to ".$descstatus." the Purchase Requisition No.".$data["doc_no"];
+                    $notif = 'Fail to '.$descstatus.' !';
+                    $st = 'OK';
+                    $image = "reject.png";
+                }
+            } catch (\PDOException $e) {
+
+                Log::error('SQL Server Error', [
+                    'message' => $e->getMessage(),
+                    'code' => $e->getCode(),
+                    'errorInfo' => $e->errorInfo ?? null,
+                    'doc_no' => $data["doc_no"]
+                ]);
+
+                $msg1 = [
+                    "Pesan" => "System Error : ".$e->getMessage(),
+                    "St" => "Fail",
+                    "notif" => "Database Error",
+                    "image" => "reject.png"
+                ];
+
+                return view("email.after", $msg1);
             }
             $msg1 = array(
                 "Pesan" => $msg,
